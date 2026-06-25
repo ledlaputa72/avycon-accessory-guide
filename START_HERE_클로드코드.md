@@ -7,10 +7,10 @@
 
 ## Claude Code가 수행할 작업 (순서대로 그대로 실행)
 
-이 저장소를 깃허브에 올리고 Vercel 배포까지 준비한다. 사용자 GitHub: `ledlaputa72`, email: `steve@avycon.com`.
+이 저장소를 깃허브에 올리고 Vercel 배포까지 준비한다. 사용자 GitHub: `ledlaputa72`, email: `ledlaputa@gmail.com`.
 
 1. 현재 폴더에 불완전한 `.git` 폴더가 있으면 삭제한다 (`rm -rf .git` / 윈도우면 `Remove-Item -Recurse -Force .git`).
-2. `git init -b main` 후 `git config user.name "ledlaputa72"`, `git config user.email "steve@avycon.com"`.
+2. `git init -b main` 후 `git config user.name "ledlaputa72"`, `git config user.email "ledlaputa@gmail.com"`.
 3. `.gitignore`, `.gitattributes`, `vercel.json` 은 이미 있으니 건드리지 않는다.
 4. `git add -A` → `git commit -m "Initial deploy: AVYCON accessory combination guide"`.
 5. GitHub CLI(`gh`)가 설치·로그인돼 있는지 확인(`gh auth status`).
