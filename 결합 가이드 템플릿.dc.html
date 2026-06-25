@@ -1,0 +1,1040 @@
+<!DOCTYPE html>
+<html>
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<script src="./support.js"></script>
+</head>
+<body>
+<x-dc>
+<helmet>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=IBM+Plex+Mono:wght@400;500;600&family=IBM+Plex+Sans+KR:wght@400;500;600;700&display=swap" rel="stylesheet">
+<style>
+  body { margin:0; background:#d7d8db; -webkit-font-smoothing:antialiased; }
+  * { box-sizing:border-box; }
+  .combo-row { break-inside:avoid; }
+  .print-only { display:none; }
+  @page { size:letter; margin:0; }
+  @media print {
+    body { background:#fff; }
+    .page { box-shadow:none !important; margin:0 !important; break-after:page; }
+    .page:last-child { break-after:auto; }
+    .screen-only { display:none !important; }
+    .print-only { display:flex !important; }
+    * { -webkit-print-color-adjust:exact !important; print-color-adjust:exact !important; }
+  }
+</style>
+</helmet>
+<div style="display:flex; flex-direction:column; align-items:center; gap:28px; padding:28px 0; font-family:'IBM Plex Sans KR',system-ui,sans-serif;">
+
+  <!-- LAUNCHER (screen only) -->
+  <sc-if value="{{ isMain }}" hint-placeholder-val="{{ true }}">
+    <button type="button" class="screen-only" onClick="{{ toggleDrawer }}" style="position:fixed; top:18px; right:18px; z-index:50; cursor:pointer; font-family:'IBM Plex Mono',monospace; font-size:11px; font-weight:600; letter-spacing:.5px; color:#fff; background:#1c1d1f; border:none; padding:10px 16px; border-radius:8px; box-shadow:0 4px 14px rgba(20,22,28,.22);">설정 · 제품 관리</button>
+  </sc-if>
+
+  <!-- UNIFIED DRAWER (screen only) -->
+  <sc-if value="{{ drawerOpen }}" hint-placeholder-val="{{ false }}">
+    <div class="screen-only" style="position:fixed; top:0; right:0; height:100vh; width:412px; z-index:60; background:#ffffff; border-left:1px solid #e6e8ec; box-shadow:-8px 0 30px rgba(20,22,28,.16); display:flex; flex-direction:column;">
+      <div style="padding:16px 18px; border-bottom:1px solid #eef0f3; display:flex; align-items:center; justify-content:space-between; flex-shrink:0;">
+        <div style="display:flex; flex-direction:column; gap:2px;">
+          <span style="font-size:14px; font-weight:700; color:#1c1d1f;">설정 · 제품 관리</span>
+          <span style="font-size:10px; color:#9aa0a7;">문서 설정에 따라 제품 정보가 연동됩니다 · 화면 전용</span>
+        </div>
+        <button type="button" onClick="{{ toggleDrawer }}" style="cursor:pointer; font-size:17px; line-height:1; color:#6b6f76; background:#f1f2f4; border:1px solid #e6e8ec; width:30px; height:30px; border-radius:7px;">×</button>
+      </div>
+      <div style="flex:1; overflow-y:auto; padding:16px 18px 24px; display:flex; flex-direction:column; gap:15px;">
+
+        <span style="font-family:'IBM Plex Mono',monospace; font-size:10px; letter-spacing:1.5px; color:#9aa0a7;">DOCUMENT SETTINGS · 문서 설정</span>
+
+        <div style="display:flex; flex-direction:column; gap:6px;">
+          <label style="font-family:'IBM Plex Mono',monospace; font-size:10px; letter-spacing:1px; color:#6b6f76;">CAMERA CATEGORY · 카테고리</label>
+          <select value="{{ settingsCategory }}" onChange="{{ onCategoryChange }}" style="width:100%; font-family:'IBM Plex Sans KR',sans-serif; font-size:13px; padding:9px 10px; border:1px solid #d4d7db; border-radius:6px; background:#fff; color:#1c1d1f; outline:none;">
+            <sc-for list="{{ categoryOptions }}" as="opt" hint-placeholder-count="6">
+              <option value="{{ opt }}">{{ opt }}</option>
+            </sc-for>
+          </select>
+        </div>
+
+        <div style="display:flex; flex-direction:column; gap:6px;">
+          <label style="font-family:'IBM Plex Mono',monospace; font-size:10px; letter-spacing:1px; color:#6b6f76;">CAMERA MODEL · 모델명</label>
+          <input type="text" value="{{ settingsModel }}" onChange="{{ onModelChange }}" placeholder="예: AVC-NPB81M" style="width:100%; font-family:'IBM Plex Mono',monospace; font-size:13px; padding:9px 10px; border:1px solid #d4d7db; border-radius:6px; background:#fff; color:#1c1d1f; outline:none; box-sizing:border-box;">
+          <div style="display:flex; align-items:center; gap:8px; margin-top:2px;">
+            <span style="font-family:'IBM Plex Mono',monospace; font-size:9px; letter-spacing:.5px; color:#9aa0a7; white-space:nowrap;">제품 등록 ({{ savedCount }})</span>
+            <select value="" onChange="{{ onLoadProfile }}" style="flex:1; min-width:0; font-family:'IBM Plex Mono',monospace; font-size:11px; padding:6px 8px; border:1px solid #d4d7db; border-radius:5px; background:#fafbfc; color:#1c1d1f; outline:none;">
+              <option value="">— 등록된 제품 불러오기 —</option>
+              <sc-for list="{{ profileNames }}" as="pn" hint-placeholder-count="0">
+                <option value="{{ pn }}">{{ pn }}</option>
+              </sc-for>
+            </select>
+          </div>
+        </div>
+
+        <div style="display:flex; flex-direction:column; gap:6px;">
+          <label style="font-family:'IBM Plex Mono',monospace; font-size:10px; letter-spacing:1px; color:#6b6f76;">MODEL IMAGE · 모델 이미지</label>
+          <div style="display:flex; align-items:center; gap:10px; padding:9px; border:1px solid #d4d7db; border-radius:6px; background:#fafbfc;">
+            <label style="cursor:pointer; width:46px; height:46px; flex-shrink:0; border-radius:6px; border:1px solid #e6e8ec; background:repeating-linear-gradient(135deg,#f5f6f8 0 6px,#eef0f3 6px 7px); display:flex; align-items:center; justify-content:center; overflow:hidden;" title="이미지 업로드">
+              {{ camImageEl }}
+              <sc-if value="{{ noCamImage }}" hint-placeholder-val="{{ true }}">
+                <span style="font-family:'IBM Plex Mono',monospace; font-size:8px; color:#b4b9c0;">CAM</span>
+              </sc-if>
+              <input type="file" accept="image/*" onChange="{{ onCamImageChange }}" style="display:none;">
+            </label>
+            <span style="flex:1; min-width:0; font-size:9.5px; color:#9aa0a7; line-height:1.35;">카메라(모델) 사진 · 모든 카메라 칸에 적용</span>
+            <label style="cursor:pointer; font-family:'IBM Plex Mono',monospace; font-size:10px; font-weight:600; color:#fff; background:{{ accent }}; padding:7px 11px; border-radius:6px; white-space:nowrap;">업로드
+              <input type="file" accept="image/*" onChange="{{ onCamImageChange }}" style="display:none;"></label>
+            <sc-if value="{{ hasCamImage }}" hint-placeholder-val="{{ false }}">
+              <button type="button" onClick="{{ clearCamImage }}" style="cursor:pointer; font-family:'IBM Plex Mono',monospace; font-size:10px; color:#6b6f76; background:#f1f2f4; border:1px solid #e6e8ec; padding:7px 10px; border-radius:6px;">제거</button>
+            </sc-if>
+          </div>
+        </div>
+
+        <div style="display:flex; flex-direction:column; gap:6px;">
+          <label style="font-family:'IBM Plex Mono',monospace; font-size:10px; letter-spacing:1px; color:#6b6f76;">LOCATION · 설치 위치</label>
+          <select value="{{ settingsLocation }}" onChange="{{ onLocationChange }}" style="width:100%; font-family:'IBM Plex Sans KR',sans-serif; font-size:13px; padding:9px 10px; border:1px solid #d4d7db; border-radius:6px; background:#fff; color:#1c1d1f; outline:none;">
+            <sc-for list="{{ locationOptions }}" as="opt" hint-placeholder-count="5">
+              <option value="{{ opt }}">{{ opt }}</option>
+            </sc-for>
+          </select>
+        </div>
+
+        <div style="display:flex; flex-direction:column; gap:6px;">
+          <label style="font-family:'IBM Plex Mono',monospace; font-size:10px; letter-spacing:1px; color:#6b6f76;">DOCUMENT REV · 문서 버전</label>
+          <input type="text" value="{{ settingsRev }}" onChange="{{ onRevChange }}" style="width:100%; font-family:'IBM Plex Sans KR',sans-serif; font-size:13px; padding:9px 10px; border:1px solid #d4d7db; border-radius:6px; background:#fff; color:#1c1d1f; outline:none; box-sizing:border-box;">
+        </div>
+
+        <div style="display:flex; align-items:center; justify-content:space-between; gap:10px; padding:4px 0;">
+          <label style="font-family:'IBM Plex Mono',monospace; font-size:10px; letter-spacing:1px; color:#6b6f76;">NOTES · 메모 표시</label>
+          <button type="button" onClick="{{ toggleShowNotes }}" style="position:relative; width:42px; height:24px; border-radius:12px; border:none; cursor:pointer; background:{{ switchBg }}; flex-shrink:0; transition:background .15s;">
+            <span style="position:absolute; top:2px; left:{{ knobLeft }}; width:20px; height:20px; border-radius:50%; background:#fff; box-shadow:0 1px 2px rgba(0,0,0,.25); transition:left .15s;"></span>
+          </button>
+        </div>
+
+
+        <!-- FOOTER ACTIONS -->
+        <div style="margin-top:6px; padding-top:14px; border-top:1px solid #eef0f3; display:flex; flex-direction:column; gap:8px;">
+          <div style="display:flex; gap:8px;">
+            <button type="button" onClick="{{ resetSettings }}" style="cursor:pointer; flex:1; font-family:'IBM Plex Mono',monospace; font-size:10.5px; font-weight:600; letter-spacing:.3px; color:#6b6f76; background:#f1f2f4; border:1px solid #e6e8ec; padding:10px; border-radius:6px;">기본값 초기화 · RESET</button>
+            <button type="button" onClick="{{ saveProfile }}" style="cursor:pointer; flex:1.3; font-family:'IBM Plex Mono',monospace; font-size:10.5px; font-weight:700; letter-spacing:.3px; color:#fff; background:{{ accent }}; border:none; padding:10px; border-radius:6px;">현재 제품 정보 저장 · SAVE</button>
+          </div>
+          <button type="button" onClick="{{ exportCsv }}" style="cursor:pointer; font-family:'IBM Plex Mono',monospace; font-size:10.5px; font-weight:600; letter-spacing:.3px; color:#1c1d1f; background:#fff; border:1px solid #d4d7db; padding:9px; border-radius:6px;">전체 제품 CSV 내보내기 · EXPORT ({{ savedCount }})</button>
+          <sc-if value="{{ noSave }}" hint-placeholder-val="{{ false }}">
+            <span style="font-size:9px; color:#b08a2a; font-style:italic; text-align:center;">저장하려면 먼저 모델명을 입력하세요</span>
+          </sc-if>
+        </div>
+
+        <div style="margin-top:10px; padding-top:12px; border-top:1px solid #eef0f3; display:flex; flex-direction:column; gap:5px;">
+          <button type="button" onClick="{{ gotoDb }}" style="cursor:pointer; display:flex; align-items:center; justify-content:center; gap:9px; font-family:'IBM Plex Mono',monospace; font-size:11px; font-weight:700; letter-spacing:.3px; color:#fff; background:#1c1d1f; border:none; padding:12px; border-radius:7px;">제품 정보 데이터베이스 관리 <span style="font-size:14px; line-height:1;">→</span></button>
+          <span style="font-size:9px; color:#9aa0a7; text-align:center; line-height:1.4;">설치 위치와 무관한 액세서리 카테고리별 모델·사진 관리</span>
+        </div>
+
+      </div>
+    </div>
+  </sc-if>
+
+  <sc-for list="{{ pages }}" as="pg" hint-placeholder-count="1">
+  <div class="page" style="width:816px; min-height:1056px; background:#ffffff; box-shadow:0 6px 28px rgba(20,22,28,.18); padding:40px 52px 32px; display:flex; flex-direction:column; color:#1c1d1f;">
+
+    <!-- MASTHEAD -->
+    <div style="display:flex; align-items:center; justify-content:space-between; padding-bottom:12px; border-bottom:1.5px solid #1c1d1f;">
+      <div style="display:flex; align-items:baseline; gap:12px;">
+        <span style="font-family:'IBM Plex Mono',monospace; font-weight:600; font-size:14px; letter-spacing:4px;">AVYCON</span>
+        <span style="font-size:10px; color:#8a8f96; letter-spacing:1px;">CAMERA ACCESSORY PROGRAM</span>
+      </div>
+      <div style="font-family:'IBM Plex Mono',monospace; font-size:10px; color:#8a8f96; letter-spacing:.5px;">{{ rev }}</div>
+    </div>
+
+    <!-- TITLE -->
+    <div style="margin-top:18px;">
+      <div style="font-size:26px; font-weight:700; letter-spacing:-.4px; line-height:1.1;">Accessory Combination Guide</div>
+      <div style="margin-top:5px; font-size:13px; color:#6b6f76;">악세서리 결합 가이드 · 설치 위치별 결합 조합</div>
+    </div>
+
+    <!-- CONTEXT BAND -->
+    <div style="margin-top:14px; display:flex; align-items:stretch; border:1px solid #e6e8ec; border-left-width:4px; border-left-color:{{ pg.accent }}; background:{{ pg.soft }}; border-radius:6px; overflow:hidden;">
+      <div style="flex:1; padding:13px 18px; display:flex; flex-direction:column; gap:3px; border-right:1px solid #e6e8ec;">
+        <span style="font-family:'IBM Plex Mono',monospace; font-size:9px; letter-spacing:1.5px; color:#9aa0a7;">LOCATION · 설치 위치</span>
+        <span style="font-size:16px; font-weight:600;"><span style="color:{{ pg.accent }};">{{ pg.locLabel }}</span> <span style="color:#9aa0a7; font-weight:400; font-size:13px;">/ {{ pg.locKo }}</span></span>
+      </div>
+      <div style="flex:1.3; padding:13px 18px; display:flex; flex-direction:column; gap:3px; border-right:1px solid #e6e8ec;">
+        <span style="font-family:'IBM Plex Mono',monospace; font-size:9px; letter-spacing:1.5px; color:#9aa0a7;">SUBJECT CAMERA · 대상 카메라</span>
+        <span style="font-size:14px; font-weight:600;"><span style="font-family:'IBM Plex Mono',monospace;">{{ camModel }}</span> <span style="color:#9aa0a7; font-weight:400; font-size:12px;">· {{ camType }}</span></span>
+      </div>
+      <div style="padding:13px 18px; display:flex; flex-direction:column; gap:3px; justify-content:center; min-width:96px;">
+        <span style="font-family:'IBM Plex Mono',monospace; font-size:9px; letter-spacing:1.5px; color:#9aa0a7;">CASES</span>
+        <span style="font-size:20px; font-weight:700; line-height:1;">{{ pg.comboCount }}</span>
+      </div>
+    </div>
+
+    <!-- SECTION LABEL -->
+    <div style="margin-top:24px; display:flex; align-items:center; gap:12px;">
+      <span style="font-family:'IBM Plex Mono',monospace; font-size:10px; letter-spacing:2px; color:#8a8f96;">COMBINATIONS · 결합 조합</span>
+      <span style="flex:1; height:1px; background:#e6e8ec;"></span>
+    </div>
+
+    <!-- COMBINATION ROWS -->
+    <div style="margin-top:14px; display:flex; flex-direction:column; gap:10px;">
+      <sc-for list="{{ pg.combos }}" as="combo" hint-placeholder-count="5">
+        <div class="combo-row" style="position:relative; display:flex; align-items:stretch; border:1px solid #e6e8ec; border-radius:8px; background:#ffffff; overflow:visible;">
+
+          <sc-if value="{{ combo.canDelete }}" hint-placeholder-val="{{ false }}">
+            <button type="button" class="screen-only" onClick="{{ combo.onRemove }}" title="이 조합 배너 삭제" style="position:absolute; top:8px; right:8px; z-index:2; cursor:pointer; width:23px; height:23px; border-radius:6px; border:1px solid #e6c4c4; background:#fbeeee; color:#b04f4f; font-family:'IBM Plex Mono',monospace; font-size:15px; font-weight:600; line-height:1; display:flex; align-items:center; justify-content:center;">−</button>
+          </sc-if>
+
+          <!-- left rail -->
+          <div style="width:84px; flex-shrink:0; padding:13px 11px; background:{{ pg.soft }}; border-right:1px solid #eef0f3; border-radius:8px 0 0 8px; display:flex; flex-direction:column; gap:6px; justify-content:center;">
+            <span style="align-self:flex-start; font-family:'IBM Plex Mono',monospace; font-size:10.5px; font-weight:600; letter-spacing:.5px; color:#ffffff; background:{{ pg.accent }}; padding:2px 7px; border-radius:4px;">{{ combo.id }}</span>
+            <sc-if value="{{ showNotes }}" hint-placeholder-val="{{ true }}">
+              <span style="font-size:9.5px; color:#6b6f76; line-height:1.3;">{{ combo.note }}</span>
+            </sc-if>
+          </div>
+
+          <!-- chain -->
+          <div style="flex:1; padding:12px 16px; display:flex; flex-wrap:wrap; align-items:flex-start; row-gap:8px;">
+            <sc-for list="{{ combo.items }}" as="item" hint-placeholder-count="3">
+
+              <sc-if value="{{ item.showConn }}" hint-placeholder-val="{{ false }}">
+                <div style="height:72px; width:30px; display:flex; align-items:center; justify-content:center;">
+                  <span style="display:flex; align-items:center; justify-content:center; width:21px; height:21px; border-radius:50%; font-family:'IBM Plex Mono',monospace; font-size:13px; font-weight:600; color:{{ item.connColor }}; background:{{ item.connBg }}; border:1px solid {{ item.connBorder }};">{{ item.connSymbol }}</span>
+                </div>
+              </sc-if>
+
+              <!-- camera node (static) -->
+              <sc-if value="{{ item.isCamera }}" hint-placeholder-val="{{ true }}">
+                <div style="width:96px; display:flex; flex-direction:column; align-items:center; gap:7px; text-align:center;">
+                  <div style="width:72px; height:72px; border-radius:8px; border:1px solid #e6e8ec; background:#ffffff; box-shadow:0 1px 3px rgba(20,22,28,.06); display:flex; align-items:center; justify-content:center; overflow:hidden; position:relative;">
+                    {{ item.imgEl }}
+                    <sc-if value="{{ item.noImg }}" hint-placeholder-val="{{ true }}">
+                      <div style="position:absolute; inset:0; background:repeating-linear-gradient(135deg,#f6f7f9 0 6px,#eef0f3 6px 7px); display:flex; align-items:center; justify-content:center;">
+                        <span style="font-family:'IBM Plex Mono',monospace; font-size:8px; letter-spacing:1px; color:#b4b9c0;">{{ item.cat }}</span>
+                      </div>
+                    </sc-if>
+                  </div>
+                  <div style="display:flex; flex-direction:column; gap:2px; align-items:center;">
+                    <span style="font-family:'IBM Plex Mono',monospace; font-size:10px; font-weight:600; line-height:1.15; word-break:break-all;">{{ item.model }}</span>
+                    <span style="font-size:8.5px; color:#9aa0a7; line-height:1.2;">{{ item.type }}</span>
+                  </div>
+                </div>
+              </sc-if>
+
+              <!-- accessory node (editable on screen, prints clean) -->
+              <sc-if value="{{ item.isAccessory }}" hint-placeholder-val="{{ false }}">
+                <div style="position:relative; width:96px; display:flex; flex-direction:column; align-items:center; gap:7px; text-align:center;">
+
+                  <sc-if value="{{ item.hasName }}" hint-placeholder-val="{{ false }}">
+                    <div style="position:relative;">
+                      <button type="button" onClick="{{ item.onOpen }}" title="클릭하여 제품 변경" style="cursor:pointer; padding:0; width:72px; height:72px; border-radius:8px; border:1px solid #e6e8ec; background:#ffffff; box-shadow:0 1px 3px rgba(20,22,28,.06); display:flex; align-items:center; justify-content:center; overflow:hidden; position:relative;">
+                        {{ item.imgEl }}
+                        <sc-if value="{{ item.noImg }}" hint-placeholder-val="{{ false }}">
+                          <div style="position:absolute; inset:0; background:repeating-linear-gradient(135deg,#f6f7f9 0 6px,#eef0f3 6px 7px); display:flex; align-items:center; justify-content:center;">
+                            <span style="font-family:'IBM Plex Mono',monospace; font-size:7.5px; letter-spacing:.5px; color:#b4b9c0;">{{ item.cat }}</span>
+                          </div>
+                        </sc-if>
+                      </button>
+                      <button type="button" class="screen-only" onClick="{{ item.onClear }}" title="선택 해제" style="position:absolute; top:-7px; right:-7px; cursor:pointer; width:19px; height:19px; border-radius:50%; border:1px solid #e6c4c4; background:#fbeeee; color:#b04f4f; font-family:'IBM Plex Mono',monospace; font-size:11px; line-height:1; display:flex; align-items:center; justify-content:center;">×</button>
+                    </div>
+                  </sc-if>
+
+                  <sc-if value="{{ item.noName }}" hint-placeholder-val="{{ true }}">
+                    <button type="button" class="screen-only" onClick="{{ item.onOpen }}" title="제품 선택" style="cursor:pointer; width:72px; height:72px; border-radius:8px; border:1.5px dashed {{ pg.accent }}; background:{{ pg.soft }}; display:flex; flex-direction:column; align-items:center; justify-content:center; gap:3px; color:{{ pg.accent }};">
+                      <span style="font-size:18px; line-height:1;">+</span>
+                      <span style="font-family:'IBM Plex Mono',monospace; font-size:7.5px; letter-spacing:.3px;">제품 선택</span>
+                    </button>
+                    <div class="print-only" style="width:72px; height:72px; border-radius:8px; border:1px solid #e6e8ec; background:repeating-linear-gradient(135deg,#f6f7f9 0 6px,#eef0f3 6px 7px); align-items:center; justify-content:center;">
+                      <span style="font-family:'IBM Plex Mono',monospace; font-size:8px; color:#b4b9c0;">—</span>
+                    </div>
+                  </sc-if>
+
+                  <div style="display:flex; flex-direction:column; gap:2px; align-items:center; width:100%;">
+                    <span style="font-family:'IBM Plex Mono',monospace; font-size:10px; font-weight:600; line-height:1.15; word-break:break-all; color:#1c1d1f;">{{ item.model }}</span>
+                    <span style="font-size:8.5px; color:#9aa0a7; line-height:1.2;">{{ item.type }}</span>
+                  </div>
+
+                  <sc-if value="{{ item.pickerOpen }}" hint-placeholder-val="{{ false }}">
+                    <div class="screen-only" style="position:absolute; top:80px; left:50%; transform:translateX(-50%); z-index:30; width:210px; background:#fff; border:1px solid #e6e8ec; border-radius:10px; box-shadow:0 14px 34px rgba(20,22,28,.24); padding:7px; display:flex; flex-direction:column; gap:2px; text-align:left;">
+                      <sc-if value="{{ item.pickerStepCat }}" hint-placeholder-val="{{ true }}">
+                        <div style="display:flex; align-items:center; justify-content:space-between; padding:3px 6px 5px;">
+                          <span style="font-family:'IBM Plex Mono',monospace; font-size:8.5px; letter-spacing:.5px; color:#9aa0a7;">STEP 1 · 카테고리</span>
+                          <button type="button" onClick="{{ item.onClose }}" style="cursor:pointer; font-family:'IBM Plex Mono',monospace; font-size:12px; line-height:1; color:#6b6f76; background:none; border:none;">×</button>
+                        </div>
+                        <sc-for list="{{ item.catList }}" as="c" hint-placeholder-count="3">
+                          <button type="button" onClick="{{ c.onPick }}" style="cursor:pointer; display:flex; align-items:center; gap:8px; padding:7px 8px; border:none; background:transparent; border-radius:6px; text-align:left;" style-hover="background:{{ pg.soft }};">
+                            <span style="width:6px; height:6px; border-radius:2px; background:{{ pg.accent }}; flex-shrink:0;"></span>
+                            <span style="font-size:11px; font-weight:600; color:#1c1d1f;">{{ c.label }}</span>
+                            <span style="font-size:8.5px; color:#9aa0a7;">{{ c.ko }}</span>
+                            <span style="margin-left:auto; font-family:'IBM Plex Mono',monospace; font-size:8.5px; color:#b4b9c0;">{{ c.count }}</span>
+                          </button>
+                        </sc-for>
+                      </sc-if>
+                      <sc-if value="{{ item.pickerStepProd }}" hint-placeholder-val="{{ false }}">
+                        <div style="display:flex; align-items:center; gap:6px; padding:3px 5px 5px;">
+                          <button type="button" onClick="{{ item.onBack }}" title="카테고리로" style="cursor:pointer; font-family:'IBM Plex Mono',monospace; font-size:11px; color:#6b6f76; background:#f1f2f4; border:1px solid #e6e8ec; border-radius:5px; width:22px; height:20px; line-height:1;">←</button>
+                          <span style="font-family:'IBM Plex Mono',monospace; font-size:9px; font-weight:600; color:#6b6f76;">STEP 2 · {{ item.pickerCatLabel }}</span>
+                          <button type="button" onClick="{{ item.onClose }}" style="margin-left:auto; cursor:pointer; font-family:'IBM Plex Mono',monospace; font-size:12px; line-height:1; color:#6b6f76; background:none; border:none;">×</button>
+                        </div>
+                        <sc-for list="{{ item.prodList }}" as="p" hint-placeholder-count="2">
+                          <button type="button" onClick="{{ p.onPick }}" style="cursor:pointer; display:flex; align-items:center; gap:8px; padding:6px 7px; border:none; background:transparent; border-radius:6px; text-align:left;" style-hover="background:{{ pg.soft }};">
+                            <span style="width:28px; height:28px; border-radius:5px; border:1px solid #e6e8ec; background:#fff; overflow:hidden; display:flex; align-items:center; justify-content:center; flex-shrink:0;">
+                              {{ p.imgEl }}
+                              <sc-if value="{{ p.noImg }}" hint-placeholder-val="{{ true }}"><span style="font-size:8px; color:#c0c4ca;">—</span></sc-if>
+                            </span>
+                            <span style="font-family:'IBM Plex Mono',monospace; font-size:10px; font-weight:600; color:#1c1d1f; word-break:break-all;">{{ p.name }}</span>
+                          </button>
+                        </sc-for>
+                        <sc-if value="{{ item.noProdInCat }}" hint-placeholder-val="{{ false }}">
+                          <span style="font-size:9px; color:#b08a2a; font-style:italic; padding:6px 8px; line-height:1.4;">등록된 제품이 없습니다 · 악세서리 제품 데이터베이스에서 추가하세요</span>
+                        </sc-if>
+                      </sc-if>
+                    </div>
+                  </sc-if>
+
+                </div>
+              </sc-if>
+
+              <!-- placement node -->
+              <sc-if value="{{ item.isPlacement }}" hint-placeholder-val="{{ false }}">
+                <div style="width:88px; display:flex; flex-direction:column; align-items:center; gap:7px; text-align:center;">
+                  <div style="width:72px; height:72px; border-radius:8px; background:{{ pg.soft }}; border:1.5px solid {{ pg.accent }}; display:flex; flex-direction:column; align-items:center; justify-content:center; gap:4px;">
+                    <span style="font-family:'IBM Plex Mono',monospace; font-size:9px; font-weight:700; letter-spacing:.5px; color:{{ pg.accent }};">{{ item.placeLabel }}</span>
+                    <span style="width:18px; height:1.5px; background:{{ pg.accent }}; opacity:.45;"></span>
+                  </div>
+                  <span style="font-size:8.5px; color:#9aa0a7; line-height:1.2;">Placement · 설치면</span>
+                </div>
+              </sc-if>
+
+            </sc-for>
+          </div>
+        </div>
+      </sc-for>
+
+      <!-- ADD COMBINATION (screen only) -->
+      <div class="screen-only" style="position:relative; margin-top:2px;">
+        <button type="button" onClick="{{ pg.onToggleAdd }}" style="width:100%; cursor:pointer; display:flex; align-items:center; justify-content:center; gap:8px; padding:11px; border:1.5px dashed {{ pg.accent }}; border-radius:8px; background:{{ pg.soft }}; color:{{ pg.accent }}; font-family:'IBM Plex Mono',monospace; font-size:11px; font-weight:600; letter-spacing:.5px;"><span style="font-size:16px; line-height:1;">+</span> 조합 배너 추가 · ADD COMBINATION</button>
+        <sc-if value="{{ pg.addMenuOpen }}" hint-placeholder-val="{{ false }}">
+          <div style="position:absolute; left:0; right:0; top:calc(100% + 6px); z-index:5; background:#fff; border:1px solid #e6e8ec; border-radius:8px; box-shadow:0 10px 28px rgba(20,22,28,.18); padding:6px; display:flex; flex-direction:column; gap:2px;">
+            <span style="font-family:'IBM Plex Mono',monospace; font-size:9px; letter-spacing:1px; color:#9aa0a7; padding:5px 9px 3px;">중간 악세서리 개수 선택</span>
+            <sc-for list="{{ pg.addOptions }}" as="opt" hint-placeholder-count="4">
+              <button type="button" onClick="{{ opt.onAdd }}" style="cursor:pointer; display:flex; align-items:center; gap:10px; padding:9px 11px; border:none; background:transparent; border-radius:6px; text-align:left;" style-hover="background:{{ pg.soft }};">
+                <span style="width:7px; height:7px; border-radius:2px; background:{{ pg.accent }}; flex-shrink:0;"></span>
+                <span style="font-size:12px; font-weight:600; color:#1c1d1f;">{{ opt.label }}</span>
+                <span style="font-size:10px; color:#9aa0a7;">{{ opt.ko }}</span>
+              </button>
+            </sc-for>
+          </div>
+        </sc-if>
+      </div>
+    </div>
+
+    <!-- NOTE -->
+    <div style="margin-top:16px; padding:11px 14px; background:#fafbfc; border:1px solid #eef0f3; border-radius:6px; display:flex; gap:10px; align-items:flex-start;">
+      <span style="font-family:'IBM Plex Mono',monospace; font-size:9px; font-weight:600; letter-spacing:1px; color:{{ pg.accent }}; padding-top:1px;">NOTE</span>
+      <textarea value="{{ noteText }}" onChange="{{ onNoteChange }}" ref="{{ noteRef }}" placeholder="여기에 메모를 입력하세요 · 입력한 내용은 출력(PDF·PPTX)에도 표시됩니다" rows="2" style="flex:1; min-width:0; font-family:'IBM Plex Sans KR',system-ui,sans-serif; font-size:10px; color:#7a7f86; line-height:1.5; border:none; background:transparent; outline:none; resize:none; padding:0; margin:0; overflow:hidden; min-height:30px; box-sizing:border-box;"></textarea>
+    </div>
+
+    <!-- FOOTER -->
+    <div style="margin-top:auto; padding-top:16px; display:flex; align-items:center; justify-content:space-between; border-top:1px solid #e6e8ec;">
+      <span style="font-family:'IBM Plex Mono',monospace; font-size:8.5px; color:#9aa0a7; letter-spacing:.5px;">AVYCON · ACCESSORY COMBINATION GUIDE</span>
+      <span style="font-family:'IBM Plex Mono',monospace; font-size:8.5px; color:#9aa0a7;">{{ pg.locLabel }} · {{ pg.pageNo }}</span>
+      <span style="font-family:'IBM Plex Mono',monospace; font-size:8.5px; color:#9aa0a7;">{{ rev }}</span>
+    </div>
+
+  </div>
+  </sc-for>
+
+  <!-- PRODUCT DATABASE PAGE (screen) -->
+  <sc-if value="{{ isDb }}" hint-placeholder-val="{{ false }}">
+  <div style="width:816px; min-height:760px; background:#ffffff; box-shadow:0 6px 28px rgba(20,22,28,.18); padding:40px 52px 40px; display:flex; flex-direction:column; color:#1c1d1f;">
+
+    <div style="display:flex; align-items:center; justify-content:space-between; padding-bottom:12px; border-bottom:1.5px solid #1c1d1f;">
+      <div style="display:flex; align-items:baseline; gap:12px;">
+        <span style="font-family:'IBM Plex Mono',monospace; font-weight:600; font-size:14px; letter-spacing:4px;">AVYCON</span>
+        <span style="font-size:10px; color:#8a8f96; letter-spacing:1px;">ACCESSORY PRODUCT DATABASE</span>
+      </div>
+      <button type="button" onClick="{{ gotoMain }}" style="cursor:pointer; display:flex; align-items:center; gap:7px; font-family:'IBM Plex Mono',monospace; font-size:11px; font-weight:600; color:#1c1d1f; background:#f1f2f4; border:1px solid #d4d7db; padding:8px 14px; border-radius:7px;"><span style="font-size:14px; line-height:1;">←</span> 가이드로 돌아가기</button>
+    </div>
+
+    <div style="margin-top:18px;">
+      <div style="font-size:24px; font-weight:700; letter-spacing:-.3px; line-height:1.1;">악세서리 제품 데이터베이스</div>
+      <div style="margin-top:5px; font-size:13px; color:#6b6f76; line-height:1.5;">설치 위치와 무관한 액세서리 카테고리별 제품 관리 · 모델명과 사진을 등록하면 가이드의 결합 칸에서 <b>기존 모델 재사용</b>으로 바로 선택되고 사진이 자동 표시됩니다.</div>
+    </div>
+
+    <div style="margin-top:18px; display:flex; flex-wrap:wrap; gap:8px; align-items:center; padding:12px 14px; border:1px solid #e6e8ec; border-radius:9px; background:#fafbfc;">
+      <span style="font-family:'IBM Plex Mono',monospace; font-size:9px; letter-spacing:1px; color:#9aa0a7; margin-right:2px;">DATA</span>
+      <button type="button" onClick="{{ exportProductCsv }}" style="cursor:pointer; font-family:'IBM Plex Mono',monospace; font-size:10.5px; font-weight:600; color:#1c1d1f; background:#fff; border:1px solid #d4d7db; padding:8px 13px; border-radius:6px;">CSV 내보내기 ↓</button>
+      <label style="cursor:pointer; font-family:'IBM Plex Mono',monospace; font-size:10.5px; font-weight:600; color:#fff; background:#1c1d1f; padding:8px 13px; border-radius:6px;">CSV 가져오기 ↑<input type="file" accept=".csv,text/csv" onChange="{{ importProductCsv }}" style="display:none;"></label>
+      <div style="margin-left:auto; display:flex; align-items:center; gap:9px;">
+        <sc-if value="{{ dbSaved }}" hint-placeholder-val="{{ false }}">
+          <span style="font-family:'IBM Plex Mono',monospace; font-size:10px; font-weight:600; color:#2f8f6b;">✓ 저장됨</span>
+        </sc-if>
+        <button type="button" onClick="{{ saveDb }}" style="cursor:pointer; font-family:'IBM Plex Mono',monospace; font-size:10.5px; font-weight:700; color:#fff; background:#3f6cb0; border:none; padding:9px 18px; border-radius:6px;">데이터베이스 저장</button>
+      </div>
+    </div>
+
+    <div style="margin-top:18px; display:flex; flex-direction:column; gap:28px;">
+      <sc-for list="{{ dbCats }}" as="cat" hint-placeholder-count="3">
+        <div>
+          <div style="display:flex; align-items:center; gap:10px; margin-bottom:13px;">
+            <span style="width:9px; height:9px; border-radius:2px; background:#1c1d1f;"></span>
+            <span style="font-size:15px; font-weight:700;">{{ cat.label }}</span>
+            <span style="font-size:11px; color:#9aa0a7;">{{ cat.ko }}</span>
+            <span style="font-family:'IBM Plex Mono',monospace; font-size:10px; color:#9aa0a7;">· {{ cat.count }}</span>
+            <span style="flex:1; height:1px; background:#e6e8ec;"></span>
+          </div>
+          <div style="display:grid; grid-template-columns:repeat(4, 1fr); gap:12px;">
+            <div style="display:flex; flex-direction:column; align-items:center; gap:8px; padding:14px 10px; border:1.5px dashed #cdd2d8; border-radius:9px; background:#ffffff;">
+              <label title="클릭하여 사진 추가" style="cursor:pointer; width:88px; height:88px; border-radius:8px; border:1px dashed #d4d7db; display:flex; align-items:center; justify-content:center; overflow:hidden; position:relative; background:#fff;">
+                {{ cat.draftImgEl }}
+                <sc-if value="{{ cat.noDraftImg }}" hint-placeholder-val="{{ true }}">
+                  <div style="display:flex; flex-direction:column; align-items:center; gap:3px; color:#b4b9c0; font-family:'IBM Plex Mono',monospace; font-size:9px; letter-spacing:1px;">
+                    <span>NEW</span>
+                    <span style="font-size:7.5px; color:#3f6cb0;">＋ 사진</span>
+                  </div>
+                </sc-if>
+                <input type="file" accept="image/*" onChange="{{ cat.onDraftImg }}" style="display:none;">
+              </label>
+              <input type="text" value="{{ cat.draft }}" onChange="{{ cat.onDraft }}" placeholder="모델명 입력" style="width:100%; font-family:'IBM Plex Mono',monospace; font-size:10.5px; padding:6px 8px; border:1px solid #e6e8ec; border-radius:5px; outline:none; box-sizing:border-box; text-align:center;">
+              <button type="button" onClick="{{ cat.onAdd }}" style="cursor:pointer; width:100%; font-family:'IBM Plex Mono',monospace; font-size:10px; font-weight:700; color:#fff; background:#3f6cb0; border:none; padding:8px; border-radius:5px;">＋ 추가</button>
+            </div>
+            <sc-for list="{{ cat.products }}" as="p" hint-placeholder-count="0">
+              <div style="position:relative; display:flex; flex-direction:column; align-items:center; gap:9px; padding:14px 10px; border:1px solid #e6e8ec; border-radius:9px; background:#fafbfc;">
+                <button type="button" onClick="{{ p.onRemove }}" title="제품 삭제" style="position:absolute; top:6px; right:6px; cursor:pointer; width:20px; height:20px; border-radius:5px; border:1px solid #e6c4c4; background:#fbeeee; color:#b04f4f; font-family:'IBM Plex Mono',monospace; font-size:13px; line-height:1; display:flex; align-items:center; justify-content:center;">×</button>
+                <label title="클릭하여 사진 업로드/변경" style="cursor:pointer; width:88px; height:88px; border-radius:8px; border:1px solid #e6e8ec; background:#fff; display:flex; align-items:center; justify-content:center; overflow:hidden; position:relative;">
+                  {{ p.imgEl }}
+                  <sc-if value="{{ p.noImg }}" hint-placeholder-val="{{ true }}">
+                    <div style="position:absolute; inset:0; background:repeating-linear-gradient(135deg,#f6f7f9 0 6px,#eef0f3 6px 7px); display:flex; flex-direction:column; align-items:center; justify-content:center; gap:3px;">
+                      <span style="font-family:'IBM Plex Mono',monospace; font-size:8px; letter-spacing:1px; color:#b4b9c0;">{{ cat.key }}</span>
+                      <span style="font-family:'IBM Plex Mono',monospace; font-size:7.5px; color:#3f6cb0;">＋ 사진</span>
+                    </div>
+                  </sc-if>
+                  <input type="file" accept="image/*" onChange="{{ p.onImg }}" style="display:none;">
+                </label>
+                <span style="font-family:'IBM Plex Mono',monospace; font-size:10.5px; font-weight:600; text-align:center; word-break:break-all; line-height:1.25;">{{ p.name }}</span>
+              </div>
+            </sc-for>
+          </div>
+        </div>
+      </sc-for>
+    </div>
+
+    <div style="margin-top:auto; padding-top:18px; display:flex; align-items:center; justify-content:space-between; border-top:1px solid #e6e8ec;">
+      <span style="font-family:'IBM Plex Mono',monospace; font-size:8.5px; color:#9aa0a7; letter-spacing:.5px;">AVYCON · ACCESSORY PRODUCT DATABASE</span>
+      <span style="font-family:'IBM Plex Mono',monospace; font-size:8.5px; color:#9aa0a7;">로컬 저장 · localStorage</span>
+    </div>
+
+  </div>
+  </sc-if>
+</div>
+</x-dc>
+<script type="text/x-dc" data-dc-script data-props="{
+  &quot;$preview&quot;: { &quot;width&quot;: 816, &quot;height&quot;: 1056 },
+  &quot;cameraCategory&quot;: { &quot;editor&quot;: null, &quot;default&quot;: &quot;Select Camera&quot;, &quot;tsType&quot;: &quot;string&quot; },
+  &quot;cameraModel&quot;: { &quot;editor&quot;: null, &quot;default&quot;: &quot;&quot;, &quot;tsType&quot;: &quot;string&quot; },
+  &quot;location&quot;: { &quot;editor&quot;: null, &quot;default&quot;: &quot;Wall&quot;, &quot;tsType&quot;: &quot;string&quot; },
+  &quot;documentRev&quot;: { &quot;editor&quot;: null, &quot;default&quot;: &quot;Rev. A · 2026.06&quot;, &quot;tsType&quot;: &quot;string&quot; },
+  &quot;showNotes&quot;: { &quot;editor&quot;: null, &quot;default&quot;: true, &quot;tsType&quot;: &quot;boolean&quot; }
+}">
+class Component extends DCLogic {
+  state = { camImage: null, accNames: {}, imgByName: {}, drawerOpen: false, openLoc: null, settings: {}, profiles: {}, layout: {}, uidSeq: 1, addMenuLoc: null, productDb: {}, dbDraft: {}, dbDraftImg: {}, view: 'main', dbSaved: false, pickerKey: null, pickerCat: null, noteText: '' };
+
+  LOCS = ['Wall', 'Ceiling', 'Pole', 'Corner', 'Parapet'];
+  CODES = { Wall:'WL', Ceiling:'CL', Pole:'PO', Corner:'CR', Parapet:'PA' };
+  // Combination templates (the palette the user can add). 'mount' = "{Location} Mount".
+  TEMPLATES = {
+    single: { label:'Single mount',      ko:'단일 마운트',    accs:[ { type:'mount', cat:'MNT' } ] },
+    box:    { label:'With junction box', ko:'정션 박스 결합', accs:[ { type:'Junction Box', cat:'BOX' }, { type:'mount', cat:'MNT' } ] },
+    adp:    { label:'With adaptor',      ko:'어댑터 결합',    accs:[ { type:'Mount Adaptor', cat:'ADP' }, { type:'mount', cat:'MNT' } ] },
+    ext:    { label:'Extended mount',    ko:'롱 / 폴 마운트', accs:[ { type:'Pole / Long Mount', cat:'MNT' } ] },
+  };
+  TPL_ORDER = ['single','box','adp','ext'];
+  // Accessory product database categories (independent of install location)
+  DB_CATS = [
+    { key:'MNT_WALL', label:'Wall Mount', ko:'월 마운트' },
+    { key:'MNT_CEIL', label:'Ceiling Mount', ko:'천장 마운트' },
+    { key:'MNT_POLE', label:'Pole Mount', ko:'폴 마운트' },
+    { key:'MNT_BRKT', label:'Ceiling Bracket', ko:'천장 브래킷' },
+    { key:'MNT_CORN', label:'Corner Mount', ko:'코너 마운트' },
+    { key:'BOX', label:'Junction Box', ko:'정션 박스' },
+    { key:'ADP', label:'Adaptor', ko:'마운트 어댑터' },
+  ];
+  // mount sub-categories that feed a combo's generic 'MNT' slot (incl. legacy 'MNT')
+  MNT_GROUP = ['MNT','MNT_WALL','MNT_CEIL','MNT_POLE','MNT_BRKT','MNT_CORN'];
+  _accType(t, L) { return t === 'mount' ? (L + ' Mount') : t; }
+  // slot-key -> category, built from the live layout (base WL-01 carries no accessories)
+  _slotMeta() {
+    const meta = {};
+    const layout = this.state.layout || {};
+    this.LOCS.forEach(L => {
+      const code = this.CODES[L];
+      (layout[L] || []).forEach((inst, ii) => {
+        const t = this.TEMPLATES[inst.tpl]; if (!t) return;
+        const id = code + '-' + String(ii + 2).padStart(2, '0');
+        t.accs.forEach((a, ai) => { meta[inst.uid + ':' + ai] = { location:L, comboId:id, note:t.label, type:this._accType(a.type, L), cat:a.cat }; });
+      });
+    });
+    return meta;
+  }
+  _flattenAccessories(accNames, imgByName) {
+    const meta = this._slotMeta();
+    const rows = [];
+    Object.keys(accNames || {}).forEach(k => {
+      const nm = (accNames[k] || '').trim();
+      if (!nm) return;
+      const mt = meta[k]; if (!mt) return;
+      rows.push({ slot:k, location:mt.location||'', comboId:mt.comboId||'', type:mt.type||'', name:nm, hasImage: !!(imgByName||{})[nm] });
+    });
+    return rows;
+  }
+  _maxUid(layout) {
+    let mx = 0;
+    Object.values(layout || {}).forEach(arr => (arr||[]).forEach(c => { const n = parseInt(String(c.uid||'').replace(/\D/g,''),10); if (n > mx) mx = n; }));
+    return mx;
+  }
+
+  componentDidMount() {
+    try {
+      const v = localStorage.getItem('avycon_cam_image');
+      if (v) this.setState({ camImage: v });
+      const an = localStorage.getItem('avycon_acc_names');
+      if (an) this.setState({ accNames: JSON.parse(an) || {} });
+      const ib = localStorage.getItem('avycon_img_by_name');
+      if (ib) this.setState({ imgByName: JSON.parse(ib) || {} });
+      const st = localStorage.getItem('avycon_doc_settings');
+      if (st) this.setState({ settings: JSON.parse(st) || {} });
+      const pf = localStorage.getItem('avycon_profiles');
+      if (pf) this.setState({ profiles: JSON.parse(pf) || {} });
+      const ly = localStorage.getItem('avycon_layout');
+      if (ly) { const layout = JSON.parse(ly) || {}; this.setState({ layout, uidSeq: this._maxUid(layout) + 1 }); }
+      const pdb = localStorage.getItem('avycon_product_db');
+      if (pdb) this.setState({ productDb: JSON.parse(pdb) || {} });
+      const nt = localStorage.getItem('avycon_note');
+      if (nt != null) this.setState({ noteText: nt }, () => this._sizeNote());
+    } catch (e) {}
+  }
+
+  _persistNames = (m) => { try { localStorage.setItem('avycon_acc_names', JSON.stringify(m)); } catch (e) {} };
+  _persistImgs = (m) => { try { localStorage.setItem('avycon_img_by_name', JSON.stringify(m)); } catch (e) {} };
+
+  // slot -> product name
+  setAccName = (key, value) => {
+    this.setState(s => {
+      const accNames = { ...s.accNames, [key]: value };
+      this._persistNames(accNames);
+      return { accNames };
+    });
+  };
+  // image is bound to the product NAME, not the slot
+  onAccImage = (key, e) => {
+    const f = e.target && e.target.files && e.target.files[0];
+    if (!f) return;
+    const name = (this.state.accNames[key] || '').trim();
+    if (!name) { e.target.value = ''; return; }
+    const r = new FileReader();
+    r.onload = () => {
+      this.setState(s => {
+        const imgByName = { ...s.imgByName, [name]: r.result };
+        this._persistImgs(imgByName);
+        return { imgByName };
+      });
+    };
+    r.readAsDataURL(f);
+  };
+  clearImgByName = (name) => {
+    const nm = (name || '').trim();
+    if (!nm) return;
+    this.setState(s => {
+      const imgByName = { ...s.imgByName };
+      delete imgByName[nm];
+      this._persistImgs(imgByName);
+      return { imgByName };
+    });
+  };
+
+  toggleDrawer = () => this.setState(s => ({ drawerOpen: !s.drawerOpen }));
+  setOpenLoc = (loc) => this.setState(s => ({ openLoc: s.openLoc === loc ? null : loc }));
+
+  _persistLayout = (layout) => { try { localStorage.setItem('avycon_layout', JSON.stringify(layout)); } catch (e) {} };
+  addCombo = (loc, n) => {
+    this.setState(s => {
+      const uid = 'c' + (s.uidSeq || 1);
+      const arr = (s.layout[loc] || []).concat([{ uid, n: n }]);
+      const layout = { ...s.layout, [loc]: arr };
+      this._persistLayout(layout);
+      return { layout, uidSeq: (s.uidSeq || 1) + 1, addMenuLoc: null };
+    });
+  };
+  openPicker = (key) => this.setState(s => ({ pickerKey: s.pickerKey === key ? null : key, pickerCat: null }));
+  closePicker = () => this.setState({ pickerKey: null, pickerCat: null });
+  pickCat = (cat) => this.setState({ pickerCat: cat });
+  pickProduct = (key, name) => { this.setAccName(key, name); this.setState({ pickerKey: null, pickerCat: null }); };
+  removeCombo = (loc, uid) => {
+    this.setState(s => {
+      const arr = (s.layout[loc] || []).filter(c => c.uid !== uid);
+      const layout = { ...s.layout, [loc]: arr };
+      this._persistLayout(layout);
+      return { layout };
+    });
+  };
+  toggleAddMenu = (loc) => this.setState(s => ({ addMenuLoc: s.addMenuLoc === loc ? null : loc }));
+
+  // --- Accessory product database ---
+  _persistDb = (db) => { try { localStorage.setItem('avycon_product_db', JSON.stringify(db)); } catch (e) {} };
+  gotoDb = () => this.setState({ view: 'db', drawerOpen: false, addMenuLoc: null });
+  gotoMain = () => this.setState({ view: 'main' });
+  setDbDraft = (cat, val) => this.setState(s => ({ dbDraft: { ...s.dbDraft, [cat]: val } }));
+  setDbDraftImage = (cat, e) => {
+    const f = e.target && e.target.files && e.target.files[0]; if (!f) return;
+    const r = new FileReader();
+    r.onload = () => this.setState(s => ({ dbDraftImg: { ...s.dbDraftImg, [cat]: r.result } }));
+    r.readAsDataURL(f);
+  };
+  addProduct = (cat) => {
+    this.setState(s => {
+      const name = (s.dbDraft[cat] || '').trim();
+      if (!name) return {};
+      const draftImg = s.dbDraftImg[cat] || '';
+      const list = (s.productDb[cat] || []);
+      const exists = list.indexOf(name) !== -1;
+      const productDb = exists ? s.productDb : { ...s.productDb, [cat]: list.concat([name]) };
+      if (!exists) this._persistDb(productDb);
+      let imgByName = s.imgByName;
+      if (draftImg) { imgByName = { ...s.imgByName, [name]: draftImg }; this._persistImgs(imgByName); }
+      return { productDb, imgByName, dbDraft: { ...s.dbDraft, [cat]: '' }, dbDraftImg: { ...s.dbDraftImg, [cat]: '' } };
+    });
+  };
+  removeProduct = (cat, name) => {
+    this.setState(s => {
+      const productDb = { ...s.productDb, [cat]: (s.productDb[cat] || []).filter(n => n !== name) };
+      this._persistDb(productDb);
+      const imgByName = { ...s.imgByName }; delete imgByName[name]; this._persistImgs(imgByName);
+      return { productDb, imgByName };
+    });
+  };
+  setProductImage = (cat, name, e) => {
+    const f = e.target && e.target.files && e.target.files[0]; if (!f) return;
+    const r = new FileReader();
+    r.onload = () => { this.setState(s => { const imgByName = { ...s.imgByName, [name]: r.result }; this._persistImgs(imgByName); return { imgByName }; }); };
+    r.readAsDataURL(f);
+  };
+  _csvEsc = (c) => { const s = String(c == null ? '' : c); return /[",\n]/.test(s) ? '"' + s.replace(/"/g, '""') + '"' : s; };
+  _download = (filename, text, mime) => {
+    try {
+      const blob = new Blob([text], { type: mime });
+      const url = URL.createObjectURL(blob);
+      const a = document.createElement('a');
+      a.href = url; a.download = filename; document.body.appendChild(a); a.click();
+      document.body.removeChild(a); URL.revokeObjectURL(url);
+    } catch (e) {}
+  };
+  exportProductCsv = () => {
+    const db = this.state.productDb || {}; const img = this.state.imgByName || {};
+    const rows = [['CategoryKey','Category','Model','HasImage']];
+    this.DB_CATS.forEach(c => { (db[c.key] || []).forEach(nm => { rows.push([c.key, c.label, nm, img[nm] ? 'Y' : 'N']); }); });
+    const csv = rows.map(r => r.map(this._csvEsc).join(',')).join('\n');
+    this._download('avycon-accessory-db.csv', '\ufeff' + csv, 'text/csv;charset=utf-8;');
+  };
+  exportProductJson = () => {
+    const data = { schema:'avycon-accessory-db', version:1, exportedAt:new Date().toISOString(), productDb:this.state.productDb || {}, imgByName:this.state.imgByName || {} };
+    this._download('avycon-accessory-db.json', JSON.stringify(data, null, 2), 'application/json');
+  };
+  saveDb = () => {
+    this._persistDb(this.state.productDb || {});
+    this._persistImgs(this.state.imgByName || {});
+    this.setState({ dbSaved: true });
+    try { if (this._dbSaveT) clearTimeout(this._dbSaveT); this._dbSaveT = setTimeout(() => this.setState({ dbSaved: false }), 1800); } catch (e) {}
+  };
+  _parseCsv = (text) => {
+    const rows = []; let i = 0, field = '', row = [], inQ = false;
+    text = String(text || '').replace(/^\ufeff/, '');
+    while (i < text.length) {
+      const ch = text[i];
+      if (inQ) {
+        if (ch === '"') { if (text[i+1] === '"') { field += '"'; i += 2; continue; } inQ = false; i++; continue; }
+        field += ch; i++; continue;
+      }
+      if (ch === '"') { inQ = true; i++; continue; }
+      if (ch === ',') { row.push(field); field = ''; i++; continue; }
+      if (ch === '\n') { row.push(field); rows.push(row); row = []; field = ''; i++; continue; }
+      if (ch === '\r') { i++; continue; }
+      field += ch; i++;
+    }
+    if (field.length || row.length) { row.push(field); rows.push(row); }
+    return rows;
+  };
+  importProductCsv = (e) => {
+    const f = e.target && e.target.files && e.target.files[0]; if (!f) return;
+    const reader = new FileReader();
+    reader.onload = () => {
+      const rows = this._parseCsv(reader.result).filter(r => r.length && r.some(c => String(c).trim() !== ''));
+      e.target.value = '';
+      if (!rows.length) return;
+      const byKey = {}, byLabel = {};
+      this.DB_CATS.forEach(c => { byKey[c.key.toLowerCase()] = c.key; byLabel[c.label.toLowerCase()] = c.key; byLabel[String(c.ko).toLowerCase()] = c.key; });
+      const h = rows[0].map(c => String(c).trim().toLowerCase());
+      const hasHeader = h.indexOf('model') !== -1 || h.indexOf('categorykey') !== -1 || h.indexOf('category') !== -1;
+      let keyIdx = 0, catIdx = 1, modelIdx = 2, start = 0;
+      if (hasHeader) {
+        start = 1;
+        const fi = (arr) => { for (let k = 0; k < arr.length; k++) { const idx = h.indexOf(arr[k]); if (idx !== -1) return idx; } return -1; };
+        const ki = fi(['categorykey','key']); const ci = fi(['category','분류']); const mi = fi(['model','모델','모델명','name']);
+        if (ki !== -1) keyIdx = ki; if (ci !== -1) catIdx = ci; if (mi !== -1) modelIdx = mi;
+      }
+      let added = 0;
+      this.setState(s => {
+        const productDb = { ...s.productDb };
+        for (let r = start; r < rows.length; r++) {
+          const cols = rows[r];
+          let key = byKey[String(cols[keyIdx] != null ? cols[keyIdx] : '').trim().toLowerCase()];
+          if (!key) key = byLabel[String(cols[catIdx] != null ? cols[catIdx] : '').trim().toLowerCase()];
+          const model = String(cols[modelIdx] != null ? cols[modelIdx] : '').trim();
+          if (!key || !model) continue;
+          const list = (productDb[key] || []);
+          if (list.indexOf(model) === -1) { productDb[key] = list.concat([model]); added++; }
+        }
+        this._persistDb(productDb);
+        return { productDb };
+      });
+      try { if (added === 0) alert('가져온 새 제품이 없습니다. CSV 형식(분류/모델명)을 확인하세요.'); } catch (e2) {}
+    };
+    reader.readAsText(f);
+  };
+
+  _persistProfiles = (p) => { try { localStorage.setItem('avycon_profiles', JSON.stringify(p)); } catch (e) {} };
+  saveProfile = () => {
+    const S = this.state.settings || {};
+    const model = ((S.cameraModel ?? this.props.cameraModel) ?? '').trim();
+    if (!model) return;
+    const accNames = this.state.accNames || {};
+    const imgByName = this.state.imgByName || {};
+    const usedImgs = {};
+    Object.values(accNames).forEach(n => { const nm = (n||'').trim(); if (nm && imgByName[nm]) usedImgs[nm] = imgByName[nm]; });
+    const profile = {
+      model,
+      category: (S.cameraCategory ?? this.props.cameraCategory) ?? 'Select Camera',
+      location: (S.location ?? this.props.location) ?? 'Wall',
+      rev: (S.documentRev ?? this.props.documentRev) ?? '',
+      showNotes: (S.showNotes != null ? S.showNotes : true),
+      accNames: { ...accNames },
+      imgByName: usedImgs,
+      layout: JSON.parse(JSON.stringify(this.state.layout || {})),
+      accessories: this._flattenAccessories(accNames, imgByName),
+      updatedAt: new Date().toISOString(),
+    };
+    this.setState(s => {
+      const profiles = { ...s.profiles, [model]: profile };
+      this._persistProfiles(profiles);
+      return { profiles };
+    });
+  };
+  loadProfile = (model) => {
+    const p = (this.state.profiles || {})[model];
+    if (!p) return;
+    this.setState(s => {
+      const settings = { ...s.settings, cameraModel: model, cameraCategory: p.category, location: p.location, documentRev: p.rev, showNotes: p.showNotes };
+      this._persistSettings(settings);
+      const accNames = { ...(p.accNames || {}) };
+      this._persistNames(accNames);
+      const imgByName = { ...s.imgByName, ...(p.imgByName || {}) };
+      this._persistImgs(imgByName);
+      const layout = p.layout ? JSON.parse(JSON.stringify(p.layout)) : s.layout;
+      this._persistLayout(layout);
+      return { settings, accNames, imgByName, layout, uidSeq: this._maxUid(layout) + 1 };
+    });
+  };
+  exportCsv = () => {
+    const profiles = this.state.profiles || {};
+    const header = ['Model','CameraCategory','InstallLocation','AccessoryLocation','ComboID','AccessoryType','AccessoryName','HasImage','UpdatedAt'];
+    const rows = [header];
+    Object.keys(profiles).forEach(model => {
+      const p = profiles[model];
+      const accs = p.accessories || [];
+      if (!accs.length) { rows.push([model, p.category, p.location, '', '', '', '', '', p.updatedAt || '']); }
+      accs.forEach(a => { rows.push([model, p.category, p.location, a.location, a.comboId, a.type, a.name, a.hasImage ? 'Y' : 'N', p.updatedAt || '']); });
+    });
+    const esc = (c) => { const s = String(c == null ? '' : c); return /[",\n]/.test(s) ? '"' + s.replace(/"/g, '""') + '"' : s; };
+    const csv = rows.map(r => r.map(esc).join(',')).join('\n');
+    try {
+      const blob = new Blob(['\ufeff' + csv], { type: 'text/csv;charset=utf-8;' });
+      const url = URL.createObjectURL(blob);
+      const a = document.createElement('a');
+      a.href = url; a.download = 'avycon-products.csv'; document.body.appendChild(a); a.click();
+      document.body.removeChild(a); URL.revokeObjectURL(url);
+    } catch (e) {}
+  };
+
+  _persistSettings = (settings) => {
+    try { localStorage.setItem('avycon_doc_settings', JSON.stringify(settings)); } catch (e) {}
+  };
+  setSetting = (key, value) => this.setState(s => {
+    const settings = { ...s.settings, [key]: value };
+    this._persistSettings(settings);
+    return { settings };
+  });
+  resetSettings = () => { this._persistSettings({}); this.setState({ settings: {} }); };
+
+  onCamImageChange = (e) => {
+    const f = e.target && e.target.files && e.target.files[0];
+    if (!f) return;
+    const r = new FileReader();
+    r.onload = () => {
+      try { localStorage.setItem('avycon_cam_image', r.result); } catch (e) {}
+      this.setState({ camImage: r.result });
+    };
+    r.readAsDataURL(f);
+  };
+
+  clearCamImage = () => {
+    try { localStorage.removeItem('avycon_cam_image'); } catch (e) {}
+    this.setState({ camImage: null });
+  };
+
+  _sizeNote = () => { const el = this._noteEl; if (el) { el.style.height = 'auto'; el.style.height = el.scrollHeight + 'px'; } };
+  noteRef = (el) => { this._noteEl = el; this._sizeNote(); };
+  onNoteChange = (e) => {
+    const v = e.target.value;
+    try { e.target.style.height = 'auto'; e.target.style.height = e.target.scrollHeight + 'px'; } catch (err) {}
+    try { localStorage.setItem('avycon_note', v); } catch (err) {}
+    this.setState({ noteText: v });
+  };
+
+  renderVals() {
+    const LOCS = this.LOCS;
+    const CODES = this.CODES;
+    const map = {
+      Wall:    { ko:'벽면',         accent:'#3f6cb0', soft:'#eef2f9' },
+      Ceiling: { ko:'천장',         accent:'#2f8f6b', soft:'#ecf5f1' },
+      Pole:    { ko:'폴 (기둥)',    accent:'#b07d2f', soft:'#f7f1e7' },
+      Corner:  { ko:'코너',         accent:'#7d4fb0', soft:'#f2edf8' },
+      Parapet: { ko:'난간 (파라펫)', accent:'#b04f4f', soft:'#f8eded' },
+    };
+    const S = this.state.settings || {};
+    const loc = (S.location ?? this.props.location) ?? 'Wall';
+    const m = map[loc] || map.Wall;
+
+    // --- Camera selection (AVYCON) ---
+    const category = (S.cameraCategory ?? this.props.cameraCategory) ?? 'Select Camera';
+    const modelRaw = (S.cameraModel ?? this.props.cameraModel) ?? '';
+    const modelInput = modelRaw.trim();
+    const revVal = (S.documentRev ?? this.props.documentRev) ?? 'Rev. A · 2026.06';
+    const showNotesVal = (S.showNotes != null ? S.showNotes : (this.props.showNotes != null ? this.props.showNotes : true));
+    const hasCategory = category && category !== 'Select Camera';
+    const camName = modelInput ? modelInput : (hasCategory ? category : 'Select Camera');
+    const camType = hasCategory ? (category + ' Camera') : 'Network Camera';
+    const camImg = this.state.camImage || '';
+    const mkImg = (src) => src
+      ? React.createElement('img', { src, alt: '', style: { width: '100%', height: '100%', objectFit: 'contain', background: '#fff' } })
+      : null;
+    const cam = { model: camName, type: camType, cat: 'CAM', noImg: !camImg, imgEl: mkImg(camImg) };
+
+    const blank = '\u2014';
+    const accNames = this.state.accNames || {};
+    const imgByName = this.state.imgByName || {};
+
+    // dynamic catalog: reuse model names already entered (this doc + saved profiles), grouped by accessory category
+    const slotMeta = this._slotMeta();
+    const catalogSets = {};
+    const addCat = (cat, nm) => { if (!cat || !nm) return; (catalogSets[cat] = catalogSets[cat] || new Set()).add(nm); };
+    Object.keys(accNames).forEach(k => { const nm = (accNames[k]||'').trim(); if (nm) addCat((slotMeta[k]||{}).cat, nm); });
+    Object.values(this.state.profiles || {}).forEach(p => { const an = p.accNames || {}; Object.keys(an).forEach(k => { const nm = (an[k]||'').trim(); if (nm) addCat((slotMeta[k]||{}).cat, nm); }); });
+    const productDb = this.state.productDb || {};
+    const groupFor = (cat) => cat === 'MNT' ? this.MNT_GROUP : [cat];
+    const catOptsFor = (cat) => {
+      const set = new Set(Array.from(catalogSets[cat] || []));
+      groupFor(cat).forEach(g => (productDb[g] || []).forEach(n => set.add(n)));
+      return Array.from(set).sort((a,b) => String(a).localeCompare(String(b)));
+    };
+    const nameToCat = {};
+    Object.keys(productDb).forEach(ck => (productDb[ck] || []).forEach(nm => { if (nameToCat[nm] == null) nameToCat[nm] = ck; }));
+    const labelOfCat = {}; this.DB_CATS.forEach(c => { labelOfCat[c.key] = c.label; });
+    const catOfName = (nm) => { const k = nameToCat[nm]; return k ? { key:k, label:labelOfCat[k] || k } : null; };
+    const dbCatPickList = () => this.DB_CATS.map(c => ({ key:c.key, label:c.label, ko:c.ko, count:(productDb[c.key] || []).length, onPick:() => this.pickCat(c.key) }));
+
+    const buildCombos = (L) => {
+      const code = CODES[L] || L[0].toUpperCase();
+      const mm = map[L] || map.Wall;
+      const placeLabel = L.toUpperCase();
+      const combos = [];
+      const editorCombos = [];
+      const insts = (this.state.layout[L] || []);
+      const descs = [{ uid:'__base', n:0, note:'Direct install', isBase:true }].concat(
+        insts.map(inst => {
+          const cnt = inst.n != null ? inst.n : (this.TEMPLATES && this.TEMPLATES[inst.tpl] ? this.TEMPLATES[inst.tpl].accs.length : 1);
+          return { uid:inst.uid, n:cnt, note: (cnt === 1 ? 'Single accessory' : cnt + ' accessories'), isBase:false };
+        })
+      );
+      descs.forEach((c, ci) => {
+        const id = code + '-' + String(ci + 1).padStart(2, '0');
+        const accNodes = [];
+        for (let ai = 0; ai < (c.n || 0); ai++) {
+          const key = c.uid + ':' + ai;
+          const rawName = accNames[key] || '';
+          const name = rawName.trim();
+          const img = name ? (imgByName[name] || '') : '';
+          const ci2 = name ? catOfName(name) : null;
+          accNodes.push({
+            kind:'product', cat: ci2 ? ci2.key : 'ACC', type: ci2 ? ci2.label : 'Accessory',
+            model: name || blank, noImg: !img, imgEl: mkImg(img),
+            _key:key, _img:img, _name: rawName,
+          });
+        }
+        const nodes = [ { ...cam, kind:'product', _isCam:true } ]
+          .concat(accNodes)
+          .concat([ { kind:'placement', placeLabel, cat:'PLC' } ]);
+        const items = nodes.map((n, i) => {
+          const isAcc = n.kind === 'product' && !n._isCam;
+          const nm = (n._name || '').trim();
+          const key = n._key;
+          const pickerOpen = isAcc && this.state.pickerKey === key;
+          const pc = this.state.pickerCat;
+          const showProducts = pickerOpen && !!pc;
+          const prodList = (showProducts ? (productDb[pc] || []) : []).map(pn => ({
+            name: pn, imgEl: mkImg(imgByName[pn] || ''), noImg: !imgByName[pn], onPick: () => this.pickProduct(key, pn),
+          }));
+          return {
+            ...n,
+            isProduct:   n.kind === 'product',
+            isCamera:    n.kind === 'product' && !!n._isCam,
+            isAccessory: isAcc,
+            isPlacement: n.kind === 'placement',
+            hasName:     !!nm,
+            noName:      isAcc && !nm,
+            hasImg:      !!n._img,
+            pickerOpen:  pickerOpen,
+            pickerStepCat:  pickerOpen && !pc,
+            pickerStepProd: showProducts,
+            pickerCatLabel: pc ? (labelOfCat[pc] || pc) : '',
+            noProdInCat: showProducts && prodList.length === 0,
+            catList: isAcc ? dbCatPickList() : [],
+            prodList: prodList,
+            onOpen:  isAcc ? (() => this.openPicker(key)) : null,
+            onClose: isAcc ? (() => this.closePicker()) : null,
+            onBack:  isAcc ? (() => this.pickCat(null)) : null,
+            onClear: isAcc ? (() => this.setAccName(key, '')) : null,
+            showConn:    i > 0,
+            connSymbol:  n.kind === 'placement' ? '\u2192' : '+',
+            connColor:   n.kind === 'placement' ? mm.accent : '#9aa0a7',
+            connBg:      n.kind === 'placement' ? mm.soft : '#ffffff',
+            connBorder:  n.kind === 'placement' ? mm.accent : '#e6e8ec',
+          };
+        });
+        const onRemove = c.isBase ? null : (() => this.removeCombo(L, c.uid));
+        combos.push({ id, note:c.note, items, isBase:c.isBase, canDelete:!c.isBase, onRemove });
+        editorCombos.push({ id, note:c.note, isBase:c.isBase, canDelete:!c.isBase, onRemove });
+      });
+      return { combos, editorCombos };
+    };
+
+    const pageBuilt = buildCombos(loc);
+
+    // --- Pages: one per location that has registered accessories (+ the selected one) ---
+    const layoutState = this.state.layout || {};
+    const mkAddOptions = (L) => [1,2,3].map(n => ({ n: n, label: '악세서리 ' + n + '개', ko: '카메라 + ' + n + '개 결합', onAdd: () => this.addCombo(L, n) }));
+    // The main view always reflects the selected install location.
+    const pageLocs = [loc];
+    const pages = pageLocs.map((L, idx) => {
+      const built = buildCombos(L);
+      const mm = map[L];
+      return {
+        loc: L, locLabel: L.toUpperCase(), locKo: mm.ko, accent: mm.accent, soft: mm.soft,
+        combos: built.combos, comboCount: built.combos.length,
+        pageNo: String(idx + 1).padStart(2, '0'),
+        addOptions: mkAddOptions(L),
+        addMenuOpen: this.state.addMenuLoc === L,
+        onToggleAdd: () => this.toggleAddMenu(L),
+      };
+    });
+
+    const openLoc = this.state.openLoc || loc;
+    const editorByLocation = LOCS.map(L => {
+      const mm = map[L];
+      const isOpen = openLoc === L;
+      return {
+        loc: L, label: L.toUpperCase(), ko: mm.ko, accent: mm.accent, soft: mm.soft,
+        isOpen, toggleGlyph: isOpen ? '\u2212' : '+',
+        onToggle: () => this.setOpenLoc(L),
+        combos: buildCombos(L).editorCombos,
+        addOptions: mkAddOptions(L),
+        addMenuOpen: this.state.addMenuLoc === L,
+        onToggleAdd: () => this.toggleAddMenu(L),
+      };
+    });
+
+    // --- Product database view data ---
+    const view = this.state.view || 'main';
+    const dbCats = this.DB_CATS.map(c => {
+      const names = (this.state.productDb[c.key] || []);
+      const products = names.map(nm => {
+        const img = imgByName[nm] || '';
+        return { name:nm, hasImg:!!img, noImg:!img, imgEl:mkImg(img),
+          onImg:(e)=>this.setProductImage(c.key, nm, e),
+          onRemove:()=>this.removeProduct(c.key, nm) };
+      });
+      const draft = (this.state.dbDraft[c.key] || '');
+      const draftImg = (this.state.dbDraftImg[c.key] || '');
+      return { key:c.key, label:c.label, ko:c.ko, count:products.length, hasProducts:products.length>0, noProducts:products.length===0,
+        products, draft, draftImg, hasDraftImg:!!draftImg, noDraftImg:!draftImg, draftImgEl:mkImg(draftImg),
+        onDraft:(e)=>this.setDbDraft(c.key, e.target.value), onDraftImg:(e)=>this.setDbDraftImage(c.key, e), onAdd:()=>this.addProduct(c.key) };
+    });
+
+    return {
+      isMain: view !== 'db',
+      isDb: view === 'db',
+      gotoDb: this.gotoDb,
+      gotoMain: this.gotoMain,
+      exportProductCsv: this.exportProductCsv,
+      exportProductJson: this.exportProductJson,
+      importProductCsv: this.importProductCsv,
+      saveDb: this.saveDb,
+      dbSaved: this.state.dbSaved,
+      dbCats,
+      locLabel: loc.toUpperCase(),
+      locKo: m.ko,
+      accent: m.accent,
+      soft: m.soft,
+      rev: revVal,
+      showNotes: showNotesVal,
+      noteText: this.state.noteText,
+      onNoteChange: this.onNoteChange,
+      noteRef: this.noteRef,
+      camModel: camName,
+      camType: camType,
+      comboCount: pageBuilt.combos.length,
+      combos: pageBuilt.combos,
+      pages: (view === 'db') ? [] : pages,
+      camImageEl: mkImg(camImg),
+      hasCamImage: !!camImg,
+      noCamImage: !camImg,
+      onCamImageChange: this.onCamImageChange,
+      clearCamImage: this.clearCamImage,
+      editorByLocation,
+      drawerOpen: this.state.drawerOpen,
+      toggleDrawer: this.toggleDrawer,
+      resetSettings: this.resetSettings,
+      saveProfile: this.saveProfile,
+      exportCsv: this.exportCsv,
+      onLoadProfile: (e) => { const v = e.target.value; if (v) this.loadProfile(v); },
+      profileNames: Object.keys(this.state.profiles || {}),
+      hasProfiles: Object.keys(this.state.profiles || {}).length > 0,
+      savedCount: Object.keys(this.state.profiles || {}).length,
+      canSave: !!modelInput,
+      noSave: !modelInput,
+      categoryOptions: ['Select Camera', 'Turret', 'Bullet', 'Vandal Dome', 'Indoor Dome', 'PTZ'],
+      locationOptions: LOCS,
+      settingsCategory: category,
+      settingsModel: modelRaw,
+      settingsLocation: loc,
+      settingsRev: revVal,
+      settingsShowNotes: showNotesVal,
+      switchBg: showNotesVal ? m.accent : '#cdd1d6',
+      knobLeft: showNotesVal ? '20px' : '2px',
+      onCategoryChange: (e) => this.setSetting('cameraCategory', e.target.value),
+      onModelChange: (e) => this.setSetting('cameraModel', e.target.value),
+      onLocationChange: (e) => this.setSetting('location', e.target.value),
+      onRevChange: (e) => this.setSetting('documentRev', e.target.value),
+      toggleShowNotes: () => this.setSetting('showNotes', !showNotesVal),
+    };
+  }
+}
+</script>
+</body>
+</html>

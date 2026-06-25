@@ -1,0 +1,9 @@
+# OS / editor
+.DS_Store
+Thumbs.db
+*.swp
+.idea/
+.vscode/
+# deps / build (정적 사이트라 보통 불필요)
+node_modules/
+.vercel
