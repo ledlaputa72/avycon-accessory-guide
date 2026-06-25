@@ -1,0 +1,8 @@
+{
+  "name": "avycon-accessory-guide",
+  "private": true,
+  "description": "Static accessory combination guide + /api/upload serverless function for Vercel Blob image hosting",
+  "dependencies": {
+    "@vercel/blob": "^2.0.0"
+  }
+}

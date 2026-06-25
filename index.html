@@ -515,6 +515,54 @@ class Component extends DCLogic {
   _persistNames = (m) => { try { localStorage.setItem('avycon_acc_names', JSON.stringify(m)); } catch (e) {} };
   _persistImgs = (m) => { try { localStorage.setItem('avycon_img_by_name', JSON.stringify(m)); } catch (e) {} };
 
+  // Downscale a picked image to keep uploads small (also keeps localStorage tiny when URLs are used).
+  _resizeImage = (file, maxDim, quality) => new Promise((resolve) => {
+    try {
+      const img = new Image();
+      const url = URL.createObjectURL(file);
+      img.onload = () => {
+        try {
+          URL.revokeObjectURL(url);
+          let w = img.naturalWidth || img.width, h = img.naturalHeight || img.height;
+          const scale = Math.min(1, (maxDim || 1280) / Math.max(w, h || 1));
+          w = Math.max(1, Math.round(w * scale)); h = Math.max(1, Math.round(h * scale));
+          const canvas = document.createElement('canvas');
+          canvas.width = w; canvas.height = h;
+          canvas.getContext('2d').drawImage(img, 0, 0, w, h);
+          canvas.toBlob((blob) => resolve(blob || file), 'image/jpeg', quality || 0.85);
+        } catch (e) { resolve(file); }
+      };
+      img.onerror = () => { try { URL.revokeObjectURL(url); } catch (e) {} resolve(file); };
+      img.src = url;
+    } catch (e) { resolve(file); }
+  });
+
+  // Upload to /api/upload (Vercel Blob) and return a public https URL.
+  // Falls back to a base64 data URL if the API is unavailable (e.g. local preview or Blob store not yet set up),
+  // so the app keeps working — only cross-user sharing needs the online URL.
+  _uploadImage = async (file) => {
+    try {
+      const blob = await this._resizeImage(file, 1280, 0.85);
+      const base = String(file.name || 'image').replace(/\.[^.]+$/, '') || 'image';
+      const fname = base + '.jpg';
+      const resp = await fetch('/api/upload?filename=' + encodeURIComponent(fname), {
+        method: 'POST',
+        headers: { 'Content-Type': (blob && blob.type) || 'image/jpeg' },
+        body: blob,
+      });
+      if (resp.ok) {
+        const data = await resp.json();
+        if (data && data.url) return data.url;
+      }
+    } catch (e) {}
+    return await new Promise((resolve) => {
+      const r = new FileReader();
+      r.onload = () => resolve(r.result);
+      r.onerror = () => resolve('');
+      r.readAsDataURL(file);
+    });
+  };
+
   // slot -> product name
   setAccName = (key, value) => {
     this.setState(s => {
@@ -529,15 +577,15 @@ class Component extends DCLogic {
     if (!f) return;
     const name = (this.state.accNames[key] || '').trim();
     if (!name) { e.target.value = ''; return; }
-    const r = new FileReader();
-    r.onload = () => {
+    e.target.value = '';
+    this._uploadImage(f).then((src) => {
+      if (!src) return;
       this.setState(s => {
-        const imgByName = { ...s.imgByName, [name]: r.result };
+        const imgByName = { ...s.imgByName, [name]: src };
         this._persistImgs(imgByName);
         return { imgByName };
       });
-    };
-    r.readAsDataURL(f);
+    });
   };
   clearImgByName = (name) => {
     const nm = (name || '').trim();
@@ -584,9 +632,8 @@ class Component extends DCLogic {
   setDbDraft = (cat, val) => this.setState(s => ({ dbDraft: { ...s.dbDraft, [cat]: val } }));
   setDbDraftImage = (cat, e) => {
     const f = e.target && e.target.files && e.target.files[0]; if (!f) return;
-    const r = new FileReader();
-    r.onload = () => this.setState(s => ({ dbDraftImg: { ...s.dbDraftImg, [cat]: r.result } }));
-    r.readAsDataURL(f);
+    e.target.value = '';
+    this._uploadImage(f).then((src) => this.setState(s => ({ dbDraftImg: { ...s.dbDraftImg, [cat]: src } })));
   };
   addProduct = (cat) => {
     this.setState(s => {
@@ -612,9 +659,8 @@ class Component extends DCLogic {
   };
   setProductImage = (cat, name, e) => {
     const f = e.target && e.target.files && e.target.files[0]; if (!f) return;
-    const r = new FileReader();
-    r.onload = () => { this.setState(s => { const imgByName = { ...s.imgByName, [name]: r.result }; this._persistImgs(imgByName); return { imgByName }; }); };
-    r.readAsDataURL(f);
+    e.target.value = '';
+    this._uploadImage(f).then((src) => { if (!src) return; this.setState(s => { const imgByName = { ...s.imgByName, [name]: src }; this._persistImgs(imgByName); return { imgByName }; }); });
   };
   _csvEsc = (c) => { const s = String(c == null ? '' : c); return /[",\n]/.test(s) ? '"' + s.replace(/"/g, '""') + '"' : s; };
   _download = (filename, text, mime) => {
@@ -628,8 +674,12 @@ class Component extends DCLogic {
   };
   exportProductCsv = () => {
     const db = this.state.productDb || {}; const img = this.state.imgByName || {};
-    const rows = [['CategoryKey','Category','Model','HasImage']];
-    this.DB_CATS.forEach(c => { (db[c.key] || []).forEach(nm => { rows.push([c.key, c.label, nm, img[nm] ? 'Y' : 'N']); }); });
+    const isUrl = (v) => /^https?:\/\//i.test(String(v || ''));
+    const rows = [['CategoryKey','Category','Model','HasImage','ImageURL']];
+    this.DB_CATS.forEach(c => { (db[c.key] || []).forEach(nm => {
+      const v = img[nm];
+      rows.push([c.key, c.label, nm, v ? 'Y' : 'N', isUrl(v) ? v : '']);
+    }); });
     const csv = rows.map(r => r.map(this._csvEsc).join(',')).join('\n');
     this._download('avycon-accessory-db.csv', '\ufeff' + csv, 'text/csv;charset=utf-8;');
   };
@@ -672,16 +722,18 @@ class Component extends DCLogic {
       this.DB_CATS.forEach(c => { byKey[c.key.toLowerCase()] = c.key; byLabel[c.label.toLowerCase()] = c.key; byLabel[String(c.ko).toLowerCase()] = c.key; });
       const h = rows[0].map(c => String(c).trim().toLowerCase());
       const hasHeader = h.indexOf('model') !== -1 || h.indexOf('categorykey') !== -1 || h.indexOf('category') !== -1;
-      let keyIdx = 0, catIdx = 1, modelIdx = 2, start = 0;
+      let keyIdx = 0, catIdx = 1, modelIdx = 2, imageIdx = -1, start = 0;
       if (hasHeader) {
         start = 1;
         const fi = (arr) => { for (let k = 0; k < arr.length; k++) { const idx = h.indexOf(arr[k]); if (idx !== -1) return idx; } return -1; };
         const ki = fi(['categorykey','key']); const ci = fi(['category','분류']); const mi = fi(['model','모델','모델명','name']);
         if (ki !== -1) keyIdx = ki; if (ci !== -1) catIdx = ci; if (mi !== -1) modelIdx = mi;
+        imageIdx = fi(['imageurl','image','imgurl','img','사진','이미지']);
       }
-      let added = 0;
+      let added = 0, imgAdded = 0;
       this.setState(s => {
         const productDb = { ...s.productDb };
+        const imgByName = { ...s.imgByName };
         for (let r = start; r < rows.length; r++) {
           const cols = rows[r];
           let key = byKey[String(cols[keyIdx] != null ? cols[keyIdx] : '').trim().toLowerCase()];
@@ -690,11 +742,16 @@ class Component extends DCLogic {
           if (!key || !model) continue;
           const list = (productDb[key] || []);
           if (list.indexOf(model) === -1) { productDb[key] = list.concat([model]); added++; }
+          if (imageIdx !== -1) {
+            const url = String(cols[imageIdx] != null ? cols[imageIdx] : '').trim();
+            if (/^https?:\/\//i.test(url)) { imgByName[model] = url; imgAdded++; }
+          }
         }
         this._persistDb(productDb);
-        return { productDb };
+        this._persistImgs(imgByName);
+        return { productDb, imgByName };
       });
-      try { if (added === 0) alert('가져온 새 제품이 없습니다. CSV 형식(분류/모델명)을 확인하세요.'); } catch (e2) {}
+      try { if (added === 0 && imgAdded === 0) alert('가져온 새 제품이 없습니다. CSV 형식(분류/모델명)을 확인하세요.'); } catch (e2) {}
     };
     reader.readAsText(f);
   };
@@ -775,12 +832,12 @@ class Component extends DCLogic {
   onCamImageChange = (e) => {
     const f = e.target && e.target.files && e.target.files[0];
     if (!f) return;
-    const r = new FileReader();
-    r.onload = () => {
-      try { localStorage.setItem('avycon_cam_image', r.result); } catch (e) {}
-      this.setState({ camImage: r.result });
-    };
-    r.readAsDataURL(f);
+    e.target.value = '';
+    this._uploadImage(f).then((src) => {
+      if (!src) return;
+      try { localStorage.setItem('avycon_cam_image', src); } catch (e) {}
+      this.setState({ camImage: src });
+    });
   };
 
   clearCamImage = () => {
