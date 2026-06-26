@@ -1032,25 +1032,62 @@ class Component extends DCLogic {
       return { settings, accNames, imgByName, layout, camImage, noteText, disabledLocs, view: 'main', uidSeq: this._maxUid(layout) + 1 };
     }, () => { try { this._sizeNote(); } catch (e) {} });
   };
+  // Full breakdown of every saved product: each location \u00d7 each combination case \u00d7
+  // each accessory (with name + image URL). Reconstructed from the saved layout/accNames
+  // (the same model buildCombos uses), so it always reflects the actual combinations.
   exportCsv = () => {
     const profiles = this.state.profiles || {};
-    const header = ['Model','CameraCategory','InstallLocation','AccessoryLocation','ComboID','AccessoryType','AccessoryName','HasImage','UpdatedAt'];
+    const productDb = this.state.productDb || {};
+    const imgAll = this.state.imgByName || {};
+    const isUrl = (v) => /^https?:\/\//i.test(String(v || ''));
+    const nameToCat = {};
+    Object.keys(productDb).forEach(ck => (productDb[ck] || []).forEach(nm => { if (nameToCat[nm] == null) nameToCat[nm] = ck; }));
+    const labelOfCat = {}; this.DB_CATS.forEach(c => { labelOfCat[c.key] = c.label; });
+    const catLabelOf = (nm) => { const k = nameToCat[nm]; return k ? (labelOfCat[k] || k) : ''; };
+
+    const header = ['Model','CameraCategory','CameraImageURL','InstallLocation','ComboID','ComboType','AccessorySlot','AccessoryName','AccessoryCategory','AccessoryImageURL','UpdatedAt'];
     const rows = [header];
+
     Object.keys(profiles).forEach(model => {
-      const p = profiles[model];
-      const accs = p.accessories || [];
-      if (!accs.length) { rows.push([model, p.category, p.location, '', '', '', '', '', p.updatedAt || '']); }
-      accs.forEach(a => { rows.push([model, p.category, p.location, a.location, a.comboId, a.type, a.name, a.hasImage ? 'Y' : 'N', p.updatedAt || '']); });
+      const p = profiles[model] || {};
+      const cat = p.category || '';
+      const camImg = isUrl(p.camImage) ? p.camImage : '';
+      const img = { ...imgAll, ...(p.imgByName || {}) };
+      const accNames = p.accNames || {};
+      const layout = p.layout || {};
+      const disabled = p.disabledLocs || {};
+      const updated = p.updatedAt || '';
+      let any = false;
+      this.LOCS.forEach(L => {
+        if (disabled[L]) return;
+        const code = this.CODES[L] || L.slice(0, 2).toUpperCase();
+        const insts = layout[L] || [];
+        const descs = [{ uid: '__base', n: 0, note: 'Direct install' }].concat(
+          insts.map(inst => { const cnt = inst.n != null ? inst.n : 1; return { uid: inst.uid, n: cnt, note: cnt === 1 ? 'Single accessory' : (cnt + ' accessories') }; })
+        );
+        descs.forEach((c, ci) => {
+          const id = code + '-' + String(ci + 1).padStart(2, '0');
+          const named = [];
+          for (let ai = 0; ai < (c.n || 0); ai++) {
+            const nm = ((accNames[c.uid + ':' + ai] || '') + '').trim();
+            if (nm) named.push({ slot: ai + 1, name: nm });
+          }
+          if (named.length) {
+            named.forEach(a => {
+              const url = isUrl(img[a.name]) ? img[a.name] : '';
+              rows.push([model, cat, camImg, L, id, c.note, String(a.slot), a.name, catLabelOf(a.name), url, updated]);
+            });
+          } else {
+            rows.push([model, cat, camImg, L, id, c.note, '', '', '', '', updated]);
+          }
+          any = true;
+        });
+      });
+      if (!any) rows.push([model, cat, camImg, p.location || '', '', '', '', '', '', '', updated]);
     });
-    const esc = (c) => { const s = String(c == null ? '' : c); return /[",\n]/.test(s) ? '"' + s.replace(/"/g, '""') + '"' : s; };
-    const csv = rows.map(r => r.map(esc).join(',')).join('\n');
-    try {
-      const blob = new Blob(['\ufeff' + csv], { type: 'text/csv;charset=utf-8;' });
-      const url = URL.createObjectURL(blob);
-      const a = document.createElement('a');
-      a.href = url; a.download = 'avycon-products.csv'; document.body.appendChild(a); a.click();
-      document.body.removeChild(a); URL.revokeObjectURL(url);
-    } catch (e) {}
+
+    const csv = rows.map(r => r.map(this._csvEsc).join(',')).join('\n');
+    this._download('avycon-products.csv', '\ufeff' + csv, 'text/csv;charset=utf-8;');
   };
 
   _persistSettings = (settings) => {
