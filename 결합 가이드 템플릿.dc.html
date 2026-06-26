@@ -20,8 +20,9 @@
     body { background:#fff; }
     .page { box-shadow:none !important; margin:0 !important; break-after:page; }
     .page:last-child { break-after:auto; }
-    /* Export = cover + every location page, regardless of which one is on screen */
+    /* Export = cover + every ENABLED location page, regardless of which one is on screen */
     .print-page { display:flex !important; }
+    .page:not(.print-page) { display:none !important; }
     .screen-only { display:none !important; }
     .print-only { display:flex !important; }
     * { -webkit-print-color-adjust:exact !important; print-color-adjust:exact !important; }
@@ -214,7 +215,7 @@
   </div>
 
   <sc-for list="{{ pages }}" as="pg" hint-placeholder-count="1">
-  <div class="page print-page" style="width:816px; min-height:1056px; background:#ffffff; box-shadow:0 6px 28px rgba(20,22,28,.18); padding:40px 52px 32px; display:{{ pg.screenDisplay }}; flex-direction:column; color:#1c1d1f;">
+  <div class="page {{ pg.printClass }}" style="width:816px; min-height:1056px; background:#ffffff; box-shadow:0 6px 28px rgba(20,22,28,.18); padding:40px 52px 32px; display:{{ pg.screenDisplay }}; flex-direction:column; color:#1c1d1f;">
 
     <!-- MASTHEAD -->
     <div style="display:flex; align-items:center; justify-content:space-between; padding-bottom:12px; border-bottom:1.5px solid #1c1d1f;">
@@ -222,8 +223,20 @@
         <span style="font-family:'Pretendard Variable','Pretendard',-apple-system,BlinkMacSystemFont,system-ui,sans-serif; font-weight:600; font-size:14px; letter-spacing:4px;">AVYCON</span>
         <span style="font-size:10px; color:#8a8f96; letter-spacing:1px;">CAMERA ACCESSORY PROGRAM</span>
       </div>
-      <div style="font-family:'Pretendard Variable','Pretendard',-apple-system,BlinkMacSystemFont,system-ui,sans-serif; font-size:10px; color:#8a8f96; letter-spacing:.5px;">{{ rev }}</div>
+      <div style="display:flex; align-items:center; gap:16px;">
+        <div class="screen-only" style="display:flex; align-items:center; gap:8px;">
+          <span style="font-size:9px; letter-spacing:.5px; text-transform:uppercase; white-space:nowrap; color:{{ pg.accent }};">{{ t.useLocation }}</span>
+          <button type="button" onClick="{{ pg.onToggleEnabled }}" title="{{ t.useLocation }}" style="position:relative; width:40px; height:23px; border-radius:12px; border:none; cursor:pointer; background:{{ pg.locSwitchBg }}; flex-shrink:0; transition:background .15s;">
+            <span style="position:absolute; top:2px; left:{{ pg.locKnobLeft }}; width:19px; height:19px; border-radius:50%; background:#fff; box-shadow:0 1px 2px rgba(0,0,0,.25); transition:left .15s;"></span>
+          </button>
+        </div>
+        <div style="font-family:'Pretendard Variable','Pretendard',-apple-system,BlinkMacSystemFont,system-ui,sans-serif; font-size:10px; color:#8a8f96; letter-spacing:.5px;">{{ rev }}</div>
+      </div>
     </div>
+
+    <sc-if value="{{ pg.disabled }}" hint-placeholder-val="{{ false }}">
+      <div class="screen-only" style="margin-top:12px; padding:9px 12px; border-radius:6px; background:#fbeeee; border:1px solid #e6c4c4; color:#b04f4f; font-size:11px; font-weight:600; text-align:center;">{{ t.notInExport }}</div>
+    </sc-if>
 
     <!-- TITLE -->
     <div style="margin-top:18px;">
@@ -512,7 +525,7 @@
   &quot;showNotes&quot;: { &quot;editor&quot;: null, &quot;default&quot;: true, &quot;tsType&quot;: &quot;boolean&quot; }
 }">
 class Component extends DCLogic {
-  state = { lang: 'en', camImage: null, accNames: {}, imgByName: {}, drawerOpen: false, openLoc: null, settings: {}, profiles: {}, layout: {}, uidSeq: 1, addMenuLoc: null, productDb: {}, dbDraft: {}, dbDraftImg: {}, view: 'main', dbSaved: false, pickerKey: null, pickerCat: null, noteText: '' };
+  state = { lang: 'en', camImage: null, accNames: {}, imgByName: {}, drawerOpen: false, openLoc: null, settings: {}, profiles: {}, layout: {}, uidSeq: 1, addMenuLoc: null, productDb: {}, dbDraft: {}, dbDraftImg: {}, view: 'main', dbSaved: false, pickerKey: null, pickerCat: null, noteText: '', disabledLocs: {} };
 
   LOCS = ['Wall', 'Ceiling', 'Pole', 'Corner', 'Parapet'];
   CODES = { Wall:'WL', Ceiling:'CL', Pole:'PO', Corner:'CR', Parapet:'PA' };
@@ -564,7 +577,8 @@ class Component extends DCLogic {
       cats:{ MNT_WALL:'Wall Mount', MNT_CEIL:'Ceiling Mount', MNT_POLE:'Pole Mount', MNT_BRKT:'Ceiling Bracket', MNT_CORN:'Corner Mount', BOX:'Junction Box', ADP:'Adaptor' },
       tt:{ uploadImage:'Upload image', deleteCombo:'Delete this combination', changeProduct:'Click to change product', clearSelection:'Clear selection', toCategory:'Back to categories', addPhoto:'Click to add photo', deleteProduct:'Delete product', uploadChangePhoto:'Click to upload / change photo' },
       importNothing:'No new products were imported. Check the CSV format (category / model).',
-      coverPage:'COVER PAGE', coverEditTitle:'Cover Page', coverFooterLabel:'FOOTER NOTE', coverVersionLabel:'VERSION', coverHint:'The cover prints first, followed by every location page. Most content syncs from settings & data.',
+      coverPage:'COVER PAGE', coverEditTitle:'Cover Page', coverFooterLabel:'FOOTER NOTE', coverVersionLabel:'VERSION', coverHint:'The cover prints first, followed by every enabled location page. Most content syncs from settings & data.',
+      useLocation:'Use this location', notInExport:'Disabled · not in export',
     },
     ko: {
       settingsTitle:'설정 · 제품 관리', settingsSubtitle:'문서 설정에 따라 제품 정보가 연동됩니다 · 화면 전용',
@@ -589,7 +603,8 @@ class Component extends DCLogic {
       cats:{ MNT_WALL:'월 마운트', MNT_CEIL:'천장 마운트', MNT_POLE:'폴 마운트', MNT_BRKT:'천장 브래킷', MNT_CORN:'코너 마운트', BOX:'정션 박스', ADP:'마운트 어댑터' },
       tt:{ uploadImage:'이미지 업로드', deleteCombo:'이 조합 배너 삭제', changeProduct:'클릭하여 제품 변경', clearSelection:'선택 해제', toCategory:'카테고리로', addPhoto:'클릭하여 사진 추가', deleteProduct:'제품 삭제', uploadChangePhoto:'클릭하여 사진 업로드/변경' },
       importNothing:'가져온 새 제품이 없습니다. CSV 형식(분류/모델명)을 확인하세요.',
-      coverPage:'커버 페이지', coverEditTitle:'커버 페이지', coverFooterLabel:'푸터 문구', coverVersionLabel:'버전', coverHint:'커버가 맨 앞에, 이어서 모든 location 페이지가 인쇄됩니다. 대부분의 내용은 설정·데이터에서 자동 반영됩니다.',
+      coverPage:'커버 페이지', coverEditTitle:'커버 페이지', coverFooterLabel:'푸터 문구', coverVersionLabel:'버전', coverHint:'커버가 맨 앞에, 이어서 활성화된 location 페이지가 인쇄됩니다. 대부분의 내용은 설정·데이터에서 자동 반영됩니다.',
+      useLocation:'이 위치 사용', notInExport:'비활성 · 내보내기 제외',
     },
     ja: {
       settingsTitle:'設定 · 製品管理', settingsSubtitle:'ドキュメント設定に応じて製品情報が連動します · 画面専用',
@@ -614,7 +629,8 @@ class Component extends DCLogic {
       cats:{ MNT_WALL:'ウォールマウント', MNT_CEIL:'天井マウント', MNT_POLE:'ポールマウント', MNT_BRKT:'天井ブラケット', MNT_CORN:'コーナーマウント', BOX:'ジャンクションボックス', ADP:'アダプター' },
       tt:{ uploadImage:'画像をアップロード', deleteCombo:'この組み合わせを削除', changeProduct:'クリックして製品を変更', clearSelection:'選択を解除', toCategory:'カテゴリへ', addPhoto:'クリックして写真を追加', deleteProduct:'製品を削除', uploadChangePhoto:'クリックして写真をアップロード / 変更' },
       importNothing:'新しい製品は取り込まれませんでした。CSV形式(分類/モデル名)を確認してください。',
-      coverPage:'表紙', coverEditTitle:'表紙', coverFooterLabel:'フッター文言', coverVersionLabel:'バージョン', coverHint:'表紙が最初に、続いてすべてのlocationページが印刷されます。ほとんどの内容は設定・データから自動反映されます。',
+      coverPage:'表紙', coverEditTitle:'表紙', coverFooterLabel:'フッター文言', coverVersionLabel:'バージョン', coverHint:'表紙が最初に、続いて有効なlocationページが印刷されます。ほとんどの内容は設定・データから自動反映されます。',
+      useLocation:'この場所を使用', notInExport:'無効 · 出力から除外',
     },
     es: {
       settingsTitle:'Ajustes · Productos', settingsSubtitle:'La info de producto sigue los ajustes · solo pantalla',
@@ -639,7 +655,8 @@ class Component extends DCLogic {
       cats:{ MNT_WALL:'Soporte de pared', MNT_CEIL:'Soporte de techo', MNT_POLE:'Soporte de poste', MNT_BRKT:'Bracket de techo', MNT_CORN:'Soporte de esquina', BOX:'Caja de conexión', ADP:'Adaptador' },
       tt:{ uploadImage:'Subir imagen', deleteCombo:'Eliminar esta combinación', changeProduct:'Clic para cambiar producto', clearSelection:'Quitar selección', toCategory:'Volver a categorías', addPhoto:'Clic para añadir foto', deleteProduct:'Eliminar producto', uploadChangePhoto:'Clic para subir / cambiar foto' },
       importNothing:'No se importaron productos nuevos. Revisa el formato CSV (categoría / modelo).',
-      coverPage:'PORTADA', coverEditTitle:'Portada', coverFooterLabel:'PIE DE PÁGINA', coverVersionLabel:'VERSIÓN', coverHint:'La portada se imprime primero, seguida de cada página de ubicación. La mayor parte del contenido se sincroniza con los ajustes y datos.',
+      coverPage:'PORTADA', coverEditTitle:'Portada', coverFooterLabel:'PIE DE PÁGINA', coverVersionLabel:'VERSIÓN', coverHint:'La portada se imprime primero, seguida de cada ubicación activada. La mayor parte del contenido se sincroniza con los ajustes y datos.',
+      useLocation:'Usar esta ubicación', notInExport:'Desactivada · fuera de exportación',
     },
   };
   _t() { return this.I18N[this.state.lang] || this.I18N.en; }
@@ -696,6 +713,8 @@ class Component extends DCLogic {
       if (pdb) this.setState({ productDb: JSON.parse(pdb) || {} });
       const nt = localStorage.getItem('avycon_note');
       if (nt != null) this.setState({ noteText: nt }, () => this._sizeNote());
+      const dl = localStorage.getItem('avycon_disabled_locs');
+      if (dl) this.setState({ disabledLocs: JSON.parse(dl) || {} });
     } catch (e) {}
   }
 
@@ -793,6 +812,12 @@ class Component extends DCLogic {
 
   toggleDrawer = () => this.setState(s => ({ drawerOpen: !s.drawerOpen }));
   setOpenLoc = (loc) => this.setState(s => ({ openLoc: s.openLoc === loc ? null : loc }));
+  toggleLocEnabled = (L) => this.setState(s => {
+    const disabledLocs = { ...s.disabledLocs };
+    if (disabledLocs[L]) delete disabledLocs[L]; else disabledLocs[L] = true;
+    try { localStorage.setItem('avycon_disabled_locs', JSON.stringify(disabledLocs)); } catch (e) {}
+    return { disabledLocs };
+  });
 
   _persistLayout = (layout) => { try { localStorage.setItem('avycon_layout', JSON.stringify(layout)); } catch (e) {} };
   addCombo = (loc, n) => {
@@ -1185,13 +1210,23 @@ class Component extends DCLogic {
     // Export = cover + every location page. On screen only the active page shows (per view);
     // on print every .print-page shows (see @media print). The selected location is editable on screen.
     const pageLocs = LOCS;
-    const pages = pageLocs.map((L, idx) => {
+    const disabledLocs = this.state.disabledLocs || {};
+    let printNo = 0;
+    const pages = pageLocs.map((L) => {
+      const enabled = !disabledLocs[L];
       const built = buildCombos(L);
       const mm = map[L];
+      let pageNo = '—';
+      if (enabled) { printNo++; pageNo = String(printNo).padStart(2, '0'); }
       return {
         loc: L, locName: (T.locations[L] || L), accent: mm.accent, soft: mm.soft,
         combos: built.combos, comboCount: built.combos.length,
-        pageNo: String(idx + 1).padStart(2, '0'),
+        pageNo: pageNo,
+        enabled: enabled, disabled: !enabled,
+        printClass: enabled ? 'print-page' : '',
+        locSwitchBg: enabled ? mm.accent : '#cdd1d6',
+        locKnobLeft: enabled ? '20px' : '2px',
+        onToggleEnabled: () => this.toggleLocEnabled(L),
         screenDisplay: (view === 'main' && L === loc) ? 'flex' : 'none',
         addOptions: mkAddOptions(L),
         addMenuOpen: this.state.addMenuLoc === L,
@@ -1202,14 +1237,15 @@ class Component extends DCLogic {
     // --- Cover page (its own edit screen; prints first) ---
     const coverFooterVal = ((S.coverFooter ?? '') + '').trim() || 'AVYCON Network / IP Camera Lineup';
     const coverVersionVal = ((S.coverVersion ?? '') + '').trim() || '1.0';
+    let cardNo = 0;
     const cover = {
       title: T.guideTitle, subtitle: T.guideSubtitle, model: camName, camType: camType,
       footer: coverFooterVal, version: coverVersionVal,
       screenDisplay: (view === 'cover') ? 'flex' : 'none',
-      cards: pages.map((p, idx) => ({
-        num: String(idx + 1).padStart(2, '0'), name: p.locName,
-        cases: p.comboCount, accent: p.accent, soft: p.soft,
-      })),
+      cards: pages.filter(p => p.enabled).map(p => {
+        cardNo++;
+        return { num: String(cardNo).padStart(2, '0'), name: p.locName, cases: p.comboCount, accent: p.accent, soft: p.soft };
+      }),
     };
 
     const openLoc = this.state.openLoc || loc;
