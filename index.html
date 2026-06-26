@@ -1051,8 +1051,15 @@ class Component extends DCLogic {
     Object.keys(profiles).forEach(model => {
       const p = profiles[model] || {};
       const cat = p.category || '';
-      const camImg = isUrl(p.camImage) ? p.camImage : '';
-      const img = { ...imgAll, ...(p.imgByName || {}) };
+      const psnap = p.imgByName || {};
+      // Prefer the LIVE product-database image (canonical, kept current), then the saved snapshot.
+      // Only emit http(s) URLs — base64/local-only images are skipped (re-upload to get a URL).
+      const imgUrlFor = (nm) => {
+        if (isUrl(imgAll[nm])) return imgAll[nm];
+        if (isUrl(psnap[nm])) return psnap[nm];
+        return '';
+      };
+      const camImg = isUrl(p.camImage) ? p.camImage : (isUrl(imgAll[model]) ? imgAll[model] : '');
       const accNames = p.accNames || {};
       const layout = p.layout || {};
       const disabled = p.disabledLocs || {};
@@ -1074,8 +1081,7 @@ class Component extends DCLogic {
           }
           if (named.length) {
             named.forEach(a => {
-              const url = isUrl(img[a.name]) ? img[a.name] : '';
-              rows.push([model, cat, camImg, L, id, c.note, String(a.slot), a.name, catLabelOf(a.name), url, updated]);
+              rows.push([model, cat, camImg, L, id, c.note, String(a.slot), a.name, catLabelOf(a.name), imgUrlFor(a.name), updated]);
             });
           } else {
             rows.push([model, cat, camImg, L, id, c.note, '', '', '', '', updated]);
