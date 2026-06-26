@@ -516,7 +516,8 @@ class Component extends DCLogic {
   _persistImgs = (m) => { try { localStorage.setItem('avycon_img_by_name', JSON.stringify(m)); } catch (e) {} };
 
   // Downscale a picked image to keep uploads small (also keeps localStorage tiny when URLs are used).
-  _resizeImage = (file, maxDim, quality) => new Promise((resolve) => {
+  // outType: 'image/png' preserves transparency; 'image/jpeg' is smaller for photos.
+  _resizeImage = (file, maxDim, quality, outType) => new Promise((resolve) => {
     try {
       const img = new Image();
       const url = URL.createObjectURL(file);
@@ -529,7 +530,7 @@ class Component extends DCLogic {
           const canvas = document.createElement('canvas');
           canvas.width = w; canvas.height = h;
           canvas.getContext('2d').drawImage(img, 0, 0, w, h);
-          canvas.toBlob((blob) => resolve(blob || file), 'image/jpeg', quality || 0.85);
+          canvas.toBlob((blob) => resolve(blob || file), outType || 'image/jpeg', quality || 0.85);
         } catch (e) { resolve(file); }
       };
       img.onerror = () => { try { URL.revokeObjectURL(url); } catch (e) {} resolve(file); };
@@ -542,9 +543,14 @@ class Component extends DCLogic {
   // so the app keeps working — only cross-user sharing needs the online URL.
   _uploadImage = async (file) => {
     try {
-      const blob = await this._resizeImage(file, 1280, 0.85);
+      // Preserve transparency: PNG/WEBP/GIF -> PNG; photos (JPEG) -> JPEG (smaller).
+      const srcType = (file && file.type) || '';
+      const keepAlpha = /png|webp|gif/i.test(srcType);
+      const outType = keepAlpha ? 'image/png' : 'image/jpeg';
+      const ext = keepAlpha ? '.png' : '.jpg';
+      const blob = await this._resizeImage(file, 1280, 0.85, outType);
       const base = String(file.name || 'image').replace(/\.[^.]+$/, '') || 'image';
-      const fname = base + '.jpg';
+      const fname = base + ext;
       const resp = await fetch('/api/upload?filename=' + encodeURIComponent(fname), {
         method: 'POST',
         headers: { 'Content-Type': (blob && blob.type) || 'image/jpeg' },
