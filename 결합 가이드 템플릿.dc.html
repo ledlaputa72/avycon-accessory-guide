@@ -20,6 +20,8 @@
     body { background:#fff; }
     .page { box-shadow:none !important; margin:0 !important; break-after:page; }
     .page:last-child { break-after:auto; }
+    /* Export = cover + every location page, regardless of which one is on screen */
+    .print-page { display:flex !important; }
     .screen-only { display:none !important; }
     .print-only { display:flex !important; }
     * { -webkit-print-color-adjust:exact !important; print-color-adjust:exact !important; }
@@ -132,17 +134,87 @@
           </sc-if>
         </div>
 
-        <div style="margin-top:10px; padding-top:12px; border-top:1px solid #eef0f3; display:flex; flex-direction:column; gap:5px;">
-          <button type="button" onClick="{{ gotoDb }}" style="cursor:pointer; display:flex; align-items:center; justify-content:center; gap:9px; font-family:'Pretendard Variable','Pretendard',-apple-system,BlinkMacSystemFont,system-ui,sans-serif; font-size:11px; font-weight:700; letter-spacing:.3px; color:#fff; background:#1c1d1f; border:none; padding:12px; border-radius:7px;">{{ t.manageDb }} <span style="font-size:14px; line-height:1;">→</span></button>
-          <span style="font-size:9px; color:#9aa0a7; text-align:center; line-height:1.4;">{{ t.manageDbHint }}</span>
+        <div style="margin-top:10px; padding-top:12px; border-top:1px solid #eef0f3; display:flex; flex-direction:column; gap:8px;">
+          <button type="button" onClick="{{ gotoCover }}" style="cursor:pointer; display:flex; align-items:center; justify-content:center; gap:9px; font-family:'Pretendard Variable','Pretendard',-apple-system,BlinkMacSystemFont,system-ui,sans-serif; font-size:11px; font-weight:700; letter-spacing:.3px; color:#fff; background:#9E1B32; border:none; padding:12px; border-radius:7px;">{{ t.coverPage }} <span style="font-size:14px; line-height:1;">→</span></button>
+          <div style="display:flex; flex-direction:column; gap:5px;">
+            <button type="button" onClick="{{ gotoDb }}" style="cursor:pointer; display:flex; align-items:center; justify-content:center; gap:9px; font-family:'Pretendard Variable','Pretendard',-apple-system,BlinkMacSystemFont,system-ui,sans-serif; font-size:11px; font-weight:700; letter-spacing:.3px; color:#fff; background:#1c1d1f; border:none; padding:12px; border-radius:7px;">{{ t.manageDb }} <span style="font-size:14px; line-height:1;">→</span></button>
+            <span style="font-size:9px; color:#9aa0a7; text-align:center; line-height:1.4;">{{ t.manageDbHint }}</span>
+          </div>
         </div>
 
       </div>
     </div>
   </sc-if>
 
+  <!-- COVER EDIT TOOLBAR (screen only, cover view) -->
+  <sc-if value="{{ isCover }}" hint-placeholder-val="{{ false }}">
+    <div class="screen-only" style="width:816px; display:flex; flex-direction:column; gap:12px;">
+      <div style="display:flex; align-items:center; justify-content:space-between;">
+        <button type="button" onClick="{{ gotoMain }}" style="cursor:pointer; display:flex; align-items:center; gap:7px; font-size:11px; font-weight:600; color:#1c1d1f; background:#f1f2f4; border:1px solid #d4d7db; padding:8px 14px; border-radius:7px;"><span style="font-size:14px; line-height:1;">←</span> {{ t.backToGuide }}</button>
+        <span style="font-size:14px; font-weight:700; color:#1c1d1f;">{{ t.coverEditTitle }}</span>
+      </div>
+      <div style="display:flex; gap:12px; align-items:flex-end; padding:12px 14px; border:1px solid #e6e8ec; border-radius:9px; background:#fafbfc;">
+        <div style="flex:2; display:flex; flex-direction:column; gap:5px;">
+          <label style="font-size:10px; letter-spacing:1px; color:#6b6f76;">{{ t.coverFooterLabel }}</label>
+          <input type="text" value="{{ settingsCoverFooter }}" placeholder="{{ coverFooterPlaceholder }}" onChange="{{ onCoverFooterChange }}" style="width:100%; font-size:13px; padding:9px 10px; border:1px solid #d4d7db; border-radius:6px; background:#fff; color:#1c1d1f; outline:none; box-sizing:border-box;">
+        </div>
+        <div style="flex:1; display:flex; flex-direction:column; gap:5px;">
+          <label style="font-size:10px; letter-spacing:1px; color:#6b6f76;">{{ t.coverVersionLabel }}</label>
+          <input type="text" value="{{ settingsCoverVersion }}" placeholder="1.0" onChange="{{ onCoverVersionChange }}" style="width:100%; font-size:13px; padding:9px 10px; border:1px solid #d4d7db; border-radius:6px; background:#fff; color:#1c1d1f; outline:none; box-sizing:border-box;">
+        </div>
+      </div>
+      <span style="font-size:11px; color:#8a8f96; line-height:1.5;">{{ t.coverHint }}</span>
+    </div>
+  </sc-if>
+
+  <!-- COVER PAGE (prints first; on screen only in cover view) -->
+  <div class="page print-page" style="position:relative; overflow:hidden; width:816px; min-height:1056px; background:#9E1B32; box-shadow:0 6px 28px rgba(20,22,28,.18); padding:52px 56px; display:{{ cover.screenDisplay }}; flex-direction:column; color:#ffffff;">
+    <span style="position:absolute; top:40px; right:-30px; font-size:600px; font-weight:800; line-height:.78; color:rgba(255,255,255,0.07); z-index:0; pointer-events:none; user-select:none;">A</span>
+    <div style="position:relative; z-index:1; display:flex; flex-direction:column; flex:1;">
+      <!-- masthead -->
+      <div style="display:flex; align-items:baseline; gap:12px;">
+        <span style="font-weight:700; font-size:15px; letter-spacing:5px;">AVYCON</span>
+        <span style="font-size:10px; color:rgba(255,255,255,.62); letter-spacing:1.5px;">CAMERA ACCESSORY PROGRAM</span>
+      </div>
+      <!-- title block -->
+      <div style="margin-top:90px; display:flex; flex-direction:column;">
+        <span style="font-size:11px; letter-spacing:4px; color:rgba(255,255,255,.6);">CAMERA ACCESSORY PROGRAM</span>
+        <div style="margin-top:14px; font-size:54px; font-weight:800; line-height:1.04; letter-spacing:-1px; max-width:560px;">{{ cover.title }}</div>
+        <div style="margin-top:10px; font-size:30px; font-weight:700; letter-spacing:1px; color:rgba(255,255,255,.92);">{{ cover.model }}</div>
+        <span style="margin-top:26px; width:64px; height:2px; background:rgba(255,255,255,.55);"></span>
+        <div style="margin-top:18px; font-size:15px; color:rgba(255,255,255,.92);">{{ cover.subtitle }}</div>
+        <div style="margin-top:4px; font-size:11px; letter-spacing:.5px; color:rgba(255,255,255,.6);">{{ t.subjectCamera }} · {{ cover.camType }}</div>
+      </div>
+      <!-- contents cards -->
+      <div style="margin-top:auto; display:flex; flex-direction:column; gap:13px;">
+        <div style="display:flex; align-items:center; gap:12px;">
+          <span style="font-size:10px; letter-spacing:2px; color:rgba(255,255,255,.62);">{{ t.combinations }}</span>
+          <span style="flex:1; height:1px; background:rgba(255,255,255,.28);"></span>
+        </div>
+        <div style="display:flex; gap:12px;">
+          <sc-for list="{{ cover.cards }}" as="card" hint-placeholder-count="5">
+            <div style="flex:1; background:#ffffff; border-top:3px solid {{ card.accent }}; border-radius:8px; padding:13px 13px 15px; display:flex; flex-direction:column; gap:5px;">
+              <span style="font-size:9px; letter-spacing:1px; color:#b4b9c0;">{{ card.num }}</span>
+              <span style="font-size:14px; font-weight:700; color:#1c1d1f;">{{ card.name }}</span>
+              <span style="font-size:9px; letter-spacing:.5px; color:#8a8f96;">{{ card.cases }} {{ t.cases }}</span>
+            </div>
+          </sc-for>
+        </div>
+      </div>
+      <!-- footer -->
+      <div style="margin-top:30px; padding-top:18px; display:flex; align-items:flex-end; justify-content:space-between; border-top:1px solid rgba(255,255,255,.28);">
+        <span style="font-size:15px; font-weight:700; letter-spacing:1px;">AVYCON°</span>
+        <div style="display:flex; flex-direction:column; align-items:flex-end; gap:2px; font-size:9px; letter-spacing:1px; color:rgba(255,255,255,.62);">
+          <span>CAMERA ACCESSORY PROGRAM</span>
+          <span>{{ cover.footer }}</span>
+          <span>{{ cover.version }}</span>
+        </div>
+      </div>
+    </div>
+  </div>
+
   <sc-for list="{{ pages }}" as="pg" hint-placeholder-count="1">
-  <div class="page" style="width:816px; min-height:1056px; background:#ffffff; box-shadow:0 6px 28px rgba(20,22,28,.18); padding:40px 52px 32px; display:flex; flex-direction:column; color:#1c1d1f;">
+  <div class="page print-page" style="width:816px; min-height:1056px; background:#ffffff; box-shadow:0 6px 28px rgba(20,22,28,.18); padding:40px 52px 32px; display:{{ pg.screenDisplay }}; flex-direction:column; color:#1c1d1f;">
 
     <!-- MASTHEAD -->
     <div style="display:flex; align-items:center; justify-content:space-between; padding-bottom:12px; border-bottom:1.5px solid #1c1d1f;">
@@ -350,7 +422,7 @@
 
   <!-- PRODUCT DATABASE PAGE (screen) -->
   <sc-if value="{{ isDb }}" hint-placeholder-val="{{ false }}">
-  <div style="width:816px; min-height:760px; background:#ffffff; box-shadow:0 6px 28px rgba(20,22,28,.18); padding:40px 52px 40px; display:flex; flex-direction:column; color:#1c1d1f;">
+  <div class="screen-only" style="width:816px; min-height:760px; background:#ffffff; box-shadow:0 6px 28px rgba(20,22,28,.18); padding:40px 52px 40px; display:flex; flex-direction:column; color:#1c1d1f;">
 
     <div style="display:flex; align-items:center; justify-content:space-between; padding-bottom:12px; border-bottom:1.5px solid #1c1d1f;">
       <div style="display:flex; align-items:baseline; gap:12px;">
@@ -492,6 +564,7 @@ class Component extends DCLogic {
       cats:{ MNT_WALL:'Wall Mount', MNT_CEIL:'Ceiling Mount', MNT_POLE:'Pole Mount', MNT_BRKT:'Ceiling Bracket', MNT_CORN:'Corner Mount', BOX:'Junction Box', ADP:'Adaptor' },
       tt:{ uploadImage:'Upload image', deleteCombo:'Delete this combination', changeProduct:'Click to change product', clearSelection:'Clear selection', toCategory:'Back to categories', addPhoto:'Click to add photo', deleteProduct:'Delete product', uploadChangePhoto:'Click to upload / change photo' },
       importNothing:'No new products were imported. Check the CSV format (category / model).',
+      coverPage:'COVER PAGE', coverEditTitle:'Cover Page', coverFooterLabel:'FOOTER NOTE', coverVersionLabel:'VERSION', coverHint:'The cover prints first, followed by every location page. Most content syncs from settings & data.',
     },
     ko: {
       settingsTitle:'설정 · 제품 관리', settingsSubtitle:'문서 설정에 따라 제품 정보가 연동됩니다 · 화면 전용',
@@ -516,6 +589,7 @@ class Component extends DCLogic {
       cats:{ MNT_WALL:'월 마운트', MNT_CEIL:'천장 마운트', MNT_POLE:'폴 마운트', MNT_BRKT:'천장 브래킷', MNT_CORN:'코너 마운트', BOX:'정션 박스', ADP:'마운트 어댑터' },
       tt:{ uploadImage:'이미지 업로드', deleteCombo:'이 조합 배너 삭제', changeProduct:'클릭하여 제품 변경', clearSelection:'선택 해제', toCategory:'카테고리로', addPhoto:'클릭하여 사진 추가', deleteProduct:'제품 삭제', uploadChangePhoto:'클릭하여 사진 업로드/변경' },
       importNothing:'가져온 새 제품이 없습니다. CSV 형식(분류/모델명)을 확인하세요.',
+      coverPage:'커버 페이지', coverEditTitle:'커버 페이지', coverFooterLabel:'푸터 문구', coverVersionLabel:'버전', coverHint:'커버가 맨 앞에, 이어서 모든 location 페이지가 인쇄됩니다. 대부분의 내용은 설정·데이터에서 자동 반영됩니다.',
     },
     ja: {
       settingsTitle:'設定 · 製品管理', settingsSubtitle:'ドキュメント設定に応じて製品情報が連動します · 画面専用',
@@ -540,6 +614,7 @@ class Component extends DCLogic {
       cats:{ MNT_WALL:'ウォールマウント', MNT_CEIL:'天井マウント', MNT_POLE:'ポールマウント', MNT_BRKT:'天井ブラケット', MNT_CORN:'コーナーマウント', BOX:'ジャンクションボックス', ADP:'アダプター' },
       tt:{ uploadImage:'画像をアップロード', deleteCombo:'この組み合わせを削除', changeProduct:'クリックして製品を変更', clearSelection:'選択を解除', toCategory:'カテゴリへ', addPhoto:'クリックして写真を追加', deleteProduct:'製品を削除', uploadChangePhoto:'クリックして写真をアップロード / 変更' },
       importNothing:'新しい製品は取り込まれませんでした。CSV形式(分類/モデル名)を確認してください。',
+      coverPage:'表紙', coverEditTitle:'表紙', coverFooterLabel:'フッター文言', coverVersionLabel:'バージョン', coverHint:'表紙が最初に、続いてすべてのlocationページが印刷されます。ほとんどの内容は設定・データから自動反映されます。',
     },
     es: {
       settingsTitle:'Ajustes · Productos', settingsSubtitle:'La info de producto sigue los ajustes · solo pantalla',
@@ -564,6 +639,7 @@ class Component extends DCLogic {
       cats:{ MNT_WALL:'Soporte de pared', MNT_CEIL:'Soporte de techo', MNT_POLE:'Soporte de poste', MNT_BRKT:'Bracket de techo', MNT_CORN:'Soporte de esquina', BOX:'Caja de conexión', ADP:'Adaptador' },
       tt:{ uploadImage:'Subir imagen', deleteCombo:'Eliminar esta combinación', changeProduct:'Clic para cambiar producto', clearSelection:'Quitar selección', toCategory:'Volver a categorías', addPhoto:'Clic para añadir foto', deleteProduct:'Eliminar producto', uploadChangePhoto:'Clic para subir / cambiar foto' },
       importNothing:'No se importaron productos nuevos. Revisa el formato CSV (categoría / modelo).',
+      coverPage:'PORTADA', coverEditTitle:'Portada', coverFooterLabel:'PIE DE PÁGINA', coverVersionLabel:'VERSIÓN', coverHint:'La portada se imprime primero, seguida de cada página de ubicación. La mayor parte del contenido se sincroniza con los ajustes y datos.',
     },
   };
   _t() { return this.I18N[this.state.lang] || this.I18N.en; }
@@ -745,6 +821,7 @@ class Component extends DCLogic {
   // --- Accessory product database ---
   _persistDb = (db) => { try { localStorage.setItem('avycon_product_db', JSON.stringify(db)); } catch (e) {} };
   gotoDb = () => this.setState({ view: 'db', drawerOpen: false, addMenuLoc: null });
+  gotoCover = () => this.setState({ view: 'cover', drawerOpen: false, addMenuLoc: null });
   gotoMain = () => this.setState({ view: 'main' });
   setDbDraft = (cat, val) => this.setState(s => ({ dbDraft: { ...s.dbDraft, [cat]: val } }));
   setDbDraftImage = (cat, e) => {
@@ -973,6 +1050,7 @@ class Component extends DCLogic {
 
   renderVals() {
     const T = this._t();
+    const view = this.state.view || 'main';
     const LOCS = this.LOCS;
     const CODES = this.CODES;
     const map = {
@@ -1104,8 +1182,9 @@ class Component extends DCLogic {
     // --- Pages: one per location that has registered accessories (+ the selected one) ---
     const layoutState = this.state.layout || {};
     const mkAddOptions = (L) => [1,2,3].map(n => ({ n: n, label: String(T.accessoriesN).replace('{n}', n), onAdd: () => this.addCombo(L, n) }));
-    // The main view always reflects the selected install location.
-    const pageLocs = [loc];
+    // Export = cover + every location page. On screen only the active page shows (per view);
+    // on print every .print-page shows (see @media print). The selected location is editable on screen.
+    const pageLocs = LOCS;
     const pages = pageLocs.map((L, idx) => {
       const built = buildCombos(L);
       const mm = map[L];
@@ -1113,11 +1192,25 @@ class Component extends DCLogic {
         loc: L, locName: (T.locations[L] || L), accent: mm.accent, soft: mm.soft,
         combos: built.combos, comboCount: built.combos.length,
         pageNo: String(idx + 1).padStart(2, '0'),
+        screenDisplay: (view === 'main' && L === loc) ? 'flex' : 'none',
         addOptions: mkAddOptions(L),
         addMenuOpen: this.state.addMenuLoc === L,
         onToggleAdd: () => this.toggleAddMenu(L),
       };
     });
+
+    // --- Cover page (its own edit screen; prints first) ---
+    const coverFooterVal = ((S.coverFooter ?? '') + '').trim() || 'AVYCON Network / IP Camera Lineup';
+    const coverVersionVal = ((S.coverVersion ?? '') + '').trim() || '1.0';
+    const cover = {
+      title: T.guideTitle, subtitle: T.guideSubtitle, model: camName, camType: camType,
+      footer: coverFooterVal, version: coverVersionVal,
+      screenDisplay: (view === 'cover') ? 'flex' : 'none',
+      cards: pages.map((p, idx) => ({
+        num: String(idx + 1).padStart(2, '0'), name: p.locName,
+        cases: p.comboCount, accent: p.accent, soft: p.soft,
+      })),
+    };
 
     const openLoc = this.state.openLoc || loc;
     const editorByLocation = LOCS.map(L => {
@@ -1135,7 +1228,6 @@ class Component extends DCLogic {
     });
 
     // --- Product database view data ---
-    const view = this.state.view || 'main';
     const dbCats = this.DB_CATS.map(c => {
       const names = (this.state.productDb[c.key] || []);
       const products = names.map(nm => {
@@ -1156,10 +1248,18 @@ class Component extends DCLogic {
       langOptions: this.LANGS.map(l => ({ value: l, label: this.LANG_LABELS[l] })),
       currentLang: this.state.lang,
       onLangChange: (e) => this.setLang(e.target.value),
-      isMain: view !== 'db',
+      isMain: view === 'main',
+      isCover: view === 'cover',
       isDb: view === 'db',
+      cover: cover,
       gotoDb: this.gotoDb,
+      gotoCover: this.gotoCover,
       gotoMain: this.gotoMain,
+      settingsCoverFooter: ((S.coverFooter ?? '') + ''),
+      settingsCoverVersion: ((S.coverVersion ?? '') + ''),
+      coverFooterPlaceholder: 'AVYCON Network / IP Camera Lineup',
+      onCoverFooterChange: (e) => this.setSetting('coverFooter', e.target.value),
+      onCoverVersionChange: (e) => this.setSetting('coverVersion', e.target.value),
       exportProductCsv: this.exportProductCsv,
       exportProductJson: this.exportProductJson,
       importProductCsv: this.importProductCsv,
@@ -1179,7 +1279,7 @@ class Component extends DCLogic {
       camType: camType,
       comboCount: pageBuilt.combos.length,
       combos: pageBuilt.combos,
-      pages: (view === 'db') ? [] : pages,
+      pages: pages,
       camImageEl: mkImg(camImg),
       hasCamImage: !!camImg,
       noCamImage: !camImg,
