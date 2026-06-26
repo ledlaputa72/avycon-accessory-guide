@@ -125,6 +125,7 @@
 
         <!-- FOOTER ACTIONS -->
         <div style="margin-top:6px; padding-top:14px; border-top:1px solid #eef0f3; display:flex; flex-direction:column; gap:8px;">
+          <button type="button" onClick="{{ newProduct }}" style="cursor:pointer; width:100%; font-family:'Pretendard Variable','Pretendard',-apple-system,BlinkMacSystemFont,system-ui,sans-serif; font-size:11px; font-weight:700; letter-spacing:.3px; color:{{ accent }}; background:#fff; border:1.5px solid {{ accent }}; padding:11px; border-radius:7px;">{{ t.newProduct }}</button>
           <div style="display:flex; gap:8px;">
             <button type="button" onClick="{{ resetSettings }}" style="cursor:pointer; flex:1; font-family:'Pretendard Variable','Pretendard',-apple-system,BlinkMacSystemFont,system-ui,sans-serif; font-size:10.5px; font-weight:600; letter-spacing:.3px; color:#6b6f76; background:#f1f2f4; border:1px solid #e6e8ec; padding:10px; border-radius:6px;">{{ t.reset }}</button>
             <button type="button" onClick="{{ saveProfile }}" style="cursor:pointer; flex:1.3; font-family:'Pretendard Variable','Pretendard',-apple-system,BlinkMacSystemFont,system-ui,sans-serif; font-size:10.5px; font-weight:700; letter-spacing:.3px; color:#fff; background:{{ accent }}; border:none; padding:10px; border-radius:6px;">{{ t.save }}</button>
@@ -579,6 +580,7 @@ class Component extends DCLogic {
       importNothing:'No new products were imported. Check the CSV format (category / model).',
       coverPage:'COVER PAGE', coverEditTitle:'Cover Page', coverFooterLabel:'FOOTER NOTE', coverVersionLabel:'VERSION', coverHint:'The cover prints first, followed by every enabled location page. Most content syncs from settings & data.',
       useLocation:'Use this location', notInExport:'Disabled · not in export',
+      newProduct:'＋ New product', clearConfirm:'This clears the current guide (all locations & camera) back to the blank template. Saved products and the product database are not affected. Continue?',
     },
     ko: {
       settingsTitle:'설정 · 제품 관리', settingsSubtitle:'문서 설정에 따라 제품 정보가 연동됩니다 · 화면 전용',
@@ -605,6 +607,7 @@ class Component extends DCLogic {
       importNothing:'가져온 새 제품이 없습니다. CSV 형식(분류/모델명)을 확인하세요.',
       coverPage:'커버 페이지', coverEditTitle:'커버 페이지', coverFooterLabel:'푸터 문구', coverVersionLabel:'버전', coverHint:'커버가 맨 앞에, 이어서 활성화된 location 페이지가 인쇄됩니다. 대부분의 내용은 설정·데이터에서 자동 반영됩니다.',
       useLocation:'이 위치 사용', notInExport:'비활성 · 내보내기 제외',
+      newProduct:'＋ 새 제품', clearConfirm:'현재 가이드(모든 location·카메라)를 빈 템플릿으로 초기화합니다. 저장된 제품과 제품 데이터베이스는 유지됩니다. 계속할까요?',
     },
     ja: {
       settingsTitle:'設定 · 製品管理', settingsSubtitle:'ドキュメント設定に応じて製品情報が連動します · 画面専用',
@@ -631,6 +634,7 @@ class Component extends DCLogic {
       importNothing:'新しい製品は取り込まれませんでした。CSV形式(分類/モデル名)を確認してください。',
       coverPage:'表紙', coverEditTitle:'表紙', coverFooterLabel:'フッター文言', coverVersionLabel:'バージョン', coverHint:'表紙が最初に、続いて有効なlocationページが印刷されます。ほとんどの内容は設定・データから自動反映されます。',
       useLocation:'この場所を使用', notInExport:'無効 · 出力から除外',
+      newProduct:'＋ 新規製品', clearConfirm:'現在のガイド(すべてのlocation・カメラ)を空のテンプレートに初期化します。保存済み製品と製品データベースは影響を受けません。続行しますか?',
     },
     es: {
       settingsTitle:'Ajustes · Productos', settingsSubtitle:'La info de producto sigue los ajustes · solo pantalla',
@@ -657,6 +661,7 @@ class Component extends DCLogic {
       importNothing:'No se importaron productos nuevos. Revisa el formato CSV (categoría / modelo).',
       coverPage:'PORTADA', coverEditTitle:'Portada', coverFooterLabel:'PIE DE PÁGINA', coverVersionLabel:'VERSIÓN', coverHint:'La portada se imprime primero, seguida de cada ubicación activada. La mayor parte del contenido se sincroniza con los ajustes y datos.',
       useLocation:'Usar esta ubicación', notInExport:'Desactivada · fuera de exportación',
+      newProduct:'＋ Nuevo producto', clearConfirm:'Esto restablece la guía actual (todas las ubicaciones y la cámara) a la plantilla en blanco. Los productos guardados y la base de datos no se ven afectados. ¿Continuar?',
     },
   };
   _t() { return this.I18N[this.state.lang] || this.I18N.en; }
@@ -990,9 +995,13 @@ class Component extends DCLogic {
       location: (S.location ?? this.props.location) ?? 'Wall',
       rev: (S.documentRev ?? this.props.documentRev) ?? '',
       showNotes: (S.showNotes != null ? S.showNotes : true),
+      coverFooter: (S.coverFooter ?? ''), coverVersion: (S.coverVersion ?? ''),
       accNames: { ...accNames },
       imgByName: usedImgs,
       layout: JSON.parse(JSON.stringify(this.state.layout || {})),
+      camImage: this.state.camImage || '',
+      note: this.state.noteText || '',
+      disabledLocs: { ...(this.state.disabledLocs || {}) },
       accessories: this._flattenAccessories(accNames, imgByName),
       updatedAt: new Date().toISOString(),
     };
@@ -1006,7 +1015,7 @@ class Component extends DCLogic {
     const p = (this.state.profiles || {})[model];
     if (!p) return;
     this.setState(s => {
-      const settings = { ...s.settings, cameraModel: model, cameraCategory: p.category, location: p.location, documentRev: p.rev, showNotes: p.showNotes };
+      const settings = { ...s.settings, cameraModel: model, cameraCategory: p.category, location: p.location, documentRev: p.rev, showNotes: p.showNotes, coverFooter: (p.coverFooter ?? s.settings.coverFooter ?? ''), coverVersion: (p.coverVersion ?? s.settings.coverVersion ?? '') };
       this._persistSettings(settings);
       const accNames = { ...(p.accNames || {}) };
       this._persistNames(accNames);
@@ -1014,8 +1023,14 @@ class Component extends DCLogic {
       this._persistImgs(imgByName);
       const layout = p.layout ? JSON.parse(JSON.stringify(p.layout)) : s.layout;
       this._persistLayout(layout);
-      return { settings, accNames, imgByName, layout, uidSeq: this._maxUid(layout) + 1 };
-    });
+      const camImage = p.camImage || null;
+      try { if (camImage) localStorage.setItem('avycon_cam_image', camImage); else localStorage.removeItem('avycon_cam_image'); } catch (e) {}
+      const noteText = p.note || '';
+      try { localStorage.setItem('avycon_note', noteText); } catch (e) {}
+      const disabledLocs = { ...(p.disabledLocs || {}) };
+      try { localStorage.setItem('avycon_disabled_locs', JSON.stringify(disabledLocs)); } catch (e) {}
+      return { settings, accNames, imgByName, layout, camImage, noteText, disabledLocs, view: 'main', uidSeq: this._maxUid(layout) + 1 };
+    }, () => { try { this._sizeNote(); } catch (e) {} });
   };
   exportCsv = () => {
     const profiles = this.state.profiles || {};
@@ -1046,7 +1061,33 @@ class Component extends DCLogic {
     this._persistSettings(settings);
     return { settings };
   });
-  resetSettings = () => { this._persistSettings({}); this.setState({ settings: {} }); };
+  // Clear the WORKING document (camera + every location's combos/accessories) back to the blank
+  // template. Keeps the library: product database, saved products, and the image map.
+  _clearWorkingDoc = () => {
+    try {
+      localStorage.removeItem('avycon_doc_settings');
+      localStorage.removeItem('avycon_acc_names');
+      localStorage.removeItem('avycon_layout');
+      localStorage.removeItem('avycon_cam_image');
+      localStorage.removeItem('avycon_note');
+      localStorage.removeItem('avycon_disabled_locs');
+    } catch (e) {}
+    this.setState({
+      settings: {}, accNames: {}, layout: {}, camImage: null, noteText: '',
+      disabledLocs: {}, addMenuLoc: null, pickerKey: null, pickerCat: null,
+      uidSeq: 1, view: 'main',
+    }, () => { try { this._sizeNote(); } catch (e) {} });
+  };
+  _hasWork = () => {
+    const S = this.state.settings || {};
+    const model = (((S.cameraModel ?? this.props.cameraModel) ?? '') + '').trim();
+    const hasAcc = Object.values(this.state.accNames || {}).some(n => ((n || '') + '').trim());
+    const hasLayout = Object.values(this.state.layout || {}).some(a => (a || []).length);
+    return !!(model || hasAcc || hasLayout || this.state.camImage || ((this.state.noteText || '') + '').trim());
+  };
+  _confirmClear = () => { try { return window.confirm(this._t().clearConfirm); } catch (e) { return true; } };
+  resetSettings = () => { if (this._hasWork() && !this._confirmClear()) return; this._clearWorkingDoc(); };
+  newProduct = () => { if (this._hasWork() && !this._confirmClear()) return; this._clearWorkingDoc(); };
 
   onCamImageChange = (e) => {
     const f = e.target && e.target.files && e.target.files[0];
@@ -1325,6 +1366,7 @@ class Component extends DCLogic {
       drawerOpen: this.state.drawerOpen,
       toggleDrawer: this.toggleDrawer,
       resetSettings: this.resetSettings,
+      newProduct: this.newProduct,
       saveProfile: this.saveProfile,
       exportCsv: this.exportCsv,
       onLoadProfile: (e) => { const v = e.target.value; if (v) this.loadProfile(v); },
