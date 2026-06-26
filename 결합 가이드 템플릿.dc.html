@@ -455,6 +455,9 @@
       <span style="font-family:'Pretendard Variable','Pretendard',-apple-system,BlinkMacSystemFont,system-ui,sans-serif; font-size:9px; letter-spacing:1px; color:#9aa0a7; margin-right:2px;">DATA</span>
       <button type="button" onClick="{{ exportProductCsv }}" style="cursor:pointer; font-family:'Pretendard Variable','Pretendard',-apple-system,BlinkMacSystemFont,system-ui,sans-serif; font-size:10.5px; font-weight:600; color:#1c1d1f; background:#fff; border:1px solid #d4d7db; padding:8px 13px; border-radius:6px;">{{ t.csvExport }} ↓</button>
       <label style="cursor:pointer; font-family:'Pretendard Variable','Pretendard',-apple-system,BlinkMacSystemFont,system-ui,sans-serif; font-size:10.5px; font-weight:600; color:#fff; background:#1c1d1f; padding:8px 13px; border-radius:6px;">{{ t.csvImport }} ↑<input type="file" accept=".csv,text/csv" onChange="{{ importProductCsv }}" style="display:none;"></label>
+      <sc-if value="{{ hasLocalImages }}" hint-placeholder-val="{{ false }}">
+        <button type="button" onClick="{{ migrateImages }}" title="{{ t.syncImages }}" style="cursor:pointer; font-family:'Pretendard Variable','Pretendard',-apple-system,BlinkMacSystemFont,system-ui,sans-serif; font-size:10.5px; font-weight:600; color:#fff; background:#b07d2f; border:none; padding:8px 13px; border-radius:6px;">{{ migrateLabel }}</button>
+      </sc-if>
       <div style="margin-left:auto; display:flex; align-items:center; gap:9px;">
         <sc-if value="{{ dbSaved }}" hint-placeholder-val="{{ false }}">
           <span style="font-family:'Pretendard Variable','Pretendard',-apple-system,BlinkMacSystemFont,system-ui,sans-serif; font-size:10px; font-weight:600; color:#2f8f6b;">{{ t.saved }}</span>
@@ -581,6 +584,7 @@ class Component extends DCLogic {
       coverPage:'COVER PAGE', coverEditTitle:'Cover Page', coverFooterLabel:'FOOTER NOTE', coverVersionLabel:'VERSION', coverHint:'The cover prints first, followed by every enabled location page. Most content syncs from settings & data.',
       useLocation:'Use this location', notInExport:'Disabled · not in export',
       newProduct:'＋ New product', clearConfirm:'This clears the current guide (all locations & camera) back to the blank template. Saved products and the product database are not affected. Continue?',
+      syncImages:'☁ Sync images to cloud', syncing:'Syncing…', imagesAllSynced:'All images are already cloud URLs. Nothing to sync.', imagesSynced:'Uploaded {done} image(s) to the cloud. {fail} failed.',
     },
     ko: {
       settingsTitle:'설정 · 제품 관리', settingsSubtitle:'문서 설정에 따라 제품 정보가 연동됩니다 · 화면 전용',
@@ -608,6 +612,7 @@ class Component extends DCLogic {
       coverPage:'커버 페이지', coverEditTitle:'커버 페이지', coverFooterLabel:'푸터 문구', coverVersionLabel:'버전', coverHint:'커버가 맨 앞에, 이어서 활성화된 location 페이지가 인쇄됩니다. 대부분의 내용은 설정·데이터에서 자동 반영됩니다.',
       useLocation:'이 위치 사용', notInExport:'비활성 · 내보내기 제외',
       newProduct:'＋ 새 제품', clearConfirm:'현재 가이드(모든 location·카메라)를 빈 템플릿으로 초기화합니다. 저장된 제품과 제품 데이터베이스는 유지됩니다. 계속할까요?',
+      syncImages:'☁ 이미지 클라우드 동기화', syncing:'동기화 중…', imagesAllSynced:'모든 이미지가 이미 클라우드 URL입니다. 동기화할 항목이 없습니다.', imagesSynced:'{done}개 이미지를 클라우드로 업로드했습니다. 실패 {fail}개.',
     },
     ja: {
       settingsTitle:'設定 · 製品管理', settingsSubtitle:'ドキュメント設定に応じて製品情報が連動します · 画面専用',
@@ -635,6 +640,7 @@ class Component extends DCLogic {
       coverPage:'表紙', coverEditTitle:'表紙', coverFooterLabel:'フッター文言', coverVersionLabel:'バージョン', coverHint:'表紙が最初に、続いて有効なlocationページが印刷されます。ほとんどの内容は設定・データから自動反映されます。',
       useLocation:'この場所を使用', notInExport:'無効 · 出力から除外',
       newProduct:'＋ 新規製品', clearConfirm:'現在のガイド(すべてのlocation・カメラ)を空のテンプレートに初期化します。保存済み製品と製品データベースは影響を受けません。続行しますか?',
+      syncImages:'☁ 画像をクラウド同期', syncing:'同期中…', imagesAllSynced:'すべての画像はすでにクラウドURLです。同期する項目はありません。', imagesSynced:'{done}件の画像をクラウドにアップロードしました。失敗 {fail}件。',
     },
     es: {
       settingsTitle:'Ajustes · Productos', settingsSubtitle:'La info de producto sigue los ajustes · solo pantalla',
@@ -662,6 +668,7 @@ class Component extends DCLogic {
       coverPage:'PORTADA', coverEditTitle:'Portada', coverFooterLabel:'PIE DE PÁGINA', coverVersionLabel:'VERSIÓN', coverHint:'La portada se imprime primero, seguida de cada ubicación activada. La mayor parte del contenido se sincroniza con los ajustes y datos.',
       useLocation:'Usar esta ubicación', notInExport:'Desactivada · fuera de exportación',
       newProduct:'＋ Nuevo producto', clearConfirm:'Esto restablece la guía actual (todas las ubicaciones y la cámara) a la plantilla en blanco. Los productos guardados y la base de datos no se ven afectados. ¿Continuar?',
+      syncImages:'☁ Sincronizar imágenes', syncing:'Sincronizando…', imagesAllSynced:'Todas las imágenes ya son URLs en la nube. Nada que sincronizar.', imagesSynced:'{done} imagen(es) subidas a la nube. {fail} fallidas.',
     },
   };
   _t() { return this.I18N[this.state.lang] || this.I18N.en; }
@@ -778,6 +785,52 @@ class Component extends DCLogic {
       r.onerror = () => resolve('');
       r.readAsDataURL(file);
     });
+  };
+
+  _dataUrlToBlob = (dataUrl) => {
+    try {
+      const m = /^data:([^;,]*)(;base64)?,([\s\S]*)$/i.exec(String(dataUrl || ''));
+      if (!m) return null;
+      const mime = m[1] || 'image/png';
+      if (m[2]) {
+        const bin = atob(m[3]);
+        const arr = new Uint8Array(bin.length);
+        for (let i = 0; i < bin.length; i++) arr[i] = bin.charCodeAt(i);
+        return new Blob([arr], { type: mime });
+      }
+      return new Blob([decodeURIComponent(m[3])], { type: mime });
+    } catch (e) { return null; }
+  };
+  // One-shot migration: upload every base64 (local-only) image to Vercel Blob and replace it
+  // with the public URL, so older images get shareable URLs (cover, guide, CSV export).
+  migrateImages = async () => {
+    if (this.state.imgMigrating) return;
+    const src = this.state.imgByName || {};
+    const names = Object.keys(src).filter(n => /^data:/i.test(String(src[n] || '')));
+    if (!names.length) { try { alert(this._t().imagesAllSynced); } catch (e) {} return; }
+    this.setState({ imgMigrating: true });
+    const img = { ...src };
+    let done = 0, fail = 0;
+    for (let i = 0; i < names.length; i++) {
+      const nm = names[i];
+      try {
+        const blob0 = this._dataUrlToBlob(img[nm]);
+        if (!blob0) { fail++; continue; }
+        const keepAlpha = /png|webp|gif/i.test(blob0.type || '');
+        const outType = keepAlpha ? 'image/png' : 'image/jpeg';
+        const ext = keepAlpha ? '.png' : '.jpg';
+        const blob = await this._resizeImage(blob0, 1280, 0.85, outType);
+        const fname = (String(nm).replace(/[^a-zA-Z0-9._-]/g, '_').slice(0, 60) || 'image') + ext;
+        const resp = await fetch('/api/upload?filename=' + encodeURIComponent(fname), {
+          method: 'POST', headers: { 'Content-Type': (blob && blob.type) || outType }, body: blob,
+        });
+        if (resp.ok) { const d = await resp.json(); if (d && d.url) { img[nm] = d.url; done++; } else fail++; }
+        else fail++;
+      } catch (e) { fail++; }
+    }
+    this._persistImgs(img);
+    this.setState({ imgByName: img, imgMigrating: false });
+    try { alert(String(this._t().imagesSynced).replace('{done}', done).replace('{fail}', fail)); } catch (e) {}
   };
 
   // slot -> product name
@@ -1385,6 +1438,10 @@ class Component extends DCLogic {
       importProductCsv: this.importProductCsv,
       saveDb: this.saveDb,
       dbSaved: this.state.dbSaved,
+      migrateImages: this.migrateImages,
+      imgMigrating: !!this.state.imgMigrating,
+      hasLocalImages: Object.values(this.state.imgByName || {}).some(v => /^data:/i.test(String(v || ''))),
+      migrateLabel: this.state.imgMigrating ? T.syncing : (T.syncImages + ' (' + Object.values(this.state.imgByName || {}).filter(v => /^data:/i.test(String(v || ''))).length + ')'),
       dbCats,
       locLabel: loc.toUpperCase(),
       locKo: m.ko,
