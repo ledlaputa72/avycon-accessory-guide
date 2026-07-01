@@ -8,32 +8,37 @@
 <body>
 <x-dc>
 <helmet>
-<link rel="preconnect" href="https://cdn.jsdelivr.net" crossorigin>
-<link rel="stylesheet" as="style" crossorigin href="https://cdn.jsdelivr.net/gh/orioncactus/pretendard@v1.3.9/dist/web/variable/pretendardvariable-dynamic-subset.min.css">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link rel="stylesheet" as="style" crossorigin href="https://cdn.jsdelivr.net/gh/orioncactus/pretendard@v1.3.9/dist/web/static/pretendard.min.css">
+<link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
 <style>
-  body { margin:0; background:#d7d8db; -webkit-font-smoothing:antialiased; font-family:'Pretendard Variable','Pretendard',-apple-system,BlinkMacSystemFont,system-ui,sans-serif; }
+  body { margin:0; background:#d7d8db; -webkit-font-smoothing:antialiased; font-family:'Pretendard','Inter',system-ui,sans-serif; }
   * { box-sizing:border-box; }
   .combo-row { break-inside:avoid; }
   .print-only { display:none; }
+  .pg-hidden { display:none !important; }
+  .pg-off { display:none !important; }
+  .print-hide { }
   @page { size:letter; margin:0; }
   @media print {
     body { background:#fff; }
     .page { box-shadow:none !important; margin:0 !important; break-after:page; }
     .page:last-child { break-after:auto; }
-    /* Export = cover + every ENABLED location page, regardless of which one is on screen */
-    .print-page { display:flex !important; }
-    .page:not(.print-page) { display:none !important; }
     .screen-only { display:none !important; }
     .print-only { display:flex !important; }
+    .pg-hidden { display:flex !important; }
+    .print-hide { display:none !important; }
+    .pg-off { display:none !important; }
     * { -webkit-print-color-adjust:exact !important; print-color-adjust:exact !important; }
   }
 </style>
 </helmet>
-<div style="display:flex; flex-direction:column; align-items:center; gap:28px; padding:28px 0; font-family:'Pretendard Variable','Pretendard',-apple-system,BlinkMacSystemFont,system-ui,sans-serif;">
+<div style="display:flex; flex-direction:column; align-items:center; gap:28px; padding:28px 0; font-family:'Pretendard','Inter',system-ui,sans-serif;">
 
   <!-- LAUNCHER (screen only) -->
   <sc-if value="{{ isMain }}" hint-placeholder-val="{{ true }}">
-    <button type="button" class="screen-only" onClick="{{ toggleDrawer }}" style="position:fixed; top:18px; right:18px; z-index:50; cursor:pointer; font-family:'Pretendard Variable','Pretendard',-apple-system,BlinkMacSystemFont,system-ui,sans-serif; font-size:11px; font-weight:600; letter-spacing:.5px; color:#fff; background:#1c1d1f; border:none; padding:10px 16px; border-radius:8px; box-shadow:0 4px 14px rgba(20,22,28,.22);">{{ t.settingsTitle }}</button>
+    <button type="button" class="screen-only" onClick="{{ toggleDrawer }}" style="position:fixed; top:18px; right:18px; z-index:50; cursor:pointer; font-family:'Pretendard','Inter',sans-serif; font-size:11px; font-weight:600; letter-spacing:.5px; color:#fff; background:#1c1d1f; border:none; padding:10px 16px; border-radius:8px; box-shadow:0 4px 14px rgba(20,22,28,.22);">{{ t.launcher }}</button>
   </sc-if>
 
   <!-- UNIFIED DRAWER (screen only) -->
@@ -41,27 +46,27 @@
     <div class="screen-only" style="position:fixed; top:0; right:0; height:100vh; width:412px; z-index:60; background:#ffffff; border-left:1px solid #e6e8ec; box-shadow:-8px 0 30px rgba(20,22,28,.16); display:flex; flex-direction:column;">
       <div style="padding:16px 18px; border-bottom:1px solid #eef0f3; display:flex; align-items:center; justify-content:space-between; flex-shrink:0;">
         <div style="display:flex; flex-direction:column; gap:2px;">
-          <span style="font-size:14px; font-weight:700; color:#1c1d1f;">{{ t.settingsTitle }}</span>
-          <span style="font-size:10px; color:#9aa0a7;">{{ t.settingsSubtitle }}</span>
+          <span style="font-size:14px; font-weight:700; color:#1c1d1f;">{{ t.drawerTitle }}</span>
+          <span style="font-size:10px; color:#9aa0a7;">{{ t.drawerSub }}</span>
         </div>
         <button type="button" onClick="{{ toggleDrawer }}" style="cursor:pointer; font-size:17px; line-height:1; color:#6b6f76; background:#f1f2f4; border:1px solid #e6e8ec; width:30px; height:30px; border-radius:7px;">×</button>
       </div>
       <div style="flex:1; overflow-y:auto; padding:16px 18px 24px; display:flex; flex-direction:column; gap:15px;">
 
         <div style="display:flex; flex-direction:column; gap:6px;">
-          <label style="font-family:'Pretendard Variable','Pretendard',-apple-system,BlinkMacSystemFont,system-ui,sans-serif; font-size:10px; letter-spacing:1px; color:#6b6f76;">{{ t.language }}</label>
-          <select value="{{ currentLang }}" onChange="{{ onLangChange }}" style="width:100%; font-family:'Pretendard Variable','Pretendard',-apple-system,BlinkMacSystemFont,system-ui,sans-serif; font-size:13px; padding:9px 10px; border:1px solid #d4d7db; border-radius:6px; background:#fff; color:#1c1d1f; outline:none;">
+          <label style="font-family:'Pretendard','Inter',sans-serif; font-size:10px; letter-spacing:1px; color:#6b6f76;">{{ t.langLabel }}</label>
+          <select value="{{ lang }}" onChange="{{ onLangChange }}" style="width:100%; font-family:'Pretendard','Inter',sans-serif; font-size:13px; padding:9px 10px; border:1px solid #d4d7db; border-radius:6px; background:#fff; color:#1c1d1f; outline:none;">
             <sc-for list="{{ langOptions }}" as="lo" hint-placeholder-count="4">
               <option value="{{ lo.value }}">{{ lo.label }}</option>
             </sc-for>
           </select>
         </div>
 
-        <span style="font-family:'Pretendard Variable','Pretendard',-apple-system,BlinkMacSystemFont,system-ui,sans-serif; font-size:10px; letter-spacing:1.5px; color:#9aa0a7;">{{ t.documentSettings }}</span>
+        <span style="font-family:'Pretendard','Inter',sans-serif; font-size:10px; letter-spacing:1.5px; color:#9aa0a7;">{{ t.docSettings }}</span>
 
         <div style="display:flex; flex-direction:column; gap:6px;">
-          <label style="font-family:'Pretendard Variable','Pretendard',-apple-system,BlinkMacSystemFont,system-ui,sans-serif; font-size:10px; letter-spacing:1px; color:#6b6f76;">{{ t.cameraCategory }}</label>
-          <select value="{{ settingsCategory }}" onChange="{{ onCategoryChange }}" style="width:100%; font-family:'Pretendard Variable','Pretendard',-apple-system,BlinkMacSystemFont,system-ui,sans-serif; font-size:13px; padding:9px 10px; border:1px solid #d4d7db; border-radius:6px; background:#fff; color:#1c1d1f; outline:none;">
+          <label style="font-family:'Pretendard','Inter',sans-serif; font-size:10px; letter-spacing:1px; color:#6b6f76;">{{ t.camCategory }}</label>
+          <select value="{{ settingsCategory }}" onChange="{{ onCategoryChange }}" style="width:100%; font-family:'Pretendard','Inter',sans-serif; font-size:13px; padding:9px 10px; border:1px solid #d4d7db; border-radius:6px; background:#fff; color:#1c1d1f; outline:none;">
             <sc-for list="{{ categoryOptions }}" as="opt" hint-placeholder-count="6">
               <option value="{{ opt.value }}">{{ opt.label }}</option>
             </sc-for>
@@ -69,12 +74,12 @@
         </div>
 
         <div style="display:flex; flex-direction:column; gap:6px;">
-          <label style="font-family:'Pretendard Variable','Pretendard',-apple-system,BlinkMacSystemFont,system-ui,sans-serif; font-size:10px; letter-spacing:1px; color:#6b6f76;">{{ t.cameraModel }}</label>
-          <input type="text" value="{{ settingsModel }}" onChange="{{ onModelChange }}" placeholder="{{ t.modelPlaceholder }}" style="width:100%; font-family:'Pretendard Variable','Pretendard',-apple-system,BlinkMacSystemFont,system-ui,sans-serif; font-size:13px; padding:9px 10px; border:1px solid #d4d7db; border-radius:6px; background:#fff; color:#1c1d1f; outline:none; box-sizing:border-box;">
+          <label style="font-family:'Pretendard','Inter',sans-serif; font-size:10px; letter-spacing:1px; color:#6b6f76;">{{ t.camModel }}</label>
+          <input type="text" value="{{ settingsModel }}" onChange="{{ onModelChange }}" placeholder="{{ t.modelPh }}" style="width:100%; font-family:'Pretendard','Inter',sans-serif; font-size:13px; padding:9px 10px; border:1px solid #d4d7db; border-radius:6px; background:#fff; color:#1c1d1f; outline:none; box-sizing:border-box;">
           <div style="display:flex; align-items:center; gap:8px; margin-top:2px;">
-            <span style="font-family:'Pretendard Variable','Pretendard',-apple-system,BlinkMacSystemFont,system-ui,sans-serif; font-size:9px; letter-spacing:.5px; color:#9aa0a7; white-space:nowrap;">{{ t.savedProducts }} ({{ savedCount }})</span>
-            <select value="" onChange="{{ onLoadProfile }}" style="flex:1; min-width:0; font-family:'Pretendard Variable','Pretendard',-apple-system,BlinkMacSystemFont,system-ui,sans-serif; font-size:11px; padding:6px 8px; border:1px solid #d4d7db; border-radius:5px; background:#fafbfc; color:#1c1d1f; outline:none;">
-              <option value="">{{ t.loadSavedProduct }}</option>
+            <span style="font-family:'Pretendard','Inter',sans-serif; font-size:9px; letter-spacing:.5px; color:#9aa0a7; white-space:nowrap;">{{ t.registered }} ({{ savedCount }})</span>
+            <select value="" onChange="{{ onLoadProfile }}" style="flex:1; min-width:0; font-family:'Pretendard','Inter',sans-serif; font-size:11px; padding:6px 8px; border:1px solid #d4d7db; border-radius:5px; background:#fafbfc; color:#1c1d1f; outline:none;">
+              <option value="">{{ t.loadSaved }}</option>
               <sc-for list="{{ profileNames }}" as="pn" hint-placeholder-count="0">
                 <option value="{{ pn }}">{{ pn }}</option>
               </sc-for>
@@ -83,27 +88,27 @@
         </div>
 
         <div style="display:flex; flex-direction:column; gap:6px;">
-          <label style="font-family:'Pretendard Variable','Pretendard',-apple-system,BlinkMacSystemFont,system-ui,sans-serif; font-size:10px; letter-spacing:1px; color:#6b6f76;">{{ t.modelImage }}</label>
+          <label style="font-family:'Pretendard','Inter',sans-serif; font-size:10px; letter-spacing:1px; color:#6b6f76;">{{ t.modelImage }}</label>
           <div style="display:flex; align-items:center; gap:10px; padding:9px; border:1px solid #d4d7db; border-radius:6px; background:#fafbfc;">
-            <label style="cursor:pointer; width:46px; height:46px; flex-shrink:0; border-radius:6px; border:1px solid #e6e8ec; background:repeating-linear-gradient(135deg,#f5f6f8 0 6px,#eef0f3 6px 7px); display:flex; align-items:center; justify-content:center; overflow:hidden;" title="{{ t.tt.uploadImage }}">
+            <label style="cursor:pointer; width:46px; height:46px; flex-shrink:0; border-radius:6px; border:1px solid #e6e8ec; background:repeating-linear-gradient(135deg,#f5f6f8 0 6px,#eef0f3 6px 7px); display:flex; align-items:center; justify-content:center; overflow:hidden;" title="{{ t.uploadImageTitle }}">
               {{ camImageEl }}
               <sc-if value="{{ noCamImage }}" hint-placeholder-val="{{ true }}">
-                <span style="font-family:'Pretendard Variable','Pretendard',-apple-system,BlinkMacSystemFont,system-ui,sans-serif; font-size:8px; color:#b4b9c0;">CAM</span>
+                <span style="font-family:'Pretendard','Inter',sans-serif; font-size:8px; color:#b4b9c0;">CAM</span>
               </sc-if>
               <input type="file" accept="image/*" onChange="{{ onCamImageChange }}" style="display:none;">
             </label>
-            <span style="flex:1; min-width:0; font-size:9.5px; color:#9aa0a7; line-height:1.35;">{{ t.modelImageHint }}</span>
-            <label style="cursor:pointer; font-family:'Pretendard Variable','Pretendard',-apple-system,BlinkMacSystemFont,system-ui,sans-serif; font-size:10px; font-weight:600; color:#fff; background:{{ accent }}; padding:7px 11px; border-radius:6px; white-space:nowrap;">{{ t.upload }}
+            <span style="flex:1; min-width:0; font-size:9.5px; color:#9aa0a7; line-height:1.35;">{{ t.camPhotoHint }}</span>
+            <label style="cursor:pointer; font-family:'Pretendard','Inter',sans-serif; font-size:10px; font-weight:600; color:#fff; background:{{ accent }}; padding:7px 11px; border-radius:6px; white-space:nowrap;">{{ t.upload }}
               <input type="file" accept="image/*" onChange="{{ onCamImageChange }}" style="display:none;"></label>
             <sc-if value="{{ hasCamImage }}" hint-placeholder-val="{{ false }}">
-              <button type="button" onClick="{{ clearCamImage }}" style="cursor:pointer; font-family:'Pretendard Variable','Pretendard',-apple-system,BlinkMacSystemFont,system-ui,sans-serif; font-size:10px; color:#6b6f76; background:#f1f2f4; border:1px solid #e6e8ec; padding:7px 10px; border-radius:6px;">{{ t.remove }}</button>
+              <button type="button" onClick="{{ clearCamImage }}" style="cursor:pointer; font-family:'Pretendard','Inter',sans-serif; font-size:10px; color:#6b6f76; background:#f1f2f4; border:1px solid #e6e8ec; padding:7px 10px; border-radius:6px;">{{ t.remove }}</button>
             </sc-if>
           </div>
         </div>
 
         <div style="display:flex; flex-direction:column; gap:6px;">
-          <label style="font-family:'Pretendard Variable','Pretendard',-apple-system,BlinkMacSystemFont,system-ui,sans-serif; font-size:10px; letter-spacing:1px; color:#6b6f76;">{{ t.location }}</label>
-          <select value="{{ settingsLocation }}" onChange="{{ onLocationChange }}" style="width:100%; font-family:'Pretendard Variable','Pretendard',-apple-system,BlinkMacSystemFont,system-ui,sans-serif; font-size:13px; padding:9px 10px; border:1px solid #d4d7db; border-radius:6px; background:#fff; color:#1c1d1f; outline:none;">
+          <label style="font-family:'Pretendard','Inter',sans-serif; font-size:10px; letter-spacing:1px; color:#6b6f76;">{{ t.location }}</label>
+          <select value="{{ settingsLocation }}" onChange="{{ onLocationChange }}" style="width:100%; font-family:'Pretendard','Inter',sans-serif; font-size:13px; padding:9px 10px; border:1px solid #d4d7db; border-radius:6px; background:#fff; color:#1c1d1f; outline:none;">
             <sc-for list="{{ locationOptions }}" as="opt" hint-placeholder-count="5">
               <option value="{{ opt.value }}">{{ opt.label }}</option>
             </sc-for>
@@ -111,12 +116,12 @@
         </div>
 
         <div style="display:flex; flex-direction:column; gap:6px;">
-          <label style="font-family:'Pretendard Variable','Pretendard',-apple-system,BlinkMacSystemFont,system-ui,sans-serif; font-size:10px; letter-spacing:1px; color:#6b6f76;">{{ t.documentRev }}</label>
-          <input type="text" value="{{ settingsRev }}" onChange="{{ onRevChange }}" style="width:100%; font-family:'Pretendard Variable','Pretendard',-apple-system,BlinkMacSystemFont,system-ui,sans-serif; font-size:13px; padding:9px 10px; border:1px solid #d4d7db; border-radius:6px; background:#fff; color:#1c1d1f; outline:none; box-sizing:border-box;">
+          <label style="font-family:'Pretendard','Inter',sans-serif; font-size:10px; letter-spacing:1px; color:#6b6f76;">{{ t.docRev }}</label>
+          <input type="text" value="{{ settingsRev }}" onChange="{{ onRevChange }}" style="width:100%; font-family:'Pretendard','Inter',sans-serif; font-size:13px; padding:9px 10px; border:1px solid #d4d7db; border-radius:6px; background:#fff; color:#1c1d1f; outline:none; box-sizing:border-box;">
         </div>
 
         <div style="display:flex; align-items:center; justify-content:space-between; gap:10px; padding:4px 0;">
-          <label style="font-family:'Pretendard Variable','Pretendard',-apple-system,BlinkMacSystemFont,system-ui,sans-serif; font-size:10px; letter-spacing:1px; color:#6b6f76;">{{ t.notesToggle }}</label>
+          <label style="font-family:'Pretendard','Inter',sans-serif; font-size:10px; letter-spacing:1px; color:#6b6f76;">{{ t.notesToggle }}</label>
           <button type="button" onClick="{{ toggleShowNotes }}" style="position:relative; width:42px; height:24px; border-radius:12px; border:none; cursor:pointer; background:{{ switchBg }}; flex-shrink:0; transition:background .15s;">
             <span style="position:absolute; top:2px; left:{{ knobLeft }}; width:20px; height:20px; border-radius:50%; background:#fff; box-shadow:0 1px 2px rgba(0,0,0,.25); transition:left .15s;"></span>
           </button>
@@ -125,160 +130,162 @@
 
         <!-- FOOTER ACTIONS -->
         <div style="margin-top:6px; padding-top:14px; border-top:1px solid #eef0f3; display:flex; flex-direction:column; gap:8px;">
-          <button type="button" onClick="{{ newProduct }}" style="cursor:pointer; width:100%; font-family:'Pretendard Variable','Pretendard',-apple-system,BlinkMacSystemFont,system-ui,sans-serif; font-size:11px; font-weight:700; letter-spacing:.3px; color:{{ accent }}; background:#fff; border:1.5px solid {{ accent }}; padding:11px; border-radius:7px;">{{ t.newProduct }}</button>
           <div style="display:flex; gap:8px;">
-            <button type="button" onClick="{{ resetSettings }}" style="cursor:pointer; flex:1; font-family:'Pretendard Variable','Pretendard',-apple-system,BlinkMacSystemFont,system-ui,sans-serif; font-size:10.5px; font-weight:600; letter-spacing:.3px; color:#6b6f76; background:#f1f2f4; border:1px solid #e6e8ec; padding:10px; border-radius:6px;">{{ t.reset }}</button>
-            <button type="button" onClick="{{ saveProfile }}" style="cursor:pointer; flex:1.3; font-family:'Pretendard Variable','Pretendard',-apple-system,BlinkMacSystemFont,system-ui,sans-serif; font-size:10.5px; font-weight:700; letter-spacing:.3px; color:#fff; background:{{ accent }}; border:none; padding:10px; border-radius:6px;">{{ t.save }}</button>
+            <button type="button" onClick="{{ resetSettings }}" style="cursor:pointer; flex:1; font-family:'Pretendard','Inter',sans-serif; font-size:10.5px; font-weight:600; letter-spacing:.3px; color:#6b6f76; background:#f1f2f4; border:1px solid #e6e8ec; padding:10px; border-radius:6px;">{{ t.reset }}</button>
+            <button type="button" onClick="{{ newProduct }}" style="cursor:pointer; flex:1; font-family:'Pretendard','Inter',sans-serif; font-size:10.5px; font-weight:600; letter-spacing:.3px; color:#1c1d1f; background:#fff; border:1px solid #1c1d1f; padding:10px; border-radius:6px;">＋ {{ t.newProduct }}</button>
+            <button type="button" onClick="{{ saveProfile }}" style="cursor:pointer; flex:1.3; font-family:'Pretendard','Inter',sans-serif; font-size:10.5px; font-weight:700; letter-spacing:.3px; color:#fff; background:{{ accent }}; border:none; padding:10px; border-radius:6px;">{{ t.saveProduct }}</button>
           </div>
-          <button type="button" onClick="{{ exportCsv }}" style="cursor:pointer; font-family:'Pretendard Variable','Pretendard',-apple-system,BlinkMacSystemFont,system-ui,sans-serif; font-size:10.5px; font-weight:600; letter-spacing:.3px; color:#1c1d1f; background:#fff; border:1px solid #d4d7db; padding:9px; border-radius:6px;">{{ t.exportCsv }} ({{ savedCount }})</button>
+          <button type="button" onClick="{{ exportCsv }}" style="cursor:pointer; font-family:'Pretendard','Inter',sans-serif; font-size:10.5px; font-weight:600; letter-spacing:.3px; color:#1c1d1f; background:#fff; border:1px solid #d4d7db; padding:9px; border-radius:6px;">{{ t.exportCsv }} ({{ savedCount }})</button>
           <sc-if value="{{ noSave }}" hint-placeholder-val="{{ false }}">
             <span style="font-size:9px; color:#b08a2a; font-style:italic; text-align:center;">{{ t.saveHint }}</span>
           </sc-if>
         </div>
 
         <div style="margin-top:10px; padding-top:12px; border-top:1px solid #eef0f3; display:flex; flex-direction:column; gap:8px;">
-          <button type="button" onClick="{{ gotoCover }}" style="cursor:pointer; display:flex; align-items:center; justify-content:center; gap:9px; font-family:'Pretendard Variable','Pretendard',-apple-system,BlinkMacSystemFont,system-ui,sans-serif; font-size:11px; font-weight:700; letter-spacing:.3px; color:#fff; background:#9E1B32; border:none; padding:12px; border-radius:7px;">{{ t.coverPage }} <span style="font-size:14px; line-height:1;">→</span></button>
-          <div style="display:flex; flex-direction:column; gap:5px;">
-            <button type="button" onClick="{{ gotoDb }}" style="cursor:pointer; display:flex; align-items:center; justify-content:center; gap:9px; font-family:'Pretendard Variable','Pretendard',-apple-system,BlinkMacSystemFont,system-ui,sans-serif; font-size:11px; font-weight:700; letter-spacing:.3px; color:#fff; background:#1c1d1f; border:none; padding:12px; border-radius:7px;">{{ t.manageDb }} <span style="font-size:14px; line-height:1;">→</span></button>
-            <span style="font-size:9px; color:#9aa0a7; text-align:center; line-height:1.4;">{{ t.manageDbHint }}</span>
-          </div>
+          <button type="button" onClick="{{ gotoCover }}" style="cursor:pointer; display:flex; align-items:center; justify-content:center; gap:9px; font-family:'Pretendard','Inter',sans-serif; font-size:11px; font-weight:700; letter-spacing:.3px; color:#fff; background:#9E1B32; border:none; padding:12px; border-radius:7px;">{{ t.coverPage }} <span style="font-size:14px; line-height:1;">→</span></button>
+          <span style="font-size:9px; color:#9aa0a7; text-align:center; line-height:1.4;">{{ t.coverHint }}</span>
+          <button type="button" onClick="{{ gotoDb }}" style="cursor:pointer; margin-top:4px; display:flex; align-items:center; justify-content:center; gap:9px; font-family:'Pretendard','Inter',sans-serif; font-size:11px; font-weight:700; letter-spacing:.3px; color:#fff; background:#1c1d1f; border:none; padding:12px; border-radius:7px;">{{ t.manageDb }} <span style="font-size:14px; line-height:1;">→</span></button>
+          <span style="font-size:9px; color:#9aa0a7; text-align:center; line-height:1.4;">{{ t.dbHintShort }}</span>
         </div>
 
       </div>
     </div>
   </sc-if>
 
-  <!-- COVER EDIT TOOLBAR (screen only, cover view) -->
-  <sc-if value="{{ isCover }}" hint-placeholder-val="{{ false }}">
-    <div class="screen-only" style="width:816px; display:flex; flex-direction:column; gap:12px;">
-      <div style="display:flex; align-items:center; justify-content:space-between;">
-        <button type="button" onClick="{{ gotoMain }}" style="cursor:pointer; display:flex; align-items:center; gap:7px; font-size:11px; font-weight:600; color:#1c1d1f; background:#f1f2f4; border:1px solid #d4d7db; padding:8px 14px; border-radius:7px;"><span style="font-size:14px; line-height:1;">←</span> {{ t.backToGuide }}</button>
-        <span style="font-size:14px; font-weight:700; color:#1c1d1f;">{{ t.coverEditTitle }}</span>
-      </div>
-      <div style="display:flex; gap:12px; align-items:flex-end; padding:12px 14px; border:1px solid #e6e8ec; border-radius:9px; background:#fafbfc;">
-        <div style="flex:2; display:flex; flex-direction:column; gap:5px;">
-          <label style="font-size:10px; letter-spacing:1px; color:#6b6f76;">{{ t.coverFooterLabel }}</label>
-          <input type="text" value="{{ settingsCoverFooter }}" placeholder="{{ coverFooterPlaceholder }}" onChange="{{ onCoverFooterChange }}" style="width:100%; font-size:13px; padding:9px 10px; border:1px solid #d4d7db; border-radius:6px; background:#fff; color:#1c1d1f; outline:none; box-sizing:border-box;">
-        </div>
-        <div style="flex:1; display:flex; flex-direction:column; gap:5px;">
-          <label style="font-size:10px; letter-spacing:1px; color:#6b6f76;">{{ t.coverVersionLabel }}</label>
-          <input type="text" value="{{ settingsCoverVersion }}" placeholder="1.0" onChange="{{ onCoverVersionChange }}" style="width:100%; font-size:13px; padding:9px 10px; border:1px solid #d4d7db; border-radius:6px; background:#fff; color:#1c1d1f; outline:none; box-sizing:border-box;">
-        </div>
-      </div>
-      <span style="font-size:11px; color:#8a8f96; line-height:1.5;">{{ t.coverHint }}</span>
-    </div>
-  </sc-if>
+  <sc-if value="{{ isMain }}" hint-placeholder-val="{{ true }}">
 
-  <!-- COVER PAGE (prints first; on screen only in cover view) -->
-  <div class="page print-page" style="position:relative; overflow:hidden; width:816px; min-height:1056px; background:#9E1B32; box-shadow:0 6px 28px rgba(20,22,28,.18); padding:52px 56px; display:{{ cover.screenDisplay }}; flex-direction:column; color:#ffffff;">
-    <span style="position:absolute; top:40px; right:-30px; font-size:600px; font-weight:800; line-height:.78; color:rgba(255,255,255,0.07); z-index:0; pointer-events:none; user-select:none;">A</span>
-    <div style="position:relative; z-index:1; display:flex; flex-direction:column; flex:1;">
+  <!-- COVER PAGE (export + screen) -->
+  <div class="page {{ cover.hideClass }}" style="position:relative; width:816px; min-height:1056px; background:#9E1B32; box-shadow:0 6px 28px rgba(20,22,28,.18); padding:0; display:flex; flex-direction:column; color:#ffffff; overflow:hidden;">
+
+    <!-- giant A watermark -->
+    <div style="position:absolute; top:60px; right:-30px; z-index:0; font-family:'Pretendard','Inter',sans-serif; font-size:760px; font-weight:800; line-height:.8; color:rgba(255,255,255,0.07); pointer-events:none; user-select:none;">A</div>
+
+    <!-- back to guide (screen only) -->
+    <button type="button" class="screen-only" onClick="{{ gotoMain }}" style="position:absolute; top:22px; right:22px; z-index:5; cursor:pointer; display:flex; align-items:center; gap:7px; font-family:'Pretendard','Inter',sans-serif; font-size:11px; font-weight:600; color:#9E1B32; background:#ffffff; border:none; padding:8px 14px; border-radius:7px; box-shadow:0 2px 8px rgba(0,0,0,.18);"><span style="font-size:14px; line-height:1;">←</span> {{ t.backToGuide }}</button>
+
+    <div style="position:relative; z-index:1; flex:1; display:flex; flex-direction:column; padding:60px 64px 52px;">
+
       <!-- masthead -->
-      <div style="display:flex; align-items:baseline; gap:12px;">
-        <span style="font-weight:700; font-size:15px; letter-spacing:5px;">AVYCON</span>
-        <span style="font-size:10px; color:rgba(255,255,255,.62); letter-spacing:1.5px;">CAMERA ACCESSORY PROGRAM</span>
+      <div style="display:flex; align-items:baseline; gap:14px;">
+        <span style="font-family:'Pretendard','Inter',sans-serif; font-weight:600; font-size:18px; letter-spacing:6px; color:#ffffff;">AVYCON</span>
+        <span style="font-size:10.5px; color:rgba(255,255,255,.65); letter-spacing:1.5px;">{{ cover.eyebrow }}</span>
       </div>
+
       <!-- title block -->
-      <div style="margin-top:90px; display:flex; flex-direction:column;">
-        <span style="font-size:11px; letter-spacing:4px; color:rgba(255,255,255,.6);">CAMERA ACCESSORY PROGRAM</span>
-        <div style="margin-top:14px; font-size:54px; font-weight:800; line-height:1.04; letter-spacing:-1px; max-width:560px;">{{ cover.title }}</div>
-        <div style="margin-top:10px; font-size:30px; font-weight:700; letter-spacing:1px; color:rgba(255,255,255,.92);">{{ cover.model }}</div>
-        <span style="margin-top:26px; width:64px; height:2px; background:rgba(255,255,255,.55);"></span>
-        <div style="margin-top:18px; font-size:15px; color:rgba(255,255,255,.92);">{{ cover.subtitle }}</div>
-        <div style="margin-top:4px; font-size:11px; letter-spacing:.5px; color:rgba(255,255,255,.6);">{{ t.subjectCamera }} · {{ cover.camType }}</div>
+      <div style="margin-top:104px;">
+        <div style="font-family:'Pretendard','Inter',sans-serif; font-size:11px; letter-spacing:3px; color:rgba(255,255,255,.7);">{{ cover.eyebrow }}</div>
+        <div style="margin-top:18px; font-size:50px; font-weight:700; letter-spacing:-1px; line-height:1.04; max-width:600px; color:#ffffff; text-wrap:pretty;">{{ cover.title }}</div>
+        <div style="margin-top:10px; font-family:'Pretendard','Inter',sans-serif; font-size:38px; font-weight:700; letter-spacing:-.5px; color:#ffffff;">{{ cover.camModel }}</div>
+        <div style="margin-top:26px; width:54px; height:3px; background:#ffffff; opacity:.55;"></div>
+        <div style="margin-top:18px; font-size:15px; color:rgba(255,255,255,.85); max-width:520px; line-height:1.5;">{{ cover.sub }}</div>
+        <div style="margin-top:4px; font-size:12px; color:rgba(255,255,255,.6);">{{ cover.subjectLabel }} · {{ cover.camType }}</div>
       </div>
-      <!-- contents cards -->
-      <div style="margin-top:auto; display:flex; flex-direction:column; gap:13px;">
-        <div style="display:flex; align-items:center; gap:12px;">
-          <span style="font-size:10px; letter-spacing:2px; color:rgba(255,255,255,.62);">{{ t.combinations }}</span>
-          <span style="flex:1; height:1px; background:rgba(255,255,255,.28);"></span>
+
+      <!-- locations index (kept light) -->
+      <div style="margin-top:auto; padding-top:40px;">
+        <div style="display:flex; align-items:center; gap:12px; margin-bottom:14px;">
+          <span style="font-family:'Pretendard','Inter',sans-serif; font-size:10px; letter-spacing:2px; color:rgba(255,255,255,.7);">{{ cover.locationsLabel }}</span>
+          <span style="flex:1; height:1px; background:rgba(255,255,255,.25);"></span>
         </div>
-        <div style="display:flex; gap:12px;">
-          <sc-for list="{{ cover.cards }}" as="card" hint-placeholder-count="5">
-            <div style="flex:1; background:#ffffff; border-top:3px solid {{ card.accent }}; border-radius:8px; padding:13px 13px 15px; display:flex; flex-direction:column; gap:5px;">
-              <span style="font-size:9px; letter-spacing:1px; color:#b4b9c0;">{{ card.num }}</span>
-              <span style="font-size:14px; font-weight:700; color:#1c1d1f;">{{ card.name }}</span>
-              <span style="font-size:9px; letter-spacing:.5px; color:#8a8f96;">{{ card.cases }} {{ t.cases }}</span>
+        <div style="display:grid; grid-template-columns:repeat(5, 1fr); gap:10px;">
+          <sc-for list="{{ cover.locList }}" as="lc" hint-placeholder-count="5">
+            <div style="display:flex; flex-direction:column; gap:8px; padding:14px 12px; border:1px solid #e6e8ec; border-top-width:3px; border-top-color:{{ lc.accent }}; border-radius:7px; background:{{ lc.soft }}; color:#1c1d1f;">
+              <span style="font-family:'Pretendard','Inter',sans-serif; font-size:9px; letter-spacing:1px; color:{{ lc.accent }};">{{ lc.pageNo }}</span>
+              <span style="font-size:14px; font-weight:700; line-height:1.15;">{{ lc.name }}</span>
+              <span style="font-family:'Pretendard','Inter',sans-serif; font-size:9px; color:#9aa0a7;">{{ lc.count }} {{ cover.casesLabel }}</span>
             </div>
           </sc-for>
         </div>
       </div>
+
       <!-- footer -->
-      <div style="margin-top:30px; padding-top:18px; display:flex; align-items:flex-end; justify-content:space-between; border-top:1px solid rgba(255,255,255,.28);">
-        <span style="font-size:15px; font-weight:700; letter-spacing:1px;">AVYCON°</span>
-        <div style="display:flex; flex-direction:column; align-items:flex-end; gap:2px; font-size:9px; letter-spacing:1px; color:rgba(255,255,255,.62);">
-          <span>CAMERA ACCESSORY PROGRAM</span>
-          <span>{{ cover.footer }}</span>
-          <span>{{ cover.version }}</span>
+      <div style="margin-top:40px; padding-top:20px; display:flex; align-items:flex-end; justify-content:space-between; border-top:1px solid rgba(255,255,255,.25);">
+        <span style="font-family:'Pretendard','Inter',sans-serif; font-size:26px; font-weight:600; letter-spacing:3px; color:#ffffff;">AVYCON<span style="font-size:12px; vertical-align:super;">®</span></span>
+        <div style="display:flex; flex-direction:column; gap:2px; text-align:right;">
+          <span style="font-family:'Pretendard','Inter',sans-serif; font-size:9.5px; font-weight:600; letter-spacing:1px; color:#ffffff;">{{ cover.eyebrow }}</span>
+          <span style="font-size:10px; color:rgba(255,255,255,.7);">AVYCON Network / IP Camera Lineup</span>
+          <span style="font-family:'Pretendard','Inter',sans-serif; font-size:10px; color:rgba(255,255,255,.7);">{{ cover.rev }}</span>
         </div>
       </div>
     </div>
   </div>
 
   <sc-for list="{{ pages }}" as="pg" hint-placeholder-count="1">
-  <div class="page {{ pg.printClass }}" style="width:816px; min-height:1056px; background:#ffffff; box-shadow:0 6px 28px rgba(20,22,28,.18); padding:40px 52px 32px; display:{{ pg.screenDisplay }}; flex-direction:column; color:#1c1d1f;">
+  <div class="page {{ pg.hideClass }}" style="position:relative; width:816px; height:1056px; overflow:hidden; background:#ffffff; box-shadow:0 6px 28px rgba(20,22,28,.18); padding:34px 52px 20px; display:flex; flex-direction:column; color:#1c1d1f;">
 
     <!-- MASTHEAD -->
     <div style="display:flex; align-items:center; justify-content:space-between; padding-bottom:12px; border-bottom:1.5px solid #1c1d1f;">
       <div style="display:flex; align-items:baseline; gap:12px;">
-        <span style="font-family:'Pretendard Variable','Pretendard',-apple-system,BlinkMacSystemFont,system-ui,sans-serif; font-weight:600; font-size:14px; letter-spacing:4px;">AVYCON</span>
+        <span style="font-family:'Pretendard','Inter',sans-serif; font-weight:600; font-size:14px; letter-spacing:4px;">AVYCON</span>
         <span style="font-size:10px; color:#8a8f96; letter-spacing:1px;">CAMERA ACCESSORY PROGRAM</span>
       </div>
-      <div style="display:flex; align-items:center; gap:16px;">
-        <div class="screen-only" style="display:flex; align-items:center; gap:8px;">
-          <span style="font-size:9px; letter-spacing:.5px; text-transform:uppercase; white-space:nowrap; color:{{ pg.accent }};">{{ t.useLocation }}</span>
-          <button type="button" onClick="{{ pg.onToggleEnabled }}" title="{{ t.useLocation }}" style="position:relative; width:40px; height:23px; border-radius:12px; border:none; cursor:pointer; background:{{ pg.locSwitchBg }}; flex-shrink:0; transition:background .15s;">
-            <span style="position:absolute; top:2px; left:{{ pg.locKnobLeft }}; width:19px; height:19px; border-radius:50%; background:#fff; box-shadow:0 1px 2px rgba(0,0,0,.25); transition:left .15s;"></span>
-          </button>
+      <div style="display:flex; flex-direction:column; align-items:flex-end; gap:6px;">
+        <!-- LOCATION ENABLE/DISABLE TOGGLE (screen only) -->
+        <div class="screen-only" style="display:flex; align-items:center; gap:9px;">
+          <sc-if value="{{ pg.enabled }}" hint-placeholder-val="{{ true }}">
+            <span style="font-family:'Pretendard','Inter',sans-serif; font-size:9px; letter-spacing:.5px; color:#9aa0a7;">{{ t.useLoc }}</span>
+            <button type="button" onClick="{{ pg.onToggleEnabled }}" title="{{ t.useLoc }}" style="position:relative; width:42px; height:23px; border-radius:12px; border:none; cursor:pointer; background:{{ pg.accent }};">
+              <span style="position:absolute; top:2.5px; left:21px; width:18px; height:18px; border-radius:50%; background:#fff; box-shadow:0 1px 2px rgba(0,0,0,.25);"></span>
+            </button>
+          </sc-if>
+          <sc-if value="{{ pg.isDisabled }}" hint-placeholder-val="{{ false }}">
+            <span style="font-family:'Pretendard','Inter',sans-serif; font-size:9px; letter-spacing:.5px; color:#b04f4f;">{{ t.notUsedTag }}</span>
+            <button type="button" onClick="{{ pg.onToggleEnabled }}" title="{{ t.useLoc }}" style="position:relative; width:42px; height:23px; border-radius:12px; border:none; cursor:pointer; background:#d4d7db;">
+              <span style="position:absolute; top:2.5px; left:2.5px; width:18px; height:18px; border-radius:50%; background:#fff; box-shadow:0 1px 2px rgba(0,0,0,.25);"></span>
+            </button>
+          </sc-if>
         </div>
-        <div style="font-family:'Pretendard Variable','Pretendard',-apple-system,BlinkMacSystemFont,system-ui,sans-serif; font-size:10px; color:#8a8f96; letter-spacing:.5px;">{{ rev }}</div>
+        <div style="font-family:'Pretendard','Inter',sans-serif; font-size:10px; color:#8a8f96; letter-spacing:.5px;">{{ rev }}</div>
       </div>
     </div>
-
-    <sc-if value="{{ pg.disabled }}" hint-placeholder-val="{{ false }}">
-      <div class="screen-only" style="margin-top:12px; padding:9px 12px; border-radius:6px; background:#fbeeee; border:1px solid #e6c4c4; color:#b04f4f; font-size:11px; font-weight:600; text-align:center;">{{ t.notInExport }}</div>
-    </sc-if>
 
     <!-- TITLE -->
-    <div style="margin-top:18px;">
-      <div style="font-size:26px; font-weight:700; letter-spacing:-.4px; line-height:1.1;">{{ t.guideTitle }}</div>
-      <div style="margin-top:5px; font-size:13px; color:#6b6f76;">{{ t.guideSubtitle }}</div>
+    <div style="margin-top:12px;">
+      <div style="font-size:26px; font-weight:700; letter-spacing:-.4px; line-height:1.1;">{{ t.titleMain }}</div>
+      <div style="margin-top:5px; font-size:13px; color:#6b6f76;">{{ t.titleSub }}</div>
     </div>
 
+    <!-- DISABLED BANNER (screen only) -->
+    <sc-if value="{{ pg.isDisabled }}" hint-placeholder-val="{{ false }}">
+      <div class="screen-only" style="margin-top:14px; display:flex; align-items:center; gap:10px; padding:12px 16px; border:1px dashed #d9b3b3; background:#fbf1f1; border-radius:6px;">
+        <span style="font-family:'Pretendard','Inter',sans-serif; font-size:10px; font-weight:600; letter-spacing:.5px; color:#b04f4f;">{{ t.notUsedTag }}</span>
+      </div>
+    </sc-if>
+
     <!-- CONTEXT BAND -->
-    <div style="margin-top:14px; display:flex; align-items:stretch; border:1px solid #e6e8ec; border-left-width:4px; border-left-color:{{ pg.accent }}; background:{{ pg.soft }}; border-radius:6px; overflow:hidden;">
+    <div style="margin-top:10px; display:flex; align-items:stretch; border:1px solid #e6e8ec; border-left-width:4px; border-left-color:{{ pg.accent }}; background:{{ pg.soft }}; border-radius:6px; overflow:hidden;">
       <div style="flex:1; padding:13px 18px; display:flex; flex-direction:column; gap:3px; border-right:1px solid #e6e8ec;">
-        <span style="font-family:'Pretendard Variable','Pretendard',-apple-system,BlinkMacSystemFont,system-ui,sans-serif; font-size:9px; letter-spacing:1.5px; color:#9aa0a7;">{{ t.location }}</span>
-        <span style="font-size:16px; font-weight:600;"><span style="color:{{ pg.accent }};">{{ pg.locName }}</span></span>
+        <span style="font-family:'Pretendard','Inter',sans-serif; font-size:9px; letter-spacing:1.5px; color:#9aa0a7;">{{ t.location }}</span>
+        <span style="font-size:16px; font-weight:600; color:{{ pg.accent }};">{{ pg.locName }}</span>
       </div>
       <div style="flex:1.3; padding:13px 18px; display:flex; flex-direction:column; gap:3px; border-right:1px solid #e6e8ec;">
-        <span style="font-family:'Pretendard Variable','Pretendard',-apple-system,BlinkMacSystemFont,system-ui,sans-serif; font-size:9px; letter-spacing:1.5px; color:#9aa0a7;">{{ t.subjectCamera }}</span>
-        <span style="font-size:14px; font-weight:600;"><span style="font-family:'Pretendard Variable','Pretendard',-apple-system,BlinkMacSystemFont,system-ui,sans-serif;">{{ camModel }}</span> <span style="color:#9aa0a7; font-weight:400; font-size:12px;">· {{ camType }}</span></span>
+        <span style="font-family:'Pretendard','Inter',sans-serif; font-size:9px; letter-spacing:1.5px; color:#9aa0a7;">{{ t.subjectCamera }}</span>
+        <span style="font-size:14px; font-weight:600;"><span style="font-family:'Pretendard','Inter',sans-serif;">{{ camModel }}</span> <span style="color:#9aa0a7; font-weight:400; font-size:12px;">· {{ camType }}</span></span>
       </div>
       <div style="padding:13px 18px; display:flex; flex-direction:column; gap:3px; justify-content:center; min-width:96px;">
-        <span style="font-family:'Pretendard Variable','Pretendard',-apple-system,BlinkMacSystemFont,system-ui,sans-serif; font-size:9px; letter-spacing:1.5px; color:#9aa0a7;">{{ t.cases }}</span>
+        <span style="font-family:'Pretendard','Inter',sans-serif; font-size:9px; letter-spacing:1.5px; color:#9aa0a7;">{{ t.cases }}</span>
         <span style="font-size:20px; font-weight:700; line-height:1;">{{ pg.comboCount }}</span>
       </div>
     </div>
 
     <!-- SECTION LABEL -->
-    <div style="margin-top:24px; display:flex; align-items:center; gap:12px;">
-      <span style="font-family:'Pretendard Variable','Pretendard',-apple-system,BlinkMacSystemFont,system-ui,sans-serif; font-size:10px; letter-spacing:2px; color:#8a8f96;">{{ t.combinations }}</span>
+    <div style="margin-top:16px; display:flex; align-items:center; gap:12px;">
+      <span style="font-family:'Pretendard','Inter',sans-serif; font-size:10px; letter-spacing:2px; color:#8a8f96;">{{ t.combinations }}</span>
       <span style="flex:1; height:1px; background:#e6e8ec;"></span>
     </div>
 
     <!-- COMBINATION ROWS -->
-    <div style="margin-top:14px; display:flex; flex-direction:column; gap:10px;">
+    <div style="margin-top:10px; display:flex; flex-direction:column; gap:8px;">
       <sc-for list="{{ pg.combos }}" as="combo" hint-placeholder-count="5">
         <div class="combo-row" style="position:relative; display:flex; align-items:stretch; border:1px solid #e6e8ec; border-radius:8px; background:#ffffff; overflow:visible;">
 
           <sc-if value="{{ combo.canDelete }}" hint-placeholder-val="{{ false }}">
-            <button type="button" class="screen-only" onClick="{{ combo.onRemove }}" title="{{ t.tt.deleteCombo }}" style="position:absolute; top:8px; right:8px; z-index:2; cursor:pointer; width:23px; height:23px; border-radius:6px; border:1px solid #e6c4c4; background:#fbeeee; color:#b04f4f; font-family:'Pretendard Variable','Pretendard',-apple-system,BlinkMacSystemFont,system-ui,sans-serif; font-size:15px; font-weight:600; line-height:1; display:flex; align-items:center; justify-content:center;">−</button>
+            <button type="button" class="screen-only" onClick="{{ combo.onRemove }}" title="{{ t.deleteBanner }}" style="position:absolute; top:8px; right:8px; z-index:2; cursor:pointer; width:23px; height:23px; border-radius:6px; border:1px solid #e6c4c4; background:#fbeeee; color:#b04f4f; font-family:'Pretendard','Inter',sans-serif; font-size:15px; font-weight:600; line-height:1; display:flex; align-items:center; justify-content:center;">−</button>
           </sc-if>
 
           <!-- left rail -->
           <div style="width:84px; flex-shrink:0; padding:13px 11px; background:{{ pg.soft }}; border-right:1px solid #eef0f3; border-radius:8px 0 0 8px; display:flex; flex-direction:column; gap:6px; justify-content:center;">
-            <span style="align-self:flex-start; font-family:'Pretendard Variable','Pretendard',-apple-system,BlinkMacSystemFont,system-ui,sans-serif; font-size:10.5px; font-weight:600; letter-spacing:.5px; color:#ffffff; background:{{ pg.accent }}; padding:2px 7px; border-radius:4px;">{{ combo.id }}</span>
+            <span style="align-self:flex-start; font-family:'Pretendard','Inter',sans-serif; font-size:10.5px; font-weight:600; letter-spacing:.5px; color:#ffffff; background:{{ pg.accent }}; padding:2px 7px; border-radius:4px;">{{ combo.id }}</span>
             <sc-if value="{{ showNotes }}" hint-placeholder-val="{{ true }}">
               <span style="font-size:9.5px; color:#6b6f76; line-height:1.3;">{{ combo.note }}</span>
             </sc-if>
@@ -289,24 +296,31 @@
             <sc-for list="{{ combo.items }}" as="item" hint-placeholder-count="3">
 
               <sc-if value="{{ item.showConn }}" hint-placeholder-val="{{ false }}">
-                <div style="height:72px; width:30px; display:flex; align-items:center; justify-content:center;">
-                  <span style="display:flex; align-items:center; justify-content:center; width:21px; height:21px; border-radius:50%; font-family:'Pretendard Variable','Pretendard',-apple-system,BlinkMacSystemFont,system-ui,sans-serif; font-size:13px; font-weight:600; color:{{ item.connColor }}; background:{{ item.connBg }}; border:1px solid {{ item.connBorder }};">{{ item.connSymbol }}</span>
+                <div style="height:60px; width:28px; display:flex; align-items:center; justify-content:center;">
+                  <span style="display:flex; align-items:center; justify-content:center; box-sizing:border-box; width:21px; height:21px; border-radius:50%; color:{{ item.connColor }}; background:{{ item.connBg }}; border:1px solid {{ item.connBorder }};">
+                    <sc-if value="{{ item.connIsPlus }}" hint-placeholder-val="{{ true }}">
+                      <svg data-om-raster="1" width="11" height="11" viewBox="0 0 11 11" fill="none" style="display:block;"><path d="M5.5 1.6 V9.4 M1.6 5.5 H9.4" stroke="{{ item.connColor }}" stroke-width="1.7" stroke-linecap="round"></path></svg>
+                    </sc-if>
+                    <sc-if value="{{ item.connIsArrow }}" hint-placeholder-val="{{ false }}">
+                      <svg data-om-raster="1" width="13" height="11" viewBox="0 0 13 11" fill="none" style="display:block;"><path d="M1.6 5.5 H10.6 M7.1 2.4 L10.6 5.5 L7.1 8.6" stroke="{{ item.connColor }}" stroke-width="1.7" stroke-linecap="round" stroke-linejoin="round"></path></svg>
+                    </sc-if>
+                  </span>
                 </div>
               </sc-if>
 
               <!-- camera node (static) -->
               <sc-if value="{{ item.isCamera }}" hint-placeholder-val="{{ true }}">
                 <div style="width:96px; display:flex; flex-direction:column; align-items:center; gap:7px; text-align:center;">
-                  <div style="width:72px; height:72px; border-radius:8px; border:1px solid #e6e8ec; background:#ffffff; box-shadow:0 1px 3px rgba(20,22,28,.06); display:flex; align-items:center; justify-content:center; overflow:hidden; position:relative;">
+                  <div style="width:60px; height:60px; border-radius:8px; border:1px solid #e6e8ec; background:#ffffff; box-shadow:0 1px 3px rgba(20,22,28,.06); display:flex; align-items:center; justify-content:center; overflow:hidden; position:relative;">
                     {{ item.imgEl }}
                     <sc-if value="{{ item.noImg }}" hint-placeholder-val="{{ true }}">
                       <div style="position:absolute; inset:0; background:repeating-linear-gradient(135deg,#f6f7f9 0 6px,#eef0f3 6px 7px); display:flex; align-items:center; justify-content:center;">
-                        <span style="font-family:'Pretendard Variable','Pretendard',-apple-system,BlinkMacSystemFont,system-ui,sans-serif; font-size:8px; letter-spacing:1px; color:#b4b9c0;">{{ item.cat }}</span>
+                        <span style="font-family:'Pretendard','Inter',sans-serif; font-size:8px; letter-spacing:1px; color:#b4b9c0;">{{ item.cat }}</span>
                       </div>
                     </sc-if>
                   </div>
                   <div style="display:flex; flex-direction:column; gap:2px; align-items:center;">
-                    <span style="font-family:'Pretendard Variable','Pretendard',-apple-system,BlinkMacSystemFont,system-ui,sans-serif; font-size:10px; font-weight:600; line-height:1.15; word-break:break-all;">{{ item.model }}</span>
+                    <span style="font-family:'Pretendard','Inter',sans-serif; font-size:10px; font-weight:600; line-height:1.15; word-break:break-all;">{{ item.model }}</span>
                     <span style="font-size:8.5px; color:#9aa0a7; line-height:1.2;">{{ item.type }}</span>
                   </div>
                 </div>
@@ -318,30 +332,30 @@
 
                   <sc-if value="{{ item.hasName }}" hint-placeholder-val="{{ false }}">
                     <div style="position:relative;">
-                      <button type="button" onClick="{{ item.onOpen }}" title="{{ t.tt.changeProduct }}" style="cursor:pointer; padding:0; width:72px; height:72px; border-radius:8px; border:1px solid #e6e8ec; background:#ffffff; box-shadow:0 1px 3px rgba(20,22,28,.06); display:flex; align-items:center; justify-content:center; overflow:hidden; position:relative;">
+                      <button type="button" onClick="{{ item.onOpen }}" title="{{ t.changeProduct }}" style="cursor:pointer; padding:0; width:60px; height:60px; border-radius:8px; border:1px solid #e6e8ec; background:#ffffff; box-shadow:0 1px 3px rgba(20,22,28,.06); display:flex; align-items:center; justify-content:center; overflow:hidden; position:relative;">
                         {{ item.imgEl }}
                         <sc-if value="{{ item.noImg }}" hint-placeholder-val="{{ false }}">
                           <div style="position:absolute; inset:0; background:repeating-linear-gradient(135deg,#f6f7f9 0 6px,#eef0f3 6px 7px); display:flex; align-items:center; justify-content:center;">
-                            <span style="font-family:'Pretendard Variable','Pretendard',-apple-system,BlinkMacSystemFont,system-ui,sans-serif; font-size:7.5px; letter-spacing:.5px; color:#b4b9c0;">{{ item.cat }}</span>
+                            <span style="font-family:'Pretendard','Inter',sans-serif; font-size:7.5px; letter-spacing:.5px; color:#b4b9c0;">{{ item.cat }}</span>
                           </div>
                         </sc-if>
                       </button>
-                      <button type="button" class="screen-only" onClick="{{ item.onClear }}" title="{{ t.tt.clearSelection }}" style="position:absolute; top:-7px; right:-7px; cursor:pointer; width:19px; height:19px; border-radius:50%; border:1px solid #e6c4c4; background:#fbeeee; color:#b04f4f; font-family:'Pretendard Variable','Pretendard',-apple-system,BlinkMacSystemFont,system-ui,sans-serif; font-size:11px; line-height:1; display:flex; align-items:center; justify-content:center;">×</button>
+                      <button type="button" class="screen-only" onClick="{{ item.onClear }}" title="{{ t.deselect }}" style="position:absolute; top:-7px; right:-7px; cursor:pointer; width:19px; height:19px; border-radius:50%; border:1px solid #e6c4c4; background:#fbeeee; color:#b04f4f; font-family:'Pretendard','Inter',sans-serif; font-size:11px; line-height:1; display:flex; align-items:center; justify-content:center;">×</button>
                     </div>
                   </sc-if>
 
                   <sc-if value="{{ item.noName }}" hint-placeholder-val="{{ true }}">
-                    <button type="button" class="screen-only" onClick="{{ item.onOpen }}" title="{{ t.selectProduct }}" style="cursor:pointer; width:72px; height:72px; border-radius:8px; border:1.5px dashed {{ pg.accent }}; background:{{ pg.soft }}; display:flex; flex-direction:column; align-items:center; justify-content:center; gap:3px; color:{{ pg.accent }};">
+                    <button type="button" class="screen-only" onClick="{{ item.onOpen }}" title="{{ t.selectProduct }}" style="cursor:pointer; width:60px; height:60px; border-radius:8px; border:1.5px dashed {{ pg.accent }}; background:{{ pg.soft }}; display:flex; flex-direction:column; align-items:center; justify-content:center; gap:3px; color:{{ pg.accent }};">
                       <span style="font-size:18px; line-height:1;">+</span>
-                      <span style="font-family:'Pretendard Variable','Pretendard',-apple-system,BlinkMacSystemFont,system-ui,sans-serif; font-size:7.5px; letter-spacing:.3px;">{{ t.selectProduct }}</span>
+                      <span style="font-family:'Pretendard','Inter',sans-serif; font-size:7.5px; letter-spacing:.3px;">{{ t.selectProduct }}</span>
                     </button>
-                    <div class="print-only" style="width:72px; height:72px; border-radius:8px; border:1px solid #e6e8ec; background:repeating-linear-gradient(135deg,#f6f7f9 0 6px,#eef0f3 6px 7px); align-items:center; justify-content:center;">
-                      <span style="font-family:'Pretendard Variable','Pretendard',-apple-system,BlinkMacSystemFont,system-ui,sans-serif; font-size:8px; color:#b4b9c0;">—</span>
+                    <div class="print-only" style="width:60px; height:60px; border-radius:8px; border:1px solid #e6e8ec; background:repeating-linear-gradient(135deg,#f6f7f9 0 6px,#eef0f3 6px 7px); align-items:center; justify-content:center;">
+                      <span style="font-family:'Pretendard','Inter',sans-serif; font-size:8px; color:#b4b9c0;">—</span>
                     </div>
                   </sc-if>
 
                   <div style="display:flex; flex-direction:column; gap:2px; align-items:center; width:100%;">
-                    <span style="font-family:'Pretendard Variable','Pretendard',-apple-system,BlinkMacSystemFont,system-ui,sans-serif; font-size:10px; font-weight:600; line-height:1.15; word-break:break-all; color:#1c1d1f;">{{ item.model }}</span>
+                    <span style="font-family:'Pretendard','Inter',sans-serif; font-size:10px; font-weight:600; line-height:1.15; word-break:break-all; color:#1c1d1f;">{{ item.model }}</span>
                     <span style="font-size:8.5px; color:#9aa0a7; line-height:1.2;">{{ item.type }}</span>
                   </div>
 
@@ -349,22 +363,22 @@
                     <div class="screen-only" style="position:absolute; top:80px; left:50%; transform:translateX(-50%); z-index:30; width:210px; background:#fff; border:1px solid #e6e8ec; border-radius:10px; box-shadow:0 14px 34px rgba(20,22,28,.24); padding:7px; display:flex; flex-direction:column; gap:2px; text-align:left;">
                       <sc-if value="{{ item.pickerStepCat }}" hint-placeholder-val="{{ true }}">
                         <div style="display:flex; align-items:center; justify-content:space-between; padding:3px 6px 5px;">
-                          <span style="font-family:'Pretendard Variable','Pretendard',-apple-system,BlinkMacSystemFont,system-ui,sans-serif; font-size:8.5px; letter-spacing:.5px; color:#9aa0a7;">{{ t.step1 }}</span>
-                          <button type="button" onClick="{{ item.onClose }}" style="cursor:pointer; font-family:'Pretendard Variable','Pretendard',-apple-system,BlinkMacSystemFont,system-ui,sans-serif; font-size:12px; line-height:1; color:#6b6f76; background:none; border:none;">×</button>
+                          <span style="font-family:'Pretendard','Inter',sans-serif; font-size:8.5px; letter-spacing:.5px; color:#9aa0a7;">{{ t.step1 }}</span>
+                          <button type="button" onClick="{{ item.onClose }}" style="cursor:pointer; font-family:'Pretendard','Inter',sans-serif; font-size:12px; line-height:1; color:#6b6f76; background:none; border:none;">×</button>
                         </div>
                         <sc-for list="{{ item.catList }}" as="c" hint-placeholder-count="3">
                           <button type="button" onClick="{{ c.onPick }}" style="cursor:pointer; display:flex; align-items:center; gap:8px; padding:7px 8px; border:none; background:transparent; border-radius:6px; text-align:left;" style-hover="background:{{ pg.soft }};">
                             <span style="width:6px; height:6px; border-radius:2px; background:{{ pg.accent }}; flex-shrink:0;"></span>
                             <span style="font-size:11px; font-weight:600; color:#1c1d1f;">{{ c.label }}</span>
-                            <span style="margin-left:auto; font-family:'Pretendard Variable','Pretendard',-apple-system,BlinkMacSystemFont,system-ui,sans-serif; font-size:8.5px; color:#b4b9c0;">{{ c.count }}</span>
+                            <span style="margin-left:auto; font-family:'Pretendard','Inter',sans-serif; font-size:8.5px; color:#b4b9c0;">{{ c.count }}</span>
                           </button>
                         </sc-for>
                       </sc-if>
                       <sc-if value="{{ item.pickerStepProd }}" hint-placeholder-val="{{ false }}">
                         <div style="display:flex; align-items:center; gap:6px; padding:3px 5px 5px;">
-                          <button type="button" onClick="{{ item.onBack }}" title="{{ t.tt.toCategory }}" style="cursor:pointer; font-family:'Pretendard Variable','Pretendard',-apple-system,BlinkMacSystemFont,system-ui,sans-serif; font-size:11px; color:#6b6f76; background:#f1f2f4; border:1px solid #e6e8ec; border-radius:5px; width:22px; height:20px; line-height:1;">←</button>
-                          <span style="font-family:'Pretendard Variable','Pretendard',-apple-system,BlinkMacSystemFont,system-ui,sans-serif; font-size:9px; font-weight:600; color:#6b6f76;">{{ t.step2 }} · {{ item.pickerCatLabel }}</span>
-                          <button type="button" onClick="{{ item.onClose }}" style="margin-left:auto; cursor:pointer; font-family:'Pretendard Variable','Pretendard',-apple-system,BlinkMacSystemFont,system-ui,sans-serif; font-size:12px; line-height:1; color:#6b6f76; background:none; border:none;">×</button>
+                          <button type="button" onClick="{{ item.onBack }}" title="{{ t.backToCategory }}" style="cursor:pointer; font-family:'Pretendard','Inter',sans-serif; font-size:11px; color:#6b6f76; background:#f1f2f4; border:1px solid #e6e8ec; border-radius:5px; width:22px; height:20px; line-height:1;">←</button>
+                          <span style="font-family:'Pretendard','Inter',sans-serif; font-size:9px; font-weight:600; color:#6b6f76;">{{ t.step2 }} · {{ item.pickerCatLabel }}</span>
+                          <button type="button" onClick="{{ item.onClose }}" style="margin-left:auto; cursor:pointer; font-family:'Pretendard','Inter',sans-serif; font-size:12px; line-height:1; color:#6b6f76; background:none; border:none;">×</button>
                         </div>
                         <sc-for list="{{ item.prodList }}" as="p" hint-placeholder-count="2">
                           <button type="button" onClick="{{ p.onPick }}" style="cursor:pointer; display:flex; align-items:center; gap:8px; padding:6px 7px; border:none; background:transparent; border-radius:6px; text-align:left;" style-hover="background:{{ pg.soft }};">
@@ -372,11 +386,11 @@
                               {{ p.imgEl }}
                               <sc-if value="{{ p.noImg }}" hint-placeholder-val="{{ true }}"><span style="font-size:8px; color:#c0c4ca;">—</span></sc-if>
                             </span>
-                            <span style="font-family:'Pretendard Variable','Pretendard',-apple-system,BlinkMacSystemFont,system-ui,sans-serif; font-size:10px; font-weight:600; color:#1c1d1f; word-break:break-all;">{{ p.name }}</span>
+                            <span style="font-family:'Pretendard','Inter',sans-serif; font-size:10px; font-weight:600; color:#1c1d1f; word-break:break-all;">{{ p.name }}</span>
                           </button>
                         </sc-for>
                         <sc-if value="{{ item.noProdInCat }}" hint-placeholder-val="{{ false }}">
-                          <span style="font-size:9px; color:#b08a2a; font-style:italic; padding:6px 8px; line-height:1.4;">{{ t.noProductsInCat }}</span>
+                          <span style="font-size:9px; color:#b08a2a; font-style:italic; padding:6px 8px; line-height:1.4;">{{ t.noProdInCat }}</span>
                         </sc-if>
                       </sc-if>
                     </div>
@@ -388,8 +402,8 @@
               <!-- placement node -->
               <sc-if value="{{ item.isPlacement }}" hint-placeholder-val="{{ false }}">
                 <div style="width:88px; display:flex; flex-direction:column; align-items:center; gap:7px; text-align:center;">
-                  <div style="width:72px; height:72px; border-radius:8px; background:{{ pg.soft }}; border:1.5px solid {{ pg.accent }}; display:flex; flex-direction:column; align-items:center; justify-content:center; gap:4px;">
-                    <span style="font-family:'Pretendard Variable','Pretendard',-apple-system,BlinkMacSystemFont,system-ui,sans-serif; font-size:9px; font-weight:700; letter-spacing:.5px; color:{{ pg.accent }};">{{ item.placeLabel }}</span>
+                  <div style="width:60px; height:60px; border-radius:8px; background:{{ pg.soft }}; border:1.5px solid {{ pg.accent }}; display:flex; flex-direction:column; align-items:center; justify-content:center; gap:4px;">
+                    <span style="font-family:'Pretendard','Inter',sans-serif; font-size:9px; font-weight:700; letter-spacing:.5px; color:{{ pg.accent }};">{{ item.placeLabel }}</span>
                     <span style="width:18px; height:1.5px; background:{{ pg.accent }}; opacity:.45;"></span>
                   </div>
                   <span style="font-size:8.5px; color:#9aa0a7; line-height:1.2;">{{ t.placement }}</span>
@@ -403,10 +417,10 @@
 
       <!-- ADD COMBINATION (screen only) -->
       <div class="screen-only" style="position:relative; margin-top:2px;">
-        <button type="button" onClick="{{ pg.onToggleAdd }}" style="width:100%; cursor:pointer; display:flex; align-items:center; justify-content:center; gap:8px; padding:11px; border:1.5px dashed {{ pg.accent }}; border-radius:8px; background:{{ pg.soft }}; color:{{ pg.accent }}; font-family:'Pretendard Variable','Pretendard',-apple-system,BlinkMacSystemFont,system-ui,sans-serif; font-size:11px; font-weight:600; letter-spacing:.5px;"><span style="font-size:16px; line-height:1;">+</span> {{ t.addCombination }}</button>
+        <button type="button" onClick="{{ pg.onToggleAdd }}" style="width:100%; cursor:pointer; display:flex; align-items:center; justify-content:center; gap:8px; padding:11px; border:1.5px dashed {{ pg.accent }}; border-radius:8px; background:{{ pg.soft }}; color:{{ pg.accent }}; font-family:'Pretendard','Inter',sans-serif; font-size:11px; font-weight:600; letter-spacing:.5px;"><span style="font-size:16px; line-height:1;">+</span> {{ t.addCombination }}</button>
         <sc-if value="{{ pg.addMenuOpen }}" hint-placeholder-val="{{ false }}">
           <div style="position:absolute; left:0; right:0; top:calc(100% + 6px); z-index:5; background:#fff; border:1px solid #e6e8ec; border-radius:8px; box-shadow:0 10px 28px rgba(20,22,28,.18); padding:6px; display:flex; flex-direction:column; gap:2px;">
-            <span style="font-family:'Pretendard Variable','Pretendard',-apple-system,BlinkMacSystemFont,system-ui,sans-serif; font-size:9px; letter-spacing:1px; color:#9aa0a7; padding:5px 9px 3px;">{{ t.selectAccCount }}</span>
+            <span style="font-family:'Pretendard','Inter',sans-serif; font-size:9px; letter-spacing:1px; color:#9aa0a7; padding:5px 9px 3px;">{{ t.selectCount }}</span>
             <sc-for list="{{ pg.addOptions }}" as="opt" hint-placeholder-count="4">
               <button type="button" onClick="{{ opt.onAdd }}" style="cursor:pointer; display:flex; align-items:center; gap:10px; padding:9px 11px; border:none; background:transparent; border-radius:6px; text-align:left;" style-hover="background:{{ pg.soft }};">
                 <span style="width:7px; height:7px; border-radius:2px; background:{{ pg.accent }}; flex-shrink:0;"></span>
@@ -419,50 +433,51 @@
     </div>
 
     <!-- NOTE -->
-    <div style="margin-top:16px; padding:11px 14px; background:#fafbfc; border:1px solid #eef0f3; border-radius:6px; display:flex; gap:10px; align-items:flex-start;">
-      <span style="font-family:'Pretendard Variable','Pretendard',-apple-system,BlinkMacSystemFont,system-ui,sans-serif; font-size:9px; font-weight:600; letter-spacing:1px; color:{{ pg.accent }}; padding-top:1px;">{{ t.note }}</span>
-      <textarea value="{{ noteText }}" onChange="{{ onNoteChange }}" ref="{{ noteRef }}" placeholder="{{ t.notePlaceholder }}" rows="2" style="flex:1; min-width:0; font-family:'Pretendard Variable','Pretendard',-apple-system,BlinkMacSystemFont,system-ui,sans-serif; font-size:10px; color:#7a7f86; line-height:1.5; border:none; background:transparent; outline:none; resize:none; padding:0; margin:0; overflow:hidden; min-height:30px; box-sizing:border-box;"></textarea>
+    <div style="margin-top:10px; padding:9px 14px; background:#fafbfc; border:1px solid #eef0f3; border-radius:6px; display:flex; gap:10px; align-items:flex-start;">
+      <span style="font-family:'Pretendard','Inter',sans-serif; font-size:9px; font-weight:600; letter-spacing:1px; color:{{ pg.accent }}; padding-top:1px;">NOTE</span>
+      <textarea value="{{ noteText }}" onChange="{{ onNoteChange }}" ref="{{ noteRef }}" placeholder="{{ t.notePh }}" rows="2" style="flex:1; min-width:0; font-family:'Pretendard','Inter',system-ui,sans-serif; font-size:10px; color:#7a7f86; line-height:1.5; border:none; background:transparent; outline:none; resize:none; padding:0; margin:0; overflow:hidden; min-height:30px; box-sizing:border-box;"></textarea>
     </div>
 
     <!-- FOOTER -->
     <div style="margin-top:auto; padding-top:16px; display:flex; align-items:center; justify-content:space-between; border-top:1px solid #e6e8ec;">
-      <span style="font-family:'Pretendard Variable','Pretendard',-apple-system,BlinkMacSystemFont,system-ui,sans-serif; font-size:8.5px; color:#9aa0a7; letter-spacing:.5px;">AVYCON · ACCESSORY COMBINATION GUIDE</span>
-      <span style="font-family:'Pretendard Variable','Pretendard',-apple-system,BlinkMacSystemFont,system-ui,sans-serif; font-size:8.5px; color:#9aa0a7;">{{ pg.locName }} · {{ pg.pageNo }}</span>
-      <span style="font-family:'Pretendard Variable','Pretendard',-apple-system,BlinkMacSystemFont,system-ui,sans-serif; font-size:8.5px; color:#9aa0a7;">{{ rev }}</span>
+      <span style="font-family:'Pretendard','Inter',sans-serif; font-size:8.5px; color:#9aa0a7; letter-spacing:.5px;">AVYCON · ACCESSORY COMBINATION GUIDE</span>
+      <span style="font-family:'Pretendard','Inter',sans-serif; font-size:8.5px; color:#9aa0a7;">{{ pg.locLabel }} · {{ pg.pageNo }}</span>
+      <span style="font-family:'Pretendard','Inter',sans-serif; font-size:8.5px; color:#9aa0a7;">{{ rev }}</span>
     </div>
 
   </div>
   </sc-for>
+  </sc-if>
 
   <!-- PRODUCT DATABASE PAGE (screen) -->
   <sc-if value="{{ isDb }}" hint-placeholder-val="{{ false }}">
-  <div class="screen-only" style="width:816px; min-height:760px; background:#ffffff; box-shadow:0 6px 28px rgba(20,22,28,.18); padding:40px 52px 40px; display:flex; flex-direction:column; color:#1c1d1f;">
+  <div style="width:816px; min-height:760px; background:#ffffff; box-shadow:0 6px 28px rgba(20,22,28,.18); padding:40px 52px 40px; display:flex; flex-direction:column; color:#1c1d1f;">
 
     <div style="display:flex; align-items:center; justify-content:space-between; padding-bottom:12px; border-bottom:1.5px solid #1c1d1f;">
       <div style="display:flex; align-items:baseline; gap:12px;">
-        <span style="font-family:'Pretendard Variable','Pretendard',-apple-system,BlinkMacSystemFont,system-ui,sans-serif; font-weight:600; font-size:14px; letter-spacing:4px;">AVYCON</span>
+        <span style="font-family:'Pretendard','Inter',sans-serif; font-weight:600; font-size:14px; letter-spacing:4px;">AVYCON</span>
         <span style="font-size:10px; color:#8a8f96; letter-spacing:1px;">ACCESSORY PRODUCT DATABASE</span>
       </div>
-      <button type="button" onClick="{{ gotoMain }}" style="cursor:pointer; display:flex; align-items:center; gap:7px; font-family:'Pretendard Variable','Pretendard',-apple-system,BlinkMacSystemFont,system-ui,sans-serif; font-size:11px; font-weight:600; color:#1c1d1f; background:#f1f2f4; border:1px solid #d4d7db; padding:8px 14px; border-radius:7px;"><span style="font-size:14px; line-height:1;">←</span> {{ t.backToGuide }}</button>
+      <button type="button" onClick="{{ gotoMain }}" style="cursor:pointer; display:flex; align-items:center; gap:7px; font-family:'Pretendard','Inter',sans-serif; font-size:11px; font-weight:600; color:#1c1d1f; background:#f1f2f4; border:1px solid #d4d7db; padding:8px 14px; border-radius:7px;"><span style="font-size:14px; line-height:1;">←</span> {{ t.backToGuide }}</button>
     </div>
 
     <div style="margin-top:18px;">
       <div style="font-size:24px; font-weight:700; letter-spacing:-.3px; line-height:1.1;">{{ t.dbTitle }}</div>
-      <div style="margin-top:5px; font-size:13px; color:#6b6f76; line-height:1.5;">{{ t.dbSubtitle }}</div>
+      <div style="margin-top:5px; font-size:13px; color:#6b6f76; line-height:1.5;">{{ t.dbDesc }}</div>
     </div>
 
     <div style="margin-top:18px; display:flex; flex-wrap:wrap; gap:8px; align-items:center; padding:12px 14px; border:1px solid #e6e8ec; border-radius:9px; background:#fafbfc;">
-      <span style="font-family:'Pretendard Variable','Pretendard',-apple-system,BlinkMacSystemFont,system-ui,sans-serif; font-size:9px; letter-spacing:1px; color:#9aa0a7; margin-right:2px;">DATA</span>
-      <button type="button" onClick="{{ exportProductCsv }}" style="cursor:pointer; font-family:'Pretendard Variable','Pretendard',-apple-system,BlinkMacSystemFont,system-ui,sans-serif; font-size:10.5px; font-weight:600; color:#1c1d1f; background:#fff; border:1px solid #d4d7db; padding:8px 13px; border-radius:6px;">{{ t.csvExport }} ↓</button>
-      <label style="cursor:pointer; font-family:'Pretendard Variable','Pretendard',-apple-system,BlinkMacSystemFont,system-ui,sans-serif; font-size:10.5px; font-weight:600; color:#fff; background:#1c1d1f; padding:8px 13px; border-radius:6px;">{{ t.csvImport }} ↑<input type="file" accept=".csv,text/csv" onChange="{{ importProductCsv }}" style="display:none;"></label>
+      <span style="font-family:'Pretendard','Inter',sans-serif; font-size:9px; letter-spacing:1px; color:#9aa0a7; margin-right:2px;">{{ t.data }}</span>
+      <button type="button" onClick="{{ exportProductCsv }}" style="cursor:pointer; font-family:'Pretendard','Inter',sans-serif; font-size:10.5px; font-weight:600; color:#1c1d1f; background:#fff; border:1px solid #d4d7db; padding:8px 13px; border-radius:6px;">{{ t.csvExport }} ↓</button>
+      <label style="cursor:pointer; font-family:'Pretendard','Inter',sans-serif; font-size:10.5px; font-weight:600; color:#fff; background:#1c1d1f; padding:8px 13px; border-radius:6px;">{{ t.csvImport }} ↑<input type="file" accept=".csv,text/csv" onChange="{{ importProductCsv }}" style="display:none;"></label>
       <sc-if value="{{ hasLocalImages }}" hint-placeholder-val="{{ false }}">
-        <button type="button" onClick="{{ migrateImages }}" title="{{ t.syncImages }}" style="cursor:pointer; font-family:'Pretendard Variable','Pretendard',-apple-system,BlinkMacSystemFont,system-ui,sans-serif; font-size:10.5px; font-weight:600; color:#fff; background:#b07d2f; border:none; padding:8px 13px; border-radius:6px;">{{ migrateLabel }}</button>
+        <button type="button" onClick="{{ migrateImages }}" title="{{ t.syncImages }}" style="cursor:pointer; font-family:'Pretendard','Inter',sans-serif; font-size:10.5px; font-weight:600; color:#fff; background:#b07d2f; border:none; padding:8px 13px; border-radius:6px;">{{ migrateLabel }}</button>
       </sc-if>
       <div style="margin-left:auto; display:flex; align-items:center; gap:9px;">
         <sc-if value="{{ dbSaved }}" hint-placeholder-val="{{ false }}">
-          <span style="font-family:'Pretendard Variable','Pretendard',-apple-system,BlinkMacSystemFont,system-ui,sans-serif; font-size:10px; font-weight:600; color:#2f8f6b;">{{ t.saved }}</span>
+          <span style="font-family:'Pretendard','Inter',sans-serif; font-size:10px; font-weight:600; color:#2f8f6b;">✓ {{ t.savedTag }}</span>
         </sc-if>
-        <button type="button" onClick="{{ saveDb }}" style="cursor:pointer; font-family:'Pretendard Variable','Pretendard',-apple-system,BlinkMacSystemFont,system-ui,sans-serif; font-size:10.5px; font-weight:700; color:#fff; background:#3f6cb0; border:none; padding:9px 18px; border-radius:6px;">{{ t.saveDatabase }}</button>
+        <button type="button" onClick="{{ saveDb }}" style="cursor:pointer; font-family:'Pretendard','Inter',sans-serif; font-size:10.5px; font-weight:700; color:#fff; background:#3f6cb0; border:none; padding:9px 18px; border-radius:6px;">{{ t.saveDatabase }}</button>
       </div>
     </div>
 
@@ -472,38 +487,38 @@
           <div style="display:flex; align-items:center; gap:10px; margin-bottom:13px;">
             <span style="width:9px; height:9px; border-radius:2px; background:#1c1d1f;"></span>
             <span style="font-size:15px; font-weight:700;">{{ cat.label }}</span>
-            <span style="font-family:'Pretendard Variable','Pretendard',-apple-system,BlinkMacSystemFont,system-ui,sans-serif; font-size:10px; color:#9aa0a7;">· {{ cat.count }}</span>
+            <span style="font-family:'Pretendard','Inter',sans-serif; font-size:10px; color:#9aa0a7;">· {{ cat.count }}</span>
             <span style="flex:1; height:1px; background:#e6e8ec;"></span>
           </div>
           <div style="display:grid; grid-template-columns:repeat(4, 1fr); gap:12px;">
             <div style="display:flex; flex-direction:column; align-items:center; gap:8px; padding:14px 10px; border:1.5px dashed #cdd2d8; border-radius:9px; background:#ffffff;">
-              <label title="{{ t.tt.addPhoto }}" style="cursor:pointer; width:88px; height:88px; border-radius:8px; border:1px dashed #d4d7db; display:flex; align-items:center; justify-content:center; overflow:hidden; position:relative; background:#fff;">
+              <label title="{{ t.addPhotoTitle }}" style="cursor:pointer; width:88px; height:88px; border-radius:8px; border:1px dashed #d4d7db; display:flex; align-items:center; justify-content:center; overflow:hidden; position:relative; background:#fff;">
                 {{ cat.draftImgEl }}
                 <sc-if value="{{ cat.noDraftImg }}" hint-placeholder-val="{{ true }}">
-                  <div style="display:flex; flex-direction:column; align-items:center; gap:3px; color:#b4b9c0; font-family:'Pretendard Variable','Pretendard',-apple-system,BlinkMacSystemFont,system-ui,sans-serif; font-size:9px; letter-spacing:1px;">
-                    <span>{{ t.newLabel }}</span>
-                    <span style="font-size:7.5px; color:#3f6cb0;">{{ t.addPhoto }}</span>
+                  <div style="display:flex; flex-direction:column; align-items:center; gap:3px; color:#b4b9c0; font-family:'Pretendard','Inter',sans-serif; font-size:9px; letter-spacing:1px;">
+                    <span>{{ t.newTag }}</span>
+                    <span style="font-size:7.5px; color:#3f6cb0;">{{ t.photoTag }}</span>
                   </div>
                 </sc-if>
                 <input type="file" accept="image/*" onChange="{{ cat.onDraftImg }}" style="display:none;">
               </label>
-              <input type="text" value="{{ cat.draft }}" onChange="{{ cat.onDraft }}" placeholder="{{ t.modelNamePlaceholder }}" style="width:100%; font-family:'Pretendard Variable','Pretendard',-apple-system,BlinkMacSystemFont,system-ui,sans-serif; font-size:10.5px; padding:6px 8px; border:1px solid #e6e8ec; border-radius:5px; outline:none; box-sizing:border-box; text-align:center;">
-              <button type="button" onClick="{{ cat.onAdd }}" style="cursor:pointer; width:100%; font-family:'Pretendard Variable','Pretendard',-apple-system,BlinkMacSystemFont,system-ui,sans-serif; font-size:10px; font-weight:700; color:#fff; background:#3f6cb0; border:none; padding:8px; border-radius:5px;">{{ t.add }}</button>
+              <input type="text" value="{{ cat.draft }}" onChange="{{ cat.onDraft }}" placeholder="{{ t.enterModel }}" style="width:100%; font-family:'Pretendard','Inter',sans-serif; font-size:10.5px; padding:6px 8px; border:1px solid #e6e8ec; border-radius:5px; outline:none; box-sizing:border-box; text-align:center;">
+              <button type="button" onClick="{{ cat.onAdd }}" style="cursor:pointer; width:100%; font-family:'Pretendard','Inter',sans-serif; font-size:10px; font-weight:700; color:#fff; background:#3f6cb0; border:none; padding:8px; border-radius:5px;">{{ t.addTag }}</button>
             </div>
             <sc-for list="{{ cat.products }}" as="p" hint-placeholder-count="0">
               <div style="position:relative; display:flex; flex-direction:column; align-items:center; gap:9px; padding:14px 10px; border:1px solid #e6e8ec; border-radius:9px; background:#fafbfc;">
-                <button type="button" onClick="{{ p.onRemove }}" title="{{ t.tt.deleteProduct }}" style="position:absolute; top:6px; right:6px; cursor:pointer; width:20px; height:20px; border-radius:5px; border:1px solid #e6c4c4; background:#fbeeee; color:#b04f4f; font-family:'Pretendard Variable','Pretendard',-apple-system,BlinkMacSystemFont,system-ui,sans-serif; font-size:13px; line-height:1; display:flex; align-items:center; justify-content:center;">×</button>
-                <label title="{{ t.tt.uploadChangePhoto }}" style="cursor:pointer; width:88px; height:88px; border-radius:8px; border:1px solid #e6e8ec; background:#fff; display:flex; align-items:center; justify-content:center; overflow:hidden; position:relative;">
+                <button type="button" onClick="{{ p.onRemove }}" title="{{ t.deleteProduct }}" style="position:absolute; top:6px; right:6px; cursor:pointer; width:20px; height:20px; border-radius:5px; border:1px solid #e6c4c4; background:#fbeeee; color:#b04f4f; font-family:'Pretendard','Inter',sans-serif; font-size:13px; line-height:1; display:flex; align-items:center; justify-content:center;">×</button>
+                <label title="{{ t.addPhotoTitle }}" style="cursor:pointer; width:88px; height:88px; border-radius:8px; border:1px solid #e6e8ec; background:#fff; display:flex; align-items:center; justify-content:center; overflow:hidden; position:relative;">
                   {{ p.imgEl }}
                   <sc-if value="{{ p.noImg }}" hint-placeholder-val="{{ true }}">
                     <div style="position:absolute; inset:0; background:repeating-linear-gradient(135deg,#f6f7f9 0 6px,#eef0f3 6px 7px); display:flex; flex-direction:column; align-items:center; justify-content:center; gap:3px;">
-                      <span style="font-family:'Pretendard Variable','Pretendard',-apple-system,BlinkMacSystemFont,system-ui,sans-serif; font-size:8px; letter-spacing:1px; color:#b4b9c0;">{{ cat.key }}</span>
-                      <span style="font-family:'Pretendard Variable','Pretendard',-apple-system,BlinkMacSystemFont,system-ui,sans-serif; font-size:7.5px; color:#3f6cb0;">{{ t.addPhoto }}</span>
+                      <span style="font-family:'Pretendard','Inter',sans-serif; font-size:8px; letter-spacing:1px; color:#b4b9c0;">{{ cat.key }}</span>
+                      <span style="font-family:'Pretendard','Inter',sans-serif; font-size:7.5px; color:#3f6cb0;">{{ t.photoTag }}</span>
                     </div>
                   </sc-if>
                   <input type="file" accept="image/*" onChange="{{ p.onImg }}" style="display:none;">
                 </label>
-                <span style="font-family:'Pretendard Variable','Pretendard',-apple-system,BlinkMacSystemFont,system-ui,sans-serif; font-size:10.5px; font-weight:600; text-align:center; word-break:break-all; line-height:1.25;">{{ p.name }}</span>
+                <span style="font-family:'Pretendard','Inter',sans-serif; font-size:10.5px; font-weight:600; text-align:center; word-break:break-all; line-height:1.25;">{{ p.name }}</span>
               </div>
             </sc-for>
           </div>
@@ -512,8 +527,8 @@
     </div>
 
     <div style="margin-top:auto; padding-top:18px; display:flex; align-items:center; justify-content:space-between; border-top:1px solid #e6e8ec;">
-      <span style="font-family:'Pretendard Variable','Pretendard',-apple-system,BlinkMacSystemFont,system-ui,sans-serif; font-size:8.5px; color:#9aa0a7; letter-spacing:.5px;">AVYCON · ACCESSORY PRODUCT DATABASE</span>
-      <span style="font-family:'Pretendard Variable','Pretendard',-apple-system,BlinkMacSystemFont,system-ui,sans-serif; font-size:8.5px; color:#9aa0a7;">{{ t.storedLocally }}</span>
+      <span style="font-family:'Pretendard','Inter',sans-serif; font-size:8.5px; color:#9aa0a7; letter-spacing:.5px;">AVYCON · ACCESSORY PRODUCT DATABASE</span>
+      <span style="font-family:'Pretendard','Inter',sans-serif; font-size:8.5px; color:#9aa0a7;">{{ t.localStorageNote }} · localStorage</span>
     </div>
 
   </div>
@@ -529,7 +544,7 @@
   &quot;showNotes&quot;: { &quot;editor&quot;: null, &quot;default&quot;: true, &quot;tsType&quot;: &quot;boolean&quot; }
 }">
 class Component extends DCLogic {
-  state = { lang: 'en', camImage: null, accNames: {}, imgByName: {}, drawerOpen: false, openLoc: null, settings: {}, profiles: {}, layout: {}, uidSeq: 1, addMenuLoc: null, productDb: {}, dbDraft: {}, dbDraftImg: {}, view: 'main', dbSaved: false, pickerKey: null, pickerCat: null, noteText: '', disabledLocs: {} };
+  state = { camImage: null, accNames: {}, imgByName: {}, drawerOpen: false, openLoc: null, settings: {}, profiles: {}, layout: {}, uidSeq: 1, addMenuLoc: null, productDb: {}, dbDraft: {}, dbDraftImg: {}, view: 'main', dbSaved: false, pickerKey: null, pickerCat: null, noteText: '', disabledLocs: {}, currentProfile: null };
 
   LOCS = ['Wall', 'Ceiling', 'Pole', 'Corner', 'Parapet'];
   CODES = { Wall:'WL', Ceiling:'CL', Pole:'PO', Corner:'CR', Parapet:'PA' };
@@ -554,125 +569,36 @@ class Component extends DCLogic {
   // mount sub-categories that feed a combo's generic 'MNT' slot (incl. legacy 'MNT')
   MNT_GROUP = ['MNT','MNT_WALL','MNT_CEIL','MNT_POLE','MNT_BRKT','MNT_CORN'];
 
-  // --- i18n: the entire UI renders in one selected language ---
-  LANGS = ['en','ko','ja','es'];
-  LANG_LABELS = { en:'English', ko:'한국어', ja:'日本語', es:'Español' };
-  I18N = {
-    en: {
-      settingsTitle:'Settings · Products', settingsSubtitle:'Product info follows the document settings · screen only',
-      language:'LANGUAGE', documentSettings:'DOCUMENT SETTINGS', cameraCategory:'CAMERA CATEGORY', cameraModel:'CAMERA MODEL',
-      modelPlaceholder:'e.g. AVC-NPB81M', savedProducts:'Saved', loadSavedProduct:'— Load a saved product —',
-      modelImage:'MODEL IMAGE', modelImageHint:'Camera (model) photo · applies to all camera slots', upload:'Upload', remove:'Remove',
-      location:'LOCATION', documentRev:'DOCUMENT REV', notesToggle:'NOTES', reset:'RESET', save:'SAVE',
-      exportCsv:'EXPORT ALL PRODUCTS CSV', saveHint:'Enter a model name first to save',
-      manageDb:'MANAGE PRODUCT DATABASE', manageDbHint:'Manage accessory models & photos by category (independent of install location)',
-      guideTitle:'Accessory Combination Guide', guideSubtitle:'Accessory combinations by installation location',
-      subjectCamera:'SUBJECT CAMERA', camera:'Camera', networkCamera:'Network Camera', selectCamera:'Select Camera',
-      cases:'CASES', combinations:'COMBINATIONS', directInstall:'Direct install', singleAccessory:'Single accessory', accessoriesN:'{n} accessories',
-      accessory:'Accessory', selectProduct:'Select', step1:'STEP 1 · Category', step2:'STEP 2',
-      noProductsInCat:'No products yet · add them in the product database', placement:'Placement',
-      addCombination:'ADD COMBINATION', selectAccCount:'Select number of middle accessories', note:'NOTE',
-      notePlaceholder:'Type a note here · it also appears in the export (PDF·PPTX)',
-      backToGuide:'Back to guide', dbTitle:'Accessory Product Database',
-      dbSubtitle:'Manage products by accessory category (independent of install location). Models and photos added here can be reused directly in the guide’s combination slots, with photos shown automatically.',
-      csvExport:'Export CSV', csvImport:'Import CSV', saved:'✓ Saved', saveDatabase:'Save database',
-      newLabel:'NEW', addPhoto:'＋ Photo', modelNamePlaceholder:'Model name', add:'＋ Add', storedLocally:'Stored locally',
-      locations:{ Wall:'Wall', Ceiling:'Ceiling', Pole:'Pole', Corner:'Corner', Parapet:'Parapet' },
-      cats:{ MNT_WALL:'Wall Mount', MNT_CEIL:'Ceiling Mount', MNT_POLE:'Pole Mount', MNT_BRKT:'Ceiling Bracket', MNT_CORN:'Corner Mount', BOX:'Junction Box', ADP:'Adaptor' },
-      tt:{ uploadImage:'Upload image', deleteCombo:'Delete this combination', changeProduct:'Click to change product', clearSelection:'Clear selection', toCategory:'Back to categories', addPhoto:'Click to add photo', deleteProduct:'Delete product', uploadChangePhoto:'Click to upload / change photo' },
-      importNothing:'No new products were imported. Check the CSV format (category / model).',
-      coverPage:'COVER PAGE', coverEditTitle:'Cover Page', coverFooterLabel:'FOOTER NOTE', coverVersionLabel:'VERSION', coverHint:'The cover prints first, followed by every enabled location page. Most content syncs from settings & data.',
-      useLocation:'Use this location', notInExport:'Disabled · not in export',
-      newProduct:'＋ New product', clearConfirm:'This clears the current guide (all locations & camera) back to the blank template. Saved products and the product database are not affected. Continue?',
-      syncImages:'☁ Sync images to cloud', syncing:'Syncing…', imagesAllSynced:'All images are already cloud URLs. Nothing to sync.', imagesSynced:'Uploaded {done} image(s) to the cloud. {fail} failed.',
-    },
-    ko: {
-      settingsTitle:'설정 · 제품 관리', settingsSubtitle:'문서 설정에 따라 제품 정보가 연동됩니다 · 화면 전용',
-      language:'언어', documentSettings:'문서 설정', cameraCategory:'카테고리', cameraModel:'모델명',
-      modelPlaceholder:'예: AVC-NPB81M', savedProducts:'제품 등록', loadSavedProduct:'— 등록된 제품 불러오기 —',
-      modelImage:'모델 이미지', modelImageHint:'카메라(모델) 사진 · 모든 카메라 칸에 적용', upload:'업로드', remove:'제거',
-      location:'설치 위치', documentRev:'문서 버전', notesToggle:'메모 표시', reset:'기본값 초기화', save:'현재 제품 정보 저장',
-      exportCsv:'전체 제품 CSV 내보내기', saveHint:'저장하려면 먼저 모델명을 입력하세요',
-      manageDb:'제품 정보 데이터베이스 관리', manageDbHint:'설치 위치와 무관한 액세서리 카테고리별 모델·사진 관리',
-      guideTitle:'악세서리 결합 가이드', guideSubtitle:'설치 위치별 결합 조합',
-      subjectCamera:'대상 카메라', camera:'카메라', networkCamera:'네트워크 카메라', selectCamera:'카메라 선택',
-      cases:'케이스', combinations:'결합 조합', directInstall:'직접 설치', singleAccessory:'단일 악세서리', accessoriesN:'악세서리 {n}개',
-      accessory:'악세서리', selectProduct:'제품 선택', step1:'STEP 1 · 카테고리', step2:'STEP 2',
-      noProductsInCat:'등록된 제품이 없습니다 · 악세서리 제품 데이터베이스에서 추가하세요', placement:'설치면',
-      addCombination:'조합 배너 추가', selectAccCount:'중간 악세서리 개수 선택', note:'메모',
-      notePlaceholder:'여기에 메모를 입력하세요 · 입력한 내용은 출력(PDF·PPTX)에도 표시됩니다',
-      backToGuide:'가이드로 돌아가기', dbTitle:'악세서리 제품 데이터베이스',
-      dbSubtitle:'설치 위치와 무관한 액세서리 카테고리별 제품 관리 · 모델명과 사진을 등록하면 가이드의 결합 칸에서 기존 모델 재사용으로 바로 선택되고 사진이 자동 표시됩니다.',
-      csvExport:'CSV 내보내기', csvImport:'CSV 가져오기', saved:'✓ 저장됨', saveDatabase:'데이터베이스 저장',
-      newLabel:'신규', addPhoto:'＋ 사진', modelNamePlaceholder:'모델명 입력', add:'＋ 추가', storedLocally:'로컬 저장',
-      locations:{ Wall:'벽면', Ceiling:'천장', Pole:'폴 (기둥)', Corner:'코너', Parapet:'난간 (파라펫)' },
-      cats:{ MNT_WALL:'월 마운트', MNT_CEIL:'천장 마운트', MNT_POLE:'폴 마운트', MNT_BRKT:'천장 브래킷', MNT_CORN:'코너 마운트', BOX:'정션 박스', ADP:'마운트 어댑터' },
-      tt:{ uploadImage:'이미지 업로드', deleteCombo:'이 조합 배너 삭제', changeProduct:'클릭하여 제품 변경', clearSelection:'선택 해제', toCategory:'카테고리로', addPhoto:'클릭하여 사진 추가', deleteProduct:'제품 삭제', uploadChangePhoto:'클릭하여 사진 업로드/변경' },
-      importNothing:'가져온 새 제품이 없습니다. CSV 형식(분류/모델명)을 확인하세요.',
-      coverPage:'커버 페이지', coverEditTitle:'커버 페이지', coverFooterLabel:'푸터 문구', coverVersionLabel:'버전', coverHint:'커버가 맨 앞에, 이어서 활성화된 location 페이지가 인쇄됩니다. 대부분의 내용은 설정·데이터에서 자동 반영됩니다.',
-      useLocation:'이 위치 사용', notInExport:'비활성 · 내보내기 제외',
-      newProduct:'＋ 새 제품', clearConfirm:'현재 가이드(모든 location·카메라)를 빈 템플릿으로 초기화합니다. 저장된 제품과 제품 데이터베이스는 유지됩니다. 계속할까요?',
-      syncImages:'☁ 이미지 클라우드 동기화', syncing:'동기화 중…', imagesAllSynced:'모든 이미지가 이미 클라우드 URL입니다. 동기화할 항목이 없습니다.', imagesSynced:'{done}개 이미지를 클라우드로 업로드했습니다. 실패 {fail}개.',
-    },
-    ja: {
-      settingsTitle:'設定 · 製品管理', settingsSubtitle:'ドキュメント設定に応じて製品情報が連動します · 画面専用',
-      language:'言語', documentSettings:'ドキュメント設定', cameraCategory:'カメラ分類', cameraModel:'カメラモデル',
-      modelPlaceholder:'例: AVC-NPB81M', savedProducts:'登録済み', loadSavedProduct:'— 登録製品を読み込み —',
-      modelImage:'モデル画像', modelImageHint:'カメラ(モデル)写真 · すべてのカメラ枠に適用', upload:'アップロード', remove:'削除',
-      location:'設置場所', documentRev:'ドキュメント版数', notesToggle:'メモ表示', reset:'リセット', save:'保存',
-      exportCsv:'全製品CSV書き出し', saveHint:'保存するにはモデル名を入力してください',
-      manageDb:'製品データベース管理', manageDbHint:'設置場所に依存しないカテゴリ別の製品・写真管理',
-      guideTitle:'アクセサリー組み合わせガイド', guideSubtitle:'設置場所別の組み合わせ',
-      subjectCamera:'対象カメラ', camera:'カメラ', networkCamera:'ネットワークカメラ', selectCamera:'カメラを選択',
-      cases:'ケース数', combinations:'組み合わせ', directInstall:'直接設置', singleAccessory:'アクセサリー1点', accessoriesN:'アクセサリー{n}点',
-      accessory:'アクセサリー', selectProduct:'製品を選択', step1:'STEP 1 · カテゴリ', step2:'STEP 2',
-      noProductsInCat:'登録製品がありません · 製品データベースで追加してください', placement:'設置面',
-      addCombination:'組み合わせを追加', selectAccCount:'中間アクセサリーの数を選択', note:'メモ',
-      notePlaceholder:'ここにメモを入力 · 出力(PDF·PPTX)にも表示されます',
-      backToGuide:'ガイドに戻る', dbTitle:'アクセサリー製品データベース',
-      dbSubtitle:'設置場所に依存しないカテゴリ別の製品管理 · モデル名と写真を登録すると、ガイドの組み合わせ枠で既存モデルを再利用でき、写真が自動表示されます。',
-      csvExport:'CSV書き出し', csvImport:'CSV読み込み', saved:'✓ 保存しました', saveDatabase:'データベース保存',
-      newLabel:'新規', addPhoto:'＋ 写真', modelNamePlaceholder:'モデル名を入力', add:'＋ 追加', storedLocally:'ローカル保存',
-      locations:{ Wall:'壁面', Ceiling:'天井', Pole:'ポール', Corner:'コーナー', Parapet:'パラペット' },
-      cats:{ MNT_WALL:'ウォールマウント', MNT_CEIL:'天井マウント', MNT_POLE:'ポールマウント', MNT_BRKT:'天井ブラケット', MNT_CORN:'コーナーマウント', BOX:'ジャンクションボックス', ADP:'アダプター' },
-      tt:{ uploadImage:'画像をアップロード', deleteCombo:'この組み合わせを削除', changeProduct:'クリックして製品を変更', clearSelection:'選択を解除', toCategory:'カテゴリへ', addPhoto:'クリックして写真を追加', deleteProduct:'製品を削除', uploadChangePhoto:'クリックして写真をアップロード / 変更' },
-      importNothing:'新しい製品は取り込まれませんでした。CSV形式(分類/モデル名)を確認してください。',
-      coverPage:'表紙', coverEditTitle:'表紙', coverFooterLabel:'フッター文言', coverVersionLabel:'バージョン', coverHint:'表紙が最初に、続いて有効なlocationページが印刷されます。ほとんどの内容は設定・データから自動反映されます。',
-      useLocation:'この場所を使用', notInExport:'無効 · 出力から除外',
-      newProduct:'＋ 新規製品', clearConfirm:'現在のガイド(すべてのlocation・カメラ)を空のテンプレートに初期化します。保存済み製品と製品データベースは影響を受けません。続行しますか?',
-      syncImages:'☁ 画像をクラウド同期', syncing:'同期中…', imagesAllSynced:'すべての画像はすでにクラウドURLです。同期する項目はありません。', imagesSynced:'{done}件の画像をクラウドにアップロードしました。失敗 {fail}件。',
-    },
-    es: {
-      settingsTitle:'Ajustes · Productos', settingsSubtitle:'La info de producto sigue los ajustes · solo pantalla',
-      language:'IDIOMA', documentSettings:'AJUSTES DEL DOCUMENTO', cameraCategory:'CATEGORÍA DE CÁMARA', cameraModel:'MODELO DE CÁMARA',
-      modelPlaceholder:'ej. AVC-NPB81M', savedProducts:'Guardados', loadSavedProduct:'— Cargar producto guardado —',
-      modelImage:'IMAGEN DEL MODELO', modelImageHint:'Foto de cámara (modelo) · se aplica a todas las casillas', upload:'Subir', remove:'Quitar',
-      location:'UBICACIÓN', documentRev:'REVISIÓN', notesToggle:'NOTAS', reset:'RESTABLECER', save:'GUARDAR',
-      exportCsv:'EXPORTAR CSV', saveHint:'Introduce un modelo para guardar',
-      manageDb:'GESTIONAR BASE DE DATOS', manageDbHint:'Gestiona modelos y fotos por categoría (independiente de la ubicación)',
-      guideTitle:'Guía de combinación de accesorios', guideSubtitle:'Combinaciones por ubicación de instalación',
-      subjectCamera:'CÁMARA OBJETO', camera:'Cámara', networkCamera:'Cámara de red', selectCamera:'Seleccionar cámara',
-      cases:'CASOS', combinations:'COMBINACIONES', directInstall:'Instalación directa', singleAccessory:'Un accesorio', accessoriesN:'{n} accesorios',
-      accessory:'Accesorio', selectProduct:'Seleccionar', step1:'PASO 1 · Categoría', step2:'PASO 2',
-      noProductsInCat:'Sin productos · añádelos en la base de datos', placement:'Colocación',
-      addCombination:'AÑADIR COMBINACIÓN', selectAccCount:'Número de accesorios intermedios', note:'NOTA',
-      notePlaceholder:'Escribe una nota · también aparece en la exportación (PDF·PPTX)',
-      backToGuide:'Volver a la guía', dbTitle:'Base de datos de accesorios',
-      dbSubtitle:'Gestiona productos por categoría de accesorio (independiente de la ubicación). Los modelos y fotos que añadas aquí se reutilizan en las casillas de combinación de la guía, mostrando la foto automáticamente.',
-      csvExport:'Exportar CSV', csvImport:'Importar CSV', saved:'✓ Guardado', saveDatabase:'Guardar base de datos',
-      newLabel:'NUEVO', addPhoto:'＋ Foto', modelNamePlaceholder:'Nombre del modelo', add:'＋ Añadir', storedLocally:'Guardado local',
-      locations:{ Wall:'Pared', Ceiling:'Techo', Pole:'Poste', Corner:'Esquina', Parapet:'Parapeto' },
-      cats:{ MNT_WALL:'Soporte de pared', MNT_CEIL:'Soporte de techo', MNT_POLE:'Soporte de poste', MNT_BRKT:'Bracket de techo', MNT_CORN:'Soporte de esquina', BOX:'Caja de conexión', ADP:'Adaptador' },
-      tt:{ uploadImage:'Subir imagen', deleteCombo:'Eliminar esta combinación', changeProduct:'Clic para cambiar producto', clearSelection:'Quitar selección', toCategory:'Volver a categorías', addPhoto:'Clic para añadir foto', deleteProduct:'Eliminar producto', uploadChangePhoto:'Clic para subir / cambiar foto' },
-      importNothing:'No se importaron productos nuevos. Revisa el formato CSV (categoría / modelo).',
-      coverPage:'PORTADA', coverEditTitle:'Portada', coverFooterLabel:'PIE DE PÁGINA', coverVersionLabel:'VERSIÓN', coverHint:'La portada se imprime primero, seguida de cada ubicación activada. La mayor parte del contenido se sincroniza con los ajustes y datos.',
-      useLocation:'Usar esta ubicación', notInExport:'Desactivada · fuera de exportación',
-      newProduct:'＋ Nuevo producto', clearConfirm:'Esto restablece la guía actual (todas las ubicaciones y la cámara) a la plantilla en blanco. Los productos guardados y la base de datos no se ven afectados. ¿Continuar?',
-      syncImages:'☁ Sincronizar imágenes', syncing:'Sincronizando…', imagesAllSynced:'Todas las imágenes ya son URLs en la nube. Nada que sincronizar.', imagesSynced:'{done} imagen(es) subidas a la nube. {fail} fallidas.',
-    },
+  // ---- Internationalization ----
+  LANGS = [ { value:'en', label:'English' }, { value:'ko', label:'한국어' }, { value:'ja', label:'日本語' }, { value:'es', label:'Español' } ];
+  LOC_I18N = {
+    Wall:    { en:'Wall',    ko:'벽면',   ja:'壁面',         es:'Pared' },
+    Ceiling: { en:'Ceiling', ko:'천장',   ja:'天井',         es:'Techo' },
+    Pole:    { en:'Pole',    ko:'폴',     ja:'ポール',       es:'Poste' },
+    Corner:  { en:'Corner',  ko:'코너',   ja:'コーナー',     es:'Esquina' },
+    Parapet: { en:'Parapet', ko:'난간',   ja:'パラペット',   es:'Parapeto' },
   };
-  _t() { return this.I18N[this.state.lang] || this.I18N.en; }
-  setLang = (lng) => { const l = this.LANGS.indexOf(lng) !== -1 ? lng : 'en'; try { localStorage.setItem('avycon_lang', l); } catch (e) {} this.setState({ lang: l }); };
+  CAT_I18N = {
+    MNT_WALL:{ en:'Wall Mount',     ko:'월 마운트',   ja:'ウォールマウント',     es:'Montaje en pared' },
+    MNT_CEIL:{ en:'Ceiling Mount',  ko:'천장 마운트', ja:'天井マウント',         es:'Montaje en techo' },
+    MNT_POLE:{ en:'Pole Mount',     ko:'폴 마운트',   ja:'ポールマウント',       es:'Montaje en poste' },
+    MNT_BRKT:{ en:'Ceiling Bracket',ko:'천장 브래킷', ja:'天井ブラケット',       es:'Soporte de techo' },
+    MNT_CORN:{ en:'Corner Mount',   ko:'코너 마운트', ja:'コーナーマウント',     es:'Montaje en esquina' },
+    BOX:     { en:'Junction Box',   ko:'정션 박스',   ja:'ジャンクションボックス', es:'Caja de conexiones' },
+    ADP:     { en:'Adaptor',        ko:'어댑터',     ja:'アダプター',           es:'Adaptador' },
+  };
+  T = {
+    en: { launcher:'Settings · Products', useLoc:'Use this location', notUsedTag:'NOT USED · excluded from export', coverPage:'Cover page', coverHint:'Edit & preview the document cover', drawerTitle:'Settings · Products', drawerSub:'Product data follows the document settings · screen only', langLabel:'LANGUAGE', docSettings:'DOCUMENT SETTINGS', camCategory:'CAMERA CATEGORY', camModel:'CAMERA MODEL', modelPh:'e.g. AVC-NPB81M', registered:'Saved', loadSaved:'— Load saved product —', modelImage:'MODEL IMAGE', camPhotoHint:'Camera photo · applied to all camera cells', upload:'Upload', remove:'Remove', location:'LOCATION', docRev:'DOCUMENT REV', notesToggle:'SHOW NOTES', reset:'Reset', newProduct:'New product', saveProduct:'Save product', exportCsv:'Export products (CSV + images)', saveHint:'Enter a model name first', manageDb:'Manage product database', dbHintShort:'Manage accessory models & photos by category, independent of install location', titleMain:'Accessory Combination Guide', titleSub:'Accessory combinations by install location', subjectCamera:'SUBJECT CAMERA', cases:'CASES', combinations:'COMBINATIONS', networkCamera:'Network Camera', cameraWord:'Camera', selectCamera:'Select Camera', directInstall:'Direct install', placement:'Placement', addCombination:'Add combination', selectCount:'Select number of accessories', selectProduct:'Select product', changeProduct:'Click to change product', deselect:'Deselect', step1:'STEP 1 · Category', step2:'STEP 2', noProdInCat:'No products · add them in the Accessory Product Database', notePh:'Enter a memo · also shown in PDF/PPTX output', deleteBanner:'Delete this banner', backToCategory:'Back to categories', backToGuide:'Back to guide', dbTitle:'Accessory Product Database', dbDesc:'Manage accessory products by category, independent of install location. Registered models and photos appear in the guide combination slots and the photo is shown automatically.', data:'DATA', csvExport:'Export CSV', csvImport:'Import CSV', savedTag:'Saved', saveDatabase:'Save database', newTag:'NEW', photoTag:'＋ Photo', enterModel:'Enter model', addTag:'＋ Add', deleteProduct:'Delete product', addPhotoTitle:'Click to add photo', uploadImageTitle:'Upload image', localStorageNote:'Local storage', syncImages:'☁ Sync images to cloud', syncing:'Syncing…', imagesAllSynced:'All images are already cloud URLs. Nothing to sync.', imagesSynced:'Uploaded {done} image(s) to the cloud. {fail} failed.', importNothing:'No new products were imported. Check the CSV format (category / model).' },
+    ko: { launcher:'설정 · 제품 관리', useLoc:'이 위치 사용', notUsedTag:'사용 안 함 · 출력 제외', coverPage:'커버 페이지', coverHint:'문서 커버 편집 · 미리보기', drawerTitle:'설정 · 제품 관리', drawerSub:'문서 설정에 따라 제품 정보가 연동됩니다 · 화면 전용', langLabel:'언어', docSettings:'문서 설정', camCategory:'카메라 카테고리', camModel:'카메라 모델', modelPh:'예: AVC-NPB81M', registered:'제품 등록', loadSaved:'— 등록된 제품 불러오기 —', modelImage:'모델 이미지', camPhotoHint:'카메라(모델) 사진 · 모든 카메라 칸에 적용', upload:'업로드', remove:'제거', location:'설치 위치', docRev:'문서 버전', notesToggle:'메모 표시', reset:'기본값 초기화', newProduct:'새 제품', saveProduct:'제품 정보 저장', exportCsv:'전체 제품 내보내기 (CSV + 이미지)', saveHint:'저장하려면 먼저 모델명을 입력하세요', manageDb:'제품 데이터베이스 관리', dbHintShort:'설치 위치와 무관한 액세서리 카테고리별 모델·사진 관리', titleMain:'악세서리 결합 가이드', titleSub:'설치 위치별 액세서리 결합 조합', subjectCamera:'대상 카메라', cases:'케이스', combinations:'결합 조합', networkCamera:'네트워크 카메라', cameraWord:'카메라', selectCamera:'카메라 선택', directInstall:'직접 설치', placement:'설치면', addCombination:'조합 배너 추가', selectCount:'중간 악세서리 개수 선택', selectProduct:'제품 선택', changeProduct:'클릭하여 제품 변경', deselect:'선택 해제', step1:'STEP 1 · 카테고리', step2:'STEP 2', noProdInCat:'등록된 제품이 없습니다 · 악세서리 제품 데이터베이스에서 추가하세요', notePh:'여기에 메모를 입력하세요 · 출력(PDF·PPTX)에도 표시됩니다', deleteBanner:'이 조합 배너 삭제', backToCategory:'카테고리로', backToGuide:'가이드로 돌아가기', dbTitle:'악세서리 제품 데이터베이스', dbDesc:'설치 위치와 무관한 액세서리 카테고리별 제품 관리 · 모델명과 사진을 등록하면 가이드의 결합 칸에서 바로 선택되고 사진이 자동 표시됩니다.', data:'데이터', csvExport:'CSV 내보내기', csvImport:'CSV 가져오기', savedTag:'저장됨', saveDatabase:'데이터베이스 저장', newTag:'신규', photoTag:'＋ 사진', enterModel:'모델명 입력', addTag:'＋ 추가', deleteProduct:'제품 삭제', addPhotoTitle:'클릭하여 사진 추가', uploadImageTitle:'이미지 업로드', localStorageNote:'로컬 저장', syncImages:'☁ 이미지 클라우드 동기화', syncing:'동기화 중…', imagesAllSynced:'모든 이미지가 이미 클라우드 URL입니다. 동기화할 항목이 없습니다.', imagesSynced:'{done}개 이미지를 클라우드로 업로드했습니다. 실패 {fail}개.', importNothing:'가져온 새 제품이 없습니다. CSV 형식(분류/모델명)을 확인하세요.' },
+    ja: { launcher:'設定 · 製品管理', useLoc:'この設置場所を使用', notUsedTag:'未使用 · 出力対象外', coverPage:'カバーページ', coverHint:'文書カバーの編集・プレビュー', drawerTitle:'設定 · 製品管理', drawerSub:'製品情報は文書設定に連動します · 画面専用', langLabel:'言語', docSettings:'文書設定', camCategory:'カメラカテゴリ', camModel:'カメラモデル', modelPh:'例: AVC-NPB81M', registered:'製品登録', loadSaved:'— 登録済み製品を読み込む —', modelImage:'モデル画像', camPhotoHint:'カメラ（モデル）写真 · すべてのカメラ枠に適用', upload:'アップロード', remove:'削除', location:'設置場所', docRev:'文書バージョン', notesToggle:'メモ表示', reset:'初期化', newProduct:'新規製品', saveProduct:'製品情報を保存', exportCsv:'全製品エクスポート (CSV + 画像)', saveHint:'保存するにはまずモデル名を入力してください', manageDb:'製品データベース管理', dbHintShort:'設置場所に依存しないアクセサリのカテゴリ別モデル・写真管理', titleMain:'アクセサリ組合せガイド', titleSub:'設置場所別のアクセサリ組合せ', subjectCamera:'対象カメラ', cases:'ケース', combinations:'組合せ', networkCamera:'ネットワークカメラ', cameraWord:'カメラ', selectCamera:'カメラを選択', directInstall:'直接設置', placement:'設置面', addCombination:'組合せバナーを追加', selectCount:'中間アクセサリの数を選択', selectProduct:'製品を選択', changeProduct:'クリックして製品を変更', deselect:'選択解除', step1:'STEP 1 · カテゴリ', step2:'STEP 2', noProdInCat:'登録製品がありません · アクセサリ製品データベースで追加してください', notePh:'メモを入力 · 出力（PDF·PPTX）にも表示されます', deleteBanner:'この組合せバナーを削除', backToCategory:'カテゴリへ', backToGuide:'ガイドに戻る', dbTitle:'アクセサリ製品データベース', dbDesc:'設置場所に依存しないアクセサリのカテゴリ別製品管理 · モデル名と写真を登録するとガイドの組合せ枠で選択でき、写真が自動表示されます。', data:'データ', csvExport:'CSVエクスポート', csvImport:'CSVインポート', savedTag:'保存済み', saveDatabase:'データベースを保存', newTag:'新規', photoTag:'＋ 写真', enterModel:'モデル名を入力', addTag:'＋ 追加', deleteProduct:'製品を削除', addPhotoTitle:'クリックして写真を追加', uploadImageTitle:'画像をアップロード', localStorageNote:'ローカル保存', syncImages:'☁ 画像をクラウド同期', syncing:'同期中…', imagesAllSynced:'すべての画像はすでにクラウドURLです。同期する項目はありません。', imagesSynced:'{done}件の画像をクラウドにアップロードしました。失敗 {fail}件。', importNothing:'新しい製品は取り込まれませんでした。CSV形式(分類/モデル名)を確認してください。' },
+    es: { launcher:'Ajustes · Productos', useLoc:'Usar esta ubicación', notUsedTag:'NO USADA · excluida de la exportación', coverPage:'Portada', coverHint:'Editar y previsualizar la portada', drawerTitle:'Ajustes · Productos', drawerSub:'Los datos del producto siguen los ajustes del documento · solo pantalla', langLabel:'IDIOMA', docSettings:'AJUSTES DEL DOCUMENTO', camCategory:'CATEGORÍA DE CÁMARA', camModel:'MODELO DE CÁMARA', modelPh:'ej.: AVC-NPB81M', registered:'Guardados', loadSaved:'— Cargar producto guardado —', modelImage:'IMAGEN DEL MODELO', camPhotoHint:'Foto de la cámara · aplicada a todas las celdas', upload:'Subir', remove:'Quitar', location:'UBICACIÓN', docRev:'REV. DEL DOCUMENTO', notesToggle:'MOSTRAR NOTAS', reset:'Restablecer', newProduct:'Nuevo producto', saveProduct:'Guardar producto', exportCsv:'Exportar productos (CSV + imágenes)', saveHint:'Introduzca primero un nombre de modelo', manageDb:'Gestionar base de datos', dbHintShort:'Gestione modelos y fotos de accesorios por categoría, independiente de la ubicación', titleMain:'Guía de combinación de accesorios', titleSub:'Combinaciones de accesorios por ubicación de instalación', subjectCamera:'CÁMARA OBJETO', cases:'CASOS', combinations:'COMBINACIONES', networkCamera:'Cámara de red', cameraWord:'Cámara', selectCamera:'Seleccionar cámara', directInstall:'Instalación directa', placement:'Superficie', addCombination:'Añadir combinación', selectCount:'Seleccione el número de accesorios', selectProduct:'Seleccionar producto', changeProduct:'Haga clic para cambiar el producto', deselect:'Deseleccionar', step1:'PASO 1 · Categoría', step2:'PASO 2', noProdInCat:'Sin productos · añádalos en la Base de datos de accesorios', notePh:'Escriba una nota · también se muestra en la salida PDF/PPTX', deleteBanner:'Eliminar este banner', backToCategory:'A categorías', backToGuide:'Volver a la guía', dbTitle:'Base de datos de accesorios', dbDesc:'Gestione productos de accesorios por categoría, independiente de la ubicación. Los modelos y fotos registrados aparecen en las casillas de combinación y la foto se muestra automáticamente.', data:'DATOS', csvExport:'Exportar CSV', csvImport:'Importar CSV', savedTag:'Guardado', saveDatabase:'Guardar base de datos', newTag:'NUEVO', photoTag:'＋ Foto', enterModel:'Introducir modelo', addTag:'＋ Añadir', deleteProduct:'Eliminar producto', addPhotoTitle:'Haga clic para añadir foto', uploadImageTitle:'Subir imagen', localStorageNote:'Almacenamiento local', syncImages:'☁ Sincronizar imágenes', syncing:'Sincronizando…', imagesAllSynced:'Todas las imágenes ya son URLs en la nube. Nada que sincronizar.', imagesSynced:'{done} imagen(es) subidas a la nube. {fail} fallidas.', importNothing:'No se importaron productos nuevos. Revisa el formato CSV (categoría / modelo).' },
+  };
+  _accCount(n, lang) {
+    if (lang === 'ko') return n + '개 악세서리';
+    if (lang === 'ja') return 'アクセサリ' + n + '個';
+    if (lang === 'es') return n + (n === 1 ? ' accesorio' : ' accesorios');
+    return n === 1 ? '1 accessory' : n + ' accessories';
+  }
   _accType(t, L) { return t === 'mount' ? (L + ' Mount') : t; }
   // slot-key -> category, built from the live layout (base WL-01 carries no accessories)
   _slotMeta() {
@@ -707,8 +633,6 @@ class Component extends DCLogic {
 
   componentDidMount() {
     try {
-      const lg = localStorage.getItem('avycon_lang');
-      if (lg && this.LANGS.indexOf(lg) !== -1) this.setState({ lang: lg });
       const v = localStorage.getItem('avycon_cam_image');
       if (v) this.setState({ camImage: v });
       const an = localStorage.getItem('avycon_acc_names');
@@ -727,12 +651,18 @@ class Component extends DCLogic {
       if (nt != null) this.setState({ noteText: nt }, () => this._sizeNote());
       const dl = localStorage.getItem('avycon_disabled_locs');
       if (dl) this.setState({ disabledLocs: JSON.parse(dl) || {} });
+      const cp = localStorage.getItem('avycon_current_profile');
+      if (cp) this.setState({ currentProfile: cp });
     } catch (e) {}
   }
 
   _persistNames = (m) => { try { localStorage.setItem('avycon_acc_names', JSON.stringify(m)); } catch (e) {} };
   _persistImgs = (m) => { try { localStorage.setItem('avycon_img_by_name', JSON.stringify(m)); } catch (e) {} };
 
+  // i18n accessor (language is stored in settings.lang)
+  _t = () => { const lang = (this.state.settings || {}).lang || 'en'; return this.T[lang] || this.T.en; };
+
+  // ---- Vercel Blob image hosting (kept identical across re-exports) ----
   // Downscale a picked image to keep uploads small (also keeps localStorage tiny when URLs are used).
   // outType: 'image/png' preserves transparency; 'image/jpeg' is smaller for photos.
   _resizeImage = (file, maxDim, quality, outType) => new Promise((resolve) => {
@@ -870,14 +800,16 @@ class Component extends DCLogic {
 
   toggleDrawer = () => this.setState(s => ({ drawerOpen: !s.drawerOpen }));
   setOpenLoc = (loc) => this.setState(s => ({ openLoc: s.openLoc === loc ? null : loc }));
-  toggleLocEnabled = (L) => this.setState(s => {
-    const disabledLocs = { ...s.disabledLocs };
-    if (disabledLocs[L]) delete disabledLocs[L]; else disabledLocs[L] = true;
-    try { localStorage.setItem('avycon_disabled_locs', JSON.stringify(disabledLocs)); } catch (e) {}
-    return { disabledLocs };
-  });
 
   _persistLayout = (layout) => { try { localStorage.setItem('avycon_layout', JSON.stringify(layout)); } catch (e) {} };
+  toggleLocEnabled = (loc) => {
+    this.setState(s => {
+      const disabledLocs = { ...s.disabledLocs };
+      if (disabledLocs[loc]) delete disabledLocs[loc]; else disabledLocs[loc] = true;
+      try { localStorage.setItem('avycon_disabled_locs', JSON.stringify(disabledLocs)); } catch (e) {}
+      return { disabledLocs };
+    });
+  };
   addCombo = (loc, n) => {
     this.setState(s => {
       const uid = 'c' + (s.uidSeq || 1);
@@ -904,8 +836,8 @@ class Component extends DCLogic {
   // --- Accessory product database ---
   _persistDb = (db) => { try { localStorage.setItem('avycon_product_db', JSON.stringify(db)); } catch (e) {} };
   gotoDb = () => this.setState({ view: 'db', drawerOpen: false, addMenuLoc: null });
+  gotoMain = () => this.setState({ view: 'main', drawerOpen: false });
   gotoCover = () => this.setState({ view: 'cover', drawerOpen: false, addMenuLoc: null });
-  gotoMain = () => this.setState({ view: 'main' });
   setDbDraft = (cat, val) => this.setState(s => ({ dbDraft: { ...s.dbDraft, [cat]: val } }));
   setDbDraftImage = (cat, e) => {
     const f = e.target && e.target.files && e.target.files[0]; if (!f) return;
@@ -1044,31 +976,27 @@ class Component extends DCLogic {
     Object.values(accNames).forEach(n => { const nm = (n||'').trim(); if (nm && imgByName[nm]) usedImgs[nm] = imgByName[nm]; });
     const profile = {
       model,
-      category: (S.cameraCategory ?? this.props.cameraCategory) ?? 'Select Camera',
-      location: (S.location ?? this.props.location) ?? 'Wall',
+      category: (S.cameraCategory ?? this.props.cameraCategory) ?? 'Select Camera',      location: (S.location ?? this.props.location) ?? 'Wall',
       rev: (S.documentRev ?? this.props.documentRev) ?? '',
       showNotes: (S.showNotes != null ? S.showNotes : true),
-      coverFooter: (S.coverFooter ?? ''), coverVersion: (S.coverVersion ?? ''),
       accNames: { ...accNames },
       imgByName: usedImgs,
       layout: JSON.parse(JSON.stringify(this.state.layout || {})),
-      camImage: this.state.camImage || '',
-      note: this.state.noteText || '',
-      disabledLocs: { ...(this.state.disabledLocs || {}) },
       accessories: this._flattenAccessories(accNames, imgByName),
       updatedAt: new Date().toISOString(),
     };
     this.setState(s => {
       const profiles = { ...s.profiles, [model]: profile };
       this._persistProfiles(profiles);
-      return { profiles };
+      try { localStorage.setItem('avycon_current_profile', model); } catch (e) {}
+      return { profiles, currentProfile: model };
     });
   };
   loadProfile = (model) => {
     const p = (this.state.profiles || {})[model];
     if (!p) return;
     this.setState(s => {
-      const settings = { ...s.settings, cameraModel: model, cameraCategory: p.category, location: p.location, documentRev: p.rev, showNotes: p.showNotes, coverFooter: (p.coverFooter ?? s.settings.coverFooter ?? ''), coverVersion: (p.coverVersion ?? s.settings.coverVersion ?? '') };
+      const settings = { ...s.settings, cameraModel: model, cameraCategory: p.category, location: p.location, documentRev: p.rev, showNotes: p.showNotes };
       this._persistSettings(settings);
       const accNames = { ...(p.accNames || {}) };
       this._persistNames(accNames);
@@ -1076,18 +1004,62 @@ class Component extends DCLogic {
       this._persistImgs(imgByName);
       const layout = p.layout ? JSON.parse(JSON.stringify(p.layout)) : s.layout;
       this._persistLayout(layout);
-      const camImage = p.camImage || null;
-      try { if (camImage) localStorage.setItem('avycon_cam_image', camImage); else localStorage.removeItem('avycon_cam_image'); } catch (e) {}
-      const noteText = p.note || '';
-      try { localStorage.setItem('avycon_note', noteText); } catch (e) {}
-      const disabledLocs = { ...(p.disabledLocs || {}) };
-      try { localStorage.setItem('avycon_disabled_locs', JSON.stringify(disabledLocs)); } catch (e) {}
-      return { settings, accNames, imgByName, layout, camImage, noteText, disabledLocs, view: 'main', uidSeq: this._maxUid(layout) + 1 };
-    }, () => { try { this._sizeNote(); } catch (e) {} });
+      try { localStorage.setItem('avycon_current_profile', model); } catch (e) {}
+      return { settings, accNames, imgByName, layout, uidSeq: this._maxUid(layout) + 1, currentProfile: model };
+    });
   };
+  // CRC32 + minimal store-only ZIP writer (no external deps)
+  _crc32 = (bytes) => {
+    let c, t = this._crcTbl;
+    if (!t) {
+      t = this._crcTbl = [];
+      for (let n = 0; n < 256; n++) { c = n; for (let k = 0; k < 8; k++) c = (c & 1) ? (0xEDB88320 ^ (c >>> 1)) : (c >>> 1); t[n] = c >>> 0; }
+    }
+    let crc = 0xFFFFFFFF;
+    for (let i = 0; i < bytes.length; i++) crc = (crc >>> 8) ^ t[(crc ^ bytes[i]) & 0xFF];
+    return (crc ^ 0xFFFFFFFF) >>> 0;
+  };
+  _zip = (files) => {
+    const enc = new TextEncoder();
+    const chunks = []; const central = []; let offset = 0;
+    const u16 = (n) => [n & 255, (n >>> 8) & 255];
+    const u32 = (n) => [n & 255, (n >>> 8) & 255, (n >>> 16) & 255, (n >>> 24) & 255];
+    files.forEach(f => {
+      const nameBytes = enc.encode(f.name);
+      const data = f.data;
+      const crc = this._crc32(data);
+      const local = [].concat(u32(0x04034b50), u16(20), u16(0x0800), u16(0), u16(0), u16(0), u32(crc), u32(data.length), u32(data.length), u16(nameBytes.length), u16(0));
+      chunks.push(new Uint8Array(local)); chunks.push(nameBytes); chunks.push(data);
+      const cen = [].concat(u32(0x02014b50), u16(20), u16(20), u16(0x0800), u16(0), u16(0), u16(0), u32(crc), u32(data.length), u32(data.length), u16(nameBytes.length), u16(0), u16(0), u16(0), u16(0), u32(0), u32(offset));
+      central.push(new Uint8Array(cen)); central.push(nameBytes);
+      offset += local.length + nameBytes.length + data.length;
+    });
+    let cenSize = 0; central.forEach(c => cenSize += c.length);
+    const eocd = new Uint8Array([].concat(u32(0x06054b50), u16(0), u16(0), u16(files.length), u16(files.length), u32(cenSize), u32(offset), u16(0)));
+    const all = chunks.concat(central); all.push(eocd);
+    let total = 0; all.forEach(c => total += c.length);
+    const out = new Uint8Array(total); let pos = 0;
+    all.forEach(c => { out.set(c, pos); pos += c.length; });
+    return out;
+  };
+  _dataUrlToBytes = (dataUrl) => {
+    const comma = dataUrl.indexOf(',');
+    const meta = dataUrl.slice(5, comma); // image/png;base64
+    const mime = meta.split(';')[0] || 'image/png';
+    const ext = (mime.split('/')[1] || 'png').replace('jpeg', 'jpg');
+    const b64 = dataUrl.slice(comma + 1);
+    const bin = atob(b64);
+    const bytes = new Uint8Array(bin.length);
+    for (let i = 0; i < bin.length; i++) bytes[i] = bin.charCodeAt(i);
+    return { bytes, ext };
+  };
+  _safeFileName = (s) => String(s || '').trim().replace(/[\\/:*?"<>|]+/g, '_').replace(/\s+/g, ' ').slice(0, 80);
+
   // Full breakdown of every saved product: each location \u00d7 each combination case \u00d7
   // each accessory (with name + image URL). Reconstructed from the saved layout/accNames
   // (the same model buildCombos uses), so it always reflects the actual combinations.
+  // Image cells emit http(s) Blob URLs only (base64/local-only images are skipped \u2014 run
+  // "Sync images to cloud" first to get shareable URLs).
   exportCsv = () => {
     const profiles = this.state.profiles || {};
     const productDb = this.state.productDb || {};
@@ -1106,7 +1078,7 @@ class Component extends DCLogic {
       const cat = p.category || '';
       const psnap = p.imgByName || {};
       // Prefer the LIVE product-database image (canonical, kept current), then the saved snapshot.
-      // Only emit http(s) URLs — base64/local-only images are skipped (re-upload to get a URL).
+      // Only emit http(s) URLs \u2014 base64/local-only images are skipped (re-upload to get a URL).
       const imgUrlFor = (nm) => {
         if (isUrl(imgAll[nm])) return imgAll[nm];
         if (isUrl(psnap[nm])) return psnap[nm];
@@ -1157,33 +1129,36 @@ class Component extends DCLogic {
     this._persistSettings(settings);
     return { settings };
   });
-  // Clear the WORKING document (camera + every location's combos/accessories) back to the blank
-  // template. Keeps the library: product database, saved products, and the image map.
-  _clearWorkingDoc = () => {
+  resetSettings = () => {
+    // Reset the CURRENT working product: if it came from a saved product, revert to that
+    // saved state (discard unsaved edits); otherwise clear back to the empty template.
+    const cur = this.state.currentProfile;
+    if (cur && (this.state.profiles || {})[cur]) { this.loadProfile(cur); return; }
+    this._clearToTemplate();
+  };
+  newProduct = () => {
+    // Start a brand-new product on a fresh empty template (keeps DB, saved products, language).
+    this._clearToTemplate();
+    this.setState({ currentProfile: null });
+  };
+  _clearToTemplate = () => {
+    const lang = (this.state.settings || {}).lang;
+    const settings = lang ? { lang } : {};
+    this._persistSettings(settings);
+    this._persistNames({});
+    this._persistLayout({});
     try {
-      localStorage.removeItem('avycon_doc_settings');
-      localStorage.removeItem('avycon_acc_names');
-      localStorage.removeItem('avycon_layout');
       localStorage.removeItem('avycon_cam_image');
       localStorage.removeItem('avycon_note');
-      localStorage.removeItem('avycon_disabled_locs');
+      localStorage.removeItem('avycon_current_profile');
+      localStorage.setItem('avycon_disabled_locs', JSON.stringify({}));
     } catch (e) {}
     this.setState({
-      settings: {}, accNames: {}, layout: {}, camImage: null, noteText: '',
-      disabledLocs: {}, addMenuLoc: null, pickerKey: null, pickerCat: null,
-      uidSeq: 1, view: 'main',
-    }, () => { try { this._sizeNote(); } catch (e) {} });
+      settings, accNames: {}, layout: {}, uidSeq: 1,
+      camImage: null, noteText: '', disabledLocs: {},
+      addMenuLoc: null, pickerKey: null, pickerCat: null,
+    }, () => this._sizeNote());
   };
-  _hasWork = () => {
-    const S = this.state.settings || {};
-    const model = (((S.cameraModel ?? this.props.cameraModel) ?? '') + '').trim();
-    const hasAcc = Object.values(this.state.accNames || {}).some(n => ((n || '') + '').trim());
-    const hasLayout = Object.values(this.state.layout || {}).some(a => (a || []).length);
-    return !!(model || hasAcc || hasLayout || this.state.camImage || ((this.state.noteText || '') + '').trim());
-  };
-  _confirmClear = () => { try { return window.confirm(this._t().clearConfirm); } catch (e) { return true; } };
-  resetSettings = () => { if (this._hasWork() && !this._confirmClear()) return; this._clearWorkingDoc(); };
-  newProduct = () => { if (this._hasWork() && !this._confirmClear()) return; this._clearWorkingDoc(); };
 
   onCamImageChange = (e) => {
     const f = e.target && e.target.files && e.target.files[0];
@@ -1211,8 +1186,6 @@ class Component extends DCLogic {
   };
 
   renderVals() {
-    const T = this._t();
-    const view = this.state.view || 'main';
     const LOCS = this.LOCS;
     const CODES = this.CODES;
     const map = {
@@ -1223,8 +1196,13 @@ class Component extends DCLogic {
       Parapet: { ko:'난간 (파라펫)', accent:'#b04f4f', soft:'#f8eded' },
     };
     const S = this.state.settings || {};
+    const view = this.state.view || 'main';
     const loc = (S.location ?? this.props.location) ?? 'Wall';
     const m = map[loc] || map.Wall;
+    const lang = (S.lang ?? 'en');
+    const t = this.T[lang] || this.T.en;
+    const locName = (L) => (this.LOC_I18N[L] || {})[lang] || L;
+    const catName = (k) => (this.CAT_I18N[k] || {})[lang] || k;
 
     // --- Camera selection (AVYCON) ---
     const category = (S.cameraCategory ?? this.props.cameraCategory) ?? 'Select Camera';
@@ -1233,8 +1211,8 @@ class Component extends DCLogic {
     const revVal = (S.documentRev ?? this.props.documentRev) ?? 'Rev. A · 2026.06';
     const showNotesVal = (S.showNotes != null ? S.showNotes : (this.props.showNotes != null ? this.props.showNotes : true));
     const hasCategory = category && category !== 'Select Camera';
-    const camName = modelInput ? modelInput : (hasCategory ? category : T.selectCamera);
-    const camType = hasCategory ? (category + ' ' + T.camera) : T.networkCamera;
+    const camName = modelInput ? modelInput : (hasCategory ? category : t.selectCamera);
+    const camType = hasCategory ? (category + ' ' + t.cameraWord) : t.networkCamera;
     const camImg = this.state.camImage || '';
     const mkImg = (src) => src
       ? React.createElement('img', { src, alt: '', style: { width: '100%', height: '100%', objectFit: 'contain', background: '#fff' } })
@@ -1260,21 +1238,21 @@ class Component extends DCLogic {
     };
     const nameToCat = {};
     Object.keys(productDb).forEach(ck => (productDb[ck] || []).forEach(nm => { if (nameToCat[nm] == null) nameToCat[nm] = ck; }));
-    const labelOfCat = {}; this.DB_CATS.forEach(c => { labelOfCat[c.key] = (T.cats[c.key] || c.label); });
+    const labelOfCat = {}; this.DB_CATS.forEach(c => { labelOfCat[c.key] = catName(c.key); });
     const catOfName = (nm) => { const k = nameToCat[nm]; return k ? { key:k, label:labelOfCat[k] || k } : null; };
-    const dbCatPickList = () => this.DB_CATS.map(c => ({ key:c.key, label:(T.cats[c.key] || c.label), count:(productDb[c.key] || []).length, onPick:() => this.pickCat(c.key) }));
+    const dbCatPickList = () => this.DB_CATS.map(c => ({ key:c.key, label:catName(c.key), count:(productDb[c.key] || []).length, onPick:() => this.pickCat(c.key) }));
 
     const buildCombos = (L) => {
       const code = CODES[L] || L[0].toUpperCase();
       const mm = map[L] || map.Wall;
-      const placeLabel = (T.locations[L] || L).toUpperCase();
+      const placeLabel = locName(L);
       const combos = [];
       const editorCombos = [];
       const insts = (this.state.layout[L] || []);
-      const descs = [{ uid:'__base', n:0, note:T.directInstall, isBase:true }].concat(
+      const descs = [{ uid:'__base', n:0, note:t.directInstall, isBase:true }].concat(
         insts.map(inst => {
           const cnt = inst.n != null ? inst.n : (this.TEMPLATES && this.TEMPLATES[inst.tpl] ? this.TEMPLATES[inst.tpl].accs.length : 1);
-          return { uid:inst.uid, n:cnt, note: (cnt === 1 ? T.singleAccessory : String(T.accessoriesN).replace('{n}', cnt)), isBase:false };
+          return { uid:inst.uid, n:cnt, note: this._accCount(cnt, lang), isBase:false };
         })
       );
       descs.forEach((c, ci) => {
@@ -1287,7 +1265,7 @@ class Component extends DCLogic {
           const img = name ? (imgByName[name] || '') : '';
           const ci2 = name ? catOfName(name) : null;
           accNodes.push({
-            kind:'product', cat: ci2 ? ci2.key : 'ACC', type: ci2 ? ci2.label : T.accessory,
+            kind:'product', cat: ci2 ? ci2.key : 'ACC', type: ci2 ? ci2.label : 'Accessory',
             model: name || blank, noImg: !img, imgEl: mkImg(img),
             _key:key, _img:img, _name: rawName,
           });
@@ -1326,6 +1304,8 @@ class Component extends DCLogic {
             onBack:  isAcc ? (() => this.pickCat(null)) : null,
             onClear: isAcc ? (() => this.setAccName(key, '')) : null,
             showConn:    i > 0,
+            connIsArrow: n.kind === 'placement',
+            connIsPlus:  n.kind !== 'placement',
             connSymbol:  n.kind === 'placement' ? '\u2192' : '+',
             connColor:   n.kind === 'placement' ? mm.accent : '#9aa0a7',
             connBg:      n.kind === 'placement' ? mm.soft : '#ffffff',
@@ -1343,46 +1323,48 @@ class Component extends DCLogic {
 
     // --- Pages: one per location that has registered accessories (+ the selected one) ---
     const layoutState = this.state.layout || {};
-    const mkAddOptions = (L) => [1,2,3].map(n => ({ n: n, label: String(T.accessoriesN).replace('{n}', n), onAdd: () => this.addCombo(L, n) }));
-    // Export = cover + every location page. On screen only the active page shows (per view);
-    // on print every .print-page shows (see @media print). The selected location is editable on screen.
+    const mkAddOptions = (L) => [1,2,3].map(n => ({ n: n, label: this._accCount(n, lang), onAdd: () => this.addCombo(L, n) }));
+    // The main view always reflects the selected install location.
+    // Render every install location: the active one is shown on screen for editing,
+    // all of them (plus the cover) are included in PDF/PPTX export.
     const pageLocs = LOCS;
     const disabledLocs = this.state.disabledLocs || {};
-    let printNo = 0;
-    const pages = pageLocs.map((L) => {
-      const enabled = !disabledLocs[L];
+    let enabledSeq = 0;
+    const pages = pageLocs.map((L, idx) => {
       const built = buildCombos(L);
       const mm = map[L];
-      let pageNo = '—';
-      if (enabled) { printNo++; pageNo = String(printNo).padStart(2, '0'); }
+      const isActive = L === loc;
+      const isDisabled = !!disabledLocs[L];
+      const isEmpty = (this.state.layout[L] || []).length === 0;
+      if (!isDisabled) enabledSeq++;
+      const pageNo = isDisabled ? '\u2014' : String(enabledSeq).padStart(2, '0');
+      const screenShow = isActive && view === 'main';
+      const printShow = !isDisabled;
+      let hideClass;
+      if (screenShow && printShow) hideClass = '';
+      else if (screenShow && !printShow) hideClass = 'print-hide';
+      else if (!screenShow && printShow) hideClass = 'pg-hidden';
+      else hideClass = 'pg-off';
       return {
-        loc: L, locName: (T.locations[L] || L), accent: mm.accent, soft: mm.soft,
+        loc: L, locLabel: L.toUpperCase(), locName: locName(L), accent: mm.accent, soft: mm.soft,
         combos: built.combos, comboCount: built.combos.length,
         pageNo: pageNo,
-        enabled: enabled, disabled: !enabled,
-        printClass: enabled ? 'print-page' : '',
-        locSwitchBg: enabled ? mm.accent : '#cdd1d6',
-        locKnobLeft: enabled ? '20px' : '2px',
+        isActive, hideClass: hideClass,
+        isDisabled, enabled: !isDisabled,
+        canToggle: true,
         onToggleEnabled: () => this.toggleLocEnabled(L),
-        screenDisplay: (view === 'main' && L === loc) ? 'flex' : 'none',
         addOptions: mkAddOptions(L),
         addMenuOpen: this.state.addMenuLoc === L,
         onToggleAdd: () => this.toggleAddMenu(L),
       };
     });
-
-    // --- Cover page (its own edit screen; prints first) ---
-    const coverFooterVal = ((S.coverFooter ?? '') + '').trim() || 'AVYCON Network / IP Camera Lineup';
-    const coverVersionVal = ((S.coverVersion ?? '') + '').trim() || '1.0';
-    let cardNo = 0;
     const cover = {
-      title: T.guideTitle, subtitle: T.guideSubtitle, model: camName, camType: camType,
-      footer: coverFooterVal, version: coverVersionVal,
-      screenDisplay: (view === 'cover') ? 'flex' : 'none',
-      cards: pages.filter(p => p.enabled).map(p => {
-        cardNo++;
-        return { num: String(cardNo).padStart(2, '0'), name: p.locName, cases: p.comboCount, accent: p.accent, soft: p.soft };
-      }),
+      hideClass: (view === 'cover') ? '' : 'pg-hidden',
+      eyebrow: 'CAMERA ACCESSORY PROGRAM',
+      title: t.titleMain, sub: t.titleSub, rev: revVal,
+      camModel: camName, camType: camType, camImgEl: mkImg(camImg), noCamImg: !camImg,
+      subjectLabel: t.subjectCamera, locationsLabel: t.combinations, casesLabel: t.cases,
+      locList: pages.filter(p => !p.isDisabled).map(p => ({ name: p.locName, code: p.locLabel, count: p.comboCount, accent: p.accent, soft: p.soft, pageNo: p.pageNo })),
     };
 
     const openLoc = this.state.openLoc || loc;
@@ -1411,40 +1393,35 @@ class Component extends DCLogic {
       });
       const draft = (this.state.dbDraft[c.key] || '');
       const draftImg = (this.state.dbDraftImg[c.key] || '');
-      return { key:c.key, label:(T.cats[c.key] || c.label), count:products.length, hasProducts:products.length>0, noProducts:products.length===0,
+      return { key:c.key, label:catName(c.key), count:products.length, hasProducts:products.length>0, noProducts:products.length===0,
         products, draft, draftImg, hasDraftImg:!!draftImg, noDraftImg:!draftImg, draftImgEl:mkImg(draftImg),
         onDraft:(e)=>this.setDbDraft(c.key, e.target.value), onDraftImg:(e)=>this.setDbDraftImage(c.key, e), onAdd:()=>this.addProduct(c.key) };
     });
 
     return {
-      t: T,
-      langOptions: this.LANGS.map(l => ({ value: l, label: this.LANG_LABELS[l] })),
-      currentLang: this.state.lang,
-      onLangChange: (e) => this.setLang(e.target.value),
-      isMain: view === 'main',
-      isCover: view === 'cover',
+      isMain: view !== 'db',
       isDb: view === 'db',
+      isCover: view === 'cover',
+      notDb: view !== 'db',
       cover: cover,
       gotoDb: this.gotoDb,
-      gotoCover: this.gotoCover,
       gotoMain: this.gotoMain,
-      settingsCoverFooter: ((S.coverFooter ?? '') + ''),
-      settingsCoverVersion: ((S.coverVersion ?? '') + ''),
-      coverFooterPlaceholder: 'AVYCON Network / IP Camera Lineup',
-      onCoverFooterChange: (e) => this.setSetting('coverFooter', e.target.value),
-      onCoverVersionChange: (e) => this.setSetting('coverVersion', e.target.value),
+      gotoCover: this.gotoCover,
       exportProductCsv: this.exportProductCsv,
       exportProductJson: this.exportProductJson,
       importProductCsv: this.importProductCsv,
+      migrateImages: this.migrateImages,
+      hasLocalImages: Object.values(this.state.imgByName || {}).some(v => /^data:/i.test(String(v || ''))),
+      migrateLabel: this.state.imgMigrating ? t.syncing : (t.syncImages + ' (' + Object.values(this.state.imgByName || {}).filter(v => /^data:/i.test(String(v || ''))).length + ')'),
       saveDb: this.saveDb,
       dbSaved: this.state.dbSaved,
-      migrateImages: this.migrateImages,
-      imgMigrating: !!this.state.imgMigrating,
-      hasLocalImages: Object.values(this.state.imgByName || {}).some(v => /^data:/i.test(String(v || ''))),
-      migrateLabel: this.state.imgMigrating ? T.syncing : (T.syncImages + ' (' + Object.values(this.state.imgByName || {}).filter(v => /^data:/i.test(String(v || ''))).length + ')'),
       dbCats,
+      t: t,
+      lang: lang,
+      langOptions: this.LANGS,
+      onLangChange: (e) => this.setSetting('lang', e.target.value),
       locLabel: loc.toUpperCase(),
-      locKo: m.ko,
+      locName: locName(loc),
       accent: m.accent,
       soft: m.soft,
       rev: revVal,
@@ -1456,7 +1433,7 @@ class Component extends DCLogic {
       camType: camType,
       comboCount: pageBuilt.combos.length,
       combos: pageBuilt.combos,
-      pages: pages,
+      pages: (view === 'db') ? [] : pages,
       camImageEl: mkImg(camImg),
       hasCamImage: !!camImg,
       noCamImage: !camImg,
@@ -1475,8 +1452,8 @@ class Component extends DCLogic {
       savedCount: Object.keys(this.state.profiles || {}).length,
       canSave: !!modelInput,
       noSave: !modelInput,
-      categoryOptions: ['Select Camera', 'Turret', 'Bullet', 'Vandal Dome', 'Indoor Dome', 'PTZ'].map(v => ({ value: v, label: (v === 'Select Camera' ? T.selectCamera : v) })),
-      locationOptions: LOCS.map(L => ({ value: L, label: (T.locations[L] || L) })),
+      categoryOptions: ['Select Camera', 'Turret', 'Bullet', 'Vandal Dome', 'Indoor Dome', 'PTZ'].map(c => ({ value:c, label: c === 'Select Camera' ? t.selectCamera : c })),
+      locationOptions: LOCS.map(L => ({ value:L, label: locName(L) })),
       settingsCategory: category,
       settingsModel: modelRaw,
       settingsLocation: loc,
