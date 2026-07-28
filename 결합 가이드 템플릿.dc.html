@@ -12,6 +12,7 @@
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
 <link rel="stylesheet" as="style" crossorigin href="https://cdn.jsdelivr.net/gh/orioncactus/pretendard@v1.3.9/dist/web/static/pretendard.min.css">
 <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
+<script src="https://cdn.jsdelivr.net/npm/html2pdf.js@0.10.2/dist/html2pdf.bundle.min.js"></script>
 <style>
   body { margin:0; background:#d7d8db; -webkit-font-smoothing:antialiased; font-family:'Pretendard','Inter',system-ui,sans-serif; }
   * { box-sizing:border-box; }
@@ -30,37 +31,491 @@
     .pg-hidden { display:flex !important; }
     .print-hide { display:none !important; }
     .pg-off { display:none !important; }
+    .shell { padding-left:0 !important; padding-right:0 !important; min-width:0 !important; }
+  }
+  /* final review: the document only, no in-page editing affordances */
+  .final .page .screen-only { display:none !important; }
+  @media print {
     * { -webkit-print-color-adjust:exact !important; print-color-adjust:exact !important; }
   }
 </style>
 </helmet>
-<div style="display:flex; flex-direction:column; align-items:center; gap:28px; padding:28px 0; font-family:'Pretendard','Inter',system-ui,sans-serif;">
+<div class="shell {{ finalClass }}" style="display:flex; flex-direction:column; align-items:safe center; gap:28px; padding:0 0 28px; padding-right:{{ shellPad }}; min-width:{{ shellMinW }}; transition:padding-left .18s ease; font-family:'Pretendard','Inter',system-ui,sans-serif;">
 
-  <!-- LAUNCHER (screen only) -->
-  <sc-if value="{{ isMain }}" hint-placeholder-val="{{ true }}">
-    <button type="button" class="screen-only" onClick="{{ toggleDrawer }}" style="position:fixed; top:18px; right:18px; z-index:50; cursor:pointer; font-family:'Pretendard','Inter',sans-serif; font-size:11px; font-weight:600; letter-spacing:.5px; color:#fff; background:#1c1d1f; border:none; padding:10px 16px; border-radius:8px; box-shadow:0 4px 14px rgba(20,22,28,.22);">{{ t.launcher }}</button>
+  <!-- HELP WIKI (screen only) -->
+  <sc-if value="{{ helpOpen }}" hint-placeholder-val="{{ false }}">
+    <div class="screen-only" onClick="{{ closeHelp }}" style="position:fixed; inset:0; z-index:80; background:rgba(0,0,0,.5); display:flex; align-items:center; justify-content:center; padding:5vh 5vw;">
+      <div onClick="{{ stopEvt }}" style="width:100%; height:100%; background:#ffffff; border-radius:12px; box-shadow:0 24px 60px rgba(0,0,0,.34); display:flex; flex-direction:column; overflow:hidden;">
+        <div style="flex-shrink:0; background:#8E1626; padding:15px 22px; display:flex; align-items:center; gap:14px;">
+          <span style="font-size:14px; font-weight:800; letter-spacing:3.5px; color:#ffffff;">AVYCON<span style="color:#E8637A;">.</span></span>
+          <span style="width:1px; height:16px; background:rgba(255,255,255,.32);"></span>
+          <span style="display:flex; flex-direction:column; gap:1px;">
+            <span style="font-size:13.5px; font-weight:700; color:#ffffff;">{{ helpUi.title }}</span>
+            <span style="font-size:9.5px; color:rgba(255,255,255,.6);">{{ helpUi.sub }}</span>
+          </span>
+          <div style="margin-left:auto; display:flex; align-items:center; gap:9px;">
+            <button type="button" onClick="{{ printHelp }}" style="cursor:pointer; display:flex; align-items:center; gap:7px; font-family:'Pretendard','Inter',sans-serif; font-size:11.5px; font-weight:700; padding:8px 14px; border-radius:6px; border:1px solid rgba(255,255,255,.34); background:rgba(0,0,0,.16); color:#ffffff; opacity:{{ helpPdfOpacity }};">{{ helpPdfLabel }} <span style="font-size:12px; line-height:1;">↓</span></button>
+            <button type="button" onClick="{{ closeHelp }}" title="{{ helpUi.close }}" style="cursor:pointer; font-size:16px; line-height:1; color:#ffffff; background:rgba(0,0,0,.2); border:1px solid rgba(255,255,255,.3); width:30px; height:30px; border-radius:7px;">×</button>
+          </div>
+        </div>
+        <div style="flex:1; min-height:0; display:flex;">
+          <div style="flex:0 0 268px; overflow-y:auto; background:#fafbfc; border-right:1px solid #e6e8ec; padding:16px 0 24px; display:flex; flex-direction:column; gap:4px;">
+            <span style="padding:6px 18px; font-size:9.5px; font-weight:700; letter-spacing:1.6px; color:#9E1B32;">{{ helpUi.catF }}</span>
+            <sc-for list="{{ helpNavF }}" as="nv" hint-placeholder-count="8">
+              <button type="button" onClick="{{ nv.onPick }}" style="cursor:pointer; text-align:left; display:flex; flex-direction:column; gap:2px; padding:9px 18px; border:none; border-left:3px solid {{ nv.bar }}; background:{{ nv.bg }}; font-family:'Pretendard','Inter',sans-serif;">
+                <span style="font-size:12px; font-weight:{{ nv.weight }}; color:{{ nv.fg }};">{{ nv.title }}</span>
+                <span style="font-size:9.5px; color:#9aa0a7;">{{ nv.sub }}</span>
+              </button>
+            </sc-for>
+            <span style="margin-top:14px; padding:6px 18px; font-size:9.5px; font-weight:700; letter-spacing:1.6px; color:#9E1B32;">{{ helpUi.catU }}</span>
+            <sc-for list="{{ helpNavU }}" as="nv" hint-placeholder-count="6">
+              <button type="button" onClick="{{ nv.onPick }}" style="cursor:pointer; text-align:left; display:flex; flex-direction:column; gap:2px; padding:9px 18px; border:none; border-left:3px solid {{ nv.bar }}; background:{{ nv.bg }}; font-family:'Pretendard','Inter',sans-serif;">
+                <span style="font-size:12px; font-weight:{{ nv.weight }}; color:{{ nv.fg }};">{{ nv.title }}</span>
+                <span style="font-size:9.5px; color:#9aa0a7;">{{ nv.sub }}</span>
+              </button>
+            </sc-for>
+          </div>
+          <div style="flex:1; min-width:0; overflow-y:auto; padding:34px 44px 56px;">
+            <div style="max-width:760px; display:flex; flex-direction:column; gap:6px;">
+              <span style="font-size:10px; font-weight:700; letter-spacing:1.4px; color:#9aa0a7;">{{ helpSub }}</span>
+              <span style="font-size:24px; font-weight:700; color:#1c1d1f; letter-spacing:-.3px;">{{ helpTitle }}</span>
+              <div style="margin-top:8px; width:52px; height:3px; background:#8E1626;"></div>
+              <div style="margin-top:18px; display:flex; flex-direction:column; gap:20px;">
+                <sc-for list="{{ helpBlocks }}" as="bl" hint-placeholder-count="4">
+                  <div style="display:flex; flex-direction:column; gap:8px;">
+                    <sc-if value="{{ bl.hasH }}" hint-placeholder-val="{{ true }}">
+                      <span style="font-size:13px; font-weight:700; color:#1c1d1f;">{{ bl.h }}</span>
+                    </sc-if>
+                    <sc-if value="{{ bl.hasP }}" hint-placeholder-val="{{ false }}">
+                      <span style="font-size:13px; line-height:1.75; color:#4a4e54; text-wrap:pretty;">{{ bl.p }}</span>
+                    </sc-if>
+                    <sc-if value="{{ bl.hasItems }}" hint-placeholder-val="{{ true }}">
+                      <div style="display:flex; flex-direction:column; gap:7px;">
+                        <sc-for list="{{ bl.items }}" as="it" hint-placeholder-count="4">
+                          <div style="display:flex; align-items:flex-start; gap:10px;">
+                            <span style="flex-shrink:0; margin-top:7px; width:4px; height:4px; border-radius:50%; background:#c9ced4;"></span>
+                            <span style="font-size:12.5px; line-height:1.7; color:#4a4e54; text-wrap:pretty;">{{ it.text }}</span>
+                          </div>
+                        </sc-for>
+                      </div>
+                    </sc-if>
+                    <sc-if value="{{ bl.hasNote }}" hint-placeholder-val="{{ false }}">
+                      <div style="padding:12px 15px; background:#f7f8f9; border-left:3px solid #cdd1d6; border-radius:0 6px 6px 0;">
+                        <span style="font-size:12px; line-height:1.65; color:#4a4e54; text-wrap:pretty;">{{ bl.note }}</span>
+                      </div>
+                    </sc-if>
+                  </div>
+                </sc-for>
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+  </sc-if>
+
+  <!-- SYSTEM SETTINGS (app-wide only, screen only) -->
+  <sc-if value="{{ sysMenuOpen }}" hint-placeholder-val="{{ false }}">
+    <div class="screen-only" onClick="{{ closeSysMenu }}" style="position:fixed; inset:0; z-index:70; background:rgba(20,22,28,.34); display:flex; align-items:flex-start; justify-content:flex-end; padding:74px 22px 22px;">
+      <div onClick="{{ stopEvt }}" style="width:352px; max-height:calc(100vh - 96px); overflow-y:auto; background:#ffffff; border:1px solid #e0e3e7; border-radius:11px; box-shadow:0 18px 44px rgba(20,22,28,.24); display:flex; flex-direction:column;">
+        <div style="padding:15px 17px; border-bottom:1px solid #eef0f3; display:flex; align-items:flex-start; justify-content:space-between; gap:10px;">
+          <span style="display:flex; flex-direction:column; gap:3px;">
+            <span style="font-size:13.5px; font-weight:700; color:#1c1d1f;">{{ sys.title }}</span>
+            <span style="font-size:9.5px; color:#9aa0a7;">{{ sys.sub }}</span>
+          </span>
+          <button type="button" onClick="{{ closeSysMenu }}" style="flex-shrink:0; cursor:pointer; font-size:15px; line-height:1; color:#6b6f76; background:#f1f2f4; border:1px solid #e6e8ec; width:26px; height:26px; border-radius:6px;">×</button>
+        </div>
+        <div style="padding:15px 17px 18px; display:flex; flex-direction:column; gap:16px;">
+          <div style="display:flex; flex-direction:column; gap:6px;">
+            <span style="font-size:9.5px; font-weight:700; letter-spacing:1.1px; color:#9aa0a7;">{{ sys.lang }}</span>
+            <select value="{{ lang }}" onChange="{{ onLangChange }}" style="width:100%; font-family:'Pretendard','Inter',sans-serif; font-size:12.5px; padding:9px 11px; border:1px solid #d4d7db; border-radius:7px; background:#fff; color:#1c1d1f; outline:none;">
+              <sc-for list="{{ langOptions }}" as="lo" hint-placeholder-count="4">
+                <option value="{{ lo.value }}">{{ lo.label }}</option>
+              </sc-for>
+            </select>
+          </div>
+          <div style="display:flex; flex-direction:column; gap:7px;">
+            <span style="font-size:9.5px; font-weight:700; letter-spacing:1.1px; color:#9aa0a7;">{{ sys.data }}</span>
+            <label style="cursor:pointer; display:flex; align-items:center; justify-content:center; font-family:'Pretendard','Inter',sans-serif; font-size:11.5px; font-weight:600; color:#1c1d1f; background:#fff; border:1px solid #d4d7db; padding:10px; border-radius:7px;">{{ sys.importAll }}
+              <input type="file" accept=".csv,text/csv" onChange="{{ onRosterFile }}" style="display:none;"></label>
+            <button type="button" onClick="{{ exportCsv }}" style="cursor:pointer; font-family:'Pretendard','Inter',sans-serif; font-size:11.5px; font-weight:600; color:#1c1d1f; background:#fff; border:1px solid #d4d7db; padding:10px; border-radius:7px;">{{ sys.exportAll }}</button>
+            <button type="button" onClick="{{ gotoDb }}" style="cursor:pointer; font-family:'Pretendard','Inter',sans-serif; font-size:11.5px; font-weight:700; color:#fff; background:#1c1d1f; border:none; padding:10px; border-radius:7px;">{{ sys.dbLink }}</button>
+          </div>
+          <div style="display:flex; flex-direction:column; gap:7px; padding-top:14px; border-top:1px solid #eef0f3;">
+            <span style="font-size:9.5px; font-weight:700; letter-spacing:1.1px; color:#c0546a;">{{ sys.danger }}</span>
+            <button type="button" onClick="{{ clearAllData }}" style="cursor:pointer; font-family:'Pretendard','Inter',sans-serif; font-size:11.5px; font-weight:700; color:#9E1B32; background:#fdf1f3; border:1px solid #f0c9d1; padding:10px; border-radius:7px;">{{ sys.clearAll }}</button>
+            <span style="font-size:9.5px; line-height:1.5; color:#9aa0a7; text-wrap:pretty;">{{ sys.clearHint }}</span>
+          </div>
+          <span style="font-size:9px; color:#b4b9c0; text-align:center;">{{ sys.storage }}</span>
+        </div>
+      </div>
+    </div>
+  </sc-if>
+
+  <!-- collapsed settings panel handle (screen only) -->
+  <sc-if value="{{ launcherVisible }}" hint-placeholder-val="{{ false }}">
+    <button type="button" class="screen-only" onClick="{{ toggleDrawer }}" title="{{ t.launcher }}" style="position:fixed; top:150px; right:0; z-index:45; cursor:pointer; display:flex; align-items:center; gap:8px; font-family:'Pretendard','Inter',sans-serif; font-size:11px; font-weight:700; letter-spacing:.3px; color:#1c1d1f; background:#ffffff; border:1px solid #dfe2e6; border-right:none; padding:11px 13px; border-radius:8px 0 0 8px; box-shadow:-4px 2px 14px rgba(20,22,28,.10);"><span style="font-size:13px; line-height:1;">‹</span> {{ t.launcher }}</button>
+  </sc-if>
+
+  <!-- PERSISTENT APP BAR over the document views (screen only) -->
+  <sc-if value="{{ appBarVisible }}" hint-placeholder-val="{{ false }}">
+  <div class="screen-only" style="position:sticky; top:0; z-index:40; width:calc(100% + {{ shellPad }}); margin-right:calc(-1 * {{ shellPad }}); background:#ffffff; box-shadow:0 6px 28px rgba(20,22,28,.18); display:flex; flex-direction:column; overflow:hidden; flex-shrink:0;">
+    <div style="background:#8E1626; padding:13px 26px; display:flex; align-items:center; gap:15px;">
+      <span style="font-size:16px; font-weight:800; letter-spacing:3.5px; color:#ffffff;">AVYCON<span style="color:#E8637A;">.</span></span>
+      <span style="width:1px; height:16px; background:rgba(255,255,255,.32);"></span>
+      <span style="font-size:14.5px; font-weight:600; letter-spacing:.2px; color:#ffffff;">{{ t.appTitle }}</span>
+      <div style="margin-left:auto; display:flex; align-items:center; gap:9px;">
+        <sc-if value="{{ settingsBtnVisible }}" hint-placeholder-val="{{ true }}">
+          <button type="button" onClick="{{ toggleDrawer }}" style="cursor:pointer; font-family:'Pretendard','Inter',sans-serif; font-size:11.5px; font-weight:700; padding:7px 12px; border-radius:6px; border:1px solid rgba(255,255,255,.34); background:rgba(0,0,0,.16); color:#ffffff;">☰&nbsp;&nbsp;{{ t.launcher }}</button>
+        </sc-if>
+        <select value="{{ lang }}" onChange="{{ onLangChange }}" style="cursor:pointer; font-family:'Pretendard','Inter',sans-serif; font-size:11.5px; font-weight:700; padding:7px 12px; border-radius:6px; border:1px solid rgba(255,255,255,.34); background:rgba(0,0,0,.16); color:#ffffff; outline:none;">
+          <sc-for list="{{ langOptions }}" as="lo" hint-placeholder-count="4">
+            <option value="{{ lo.value }}" style="color:#1c1d1f;">{{ lo.label }}</option>
+          </sc-for>
+        </select>
+        <button type="button" onClick="{{ gotoDb }}" style="cursor:pointer; display:flex; align-items:center; gap:6px; font-family:'Pretendard','Inter',sans-serif; font-size:11.5px; font-weight:700; padding:7px 12px; border-radius:6px; border:1px solid {{ dbBtnBorder }}; background:{{ dbBtnBg }}; color:#ffffff;"><span style="font-size:12px; line-height:1;">▤</span> {{ t.stepDbNav }}</button>
+        <button type="button" onClick="{{ toggleSysMenu }}" style="cursor:pointer; display:flex; align-items:center; gap:6px; font-family:'Pretendard','Inter',sans-serif; font-size:11.5px; font-weight:700; padding:7px 12px; border-radius:6px; border:1px solid rgba(255,255,255,.34); background:rgba(0,0,0,.16); color:#ffffff;"><span style="font-size:12px; line-height:1;">⚙</span> {{ sys.btn }}</button>
+      </div>
+    </div>
+    <div style="display:flex; align-items:stretch; border-bottom:1px solid #e6e8ec; background:#ffffff;">
+      <button type="button" onClick="{{ gotoTable }}" style="cursor:pointer; display:flex; align-items:center; gap:10px; padding:13px 22px; border:none; background:transparent;">
+        <span style="width:23px; height:23px; border-radius:50%; background:#e6e8ec; color:#8a8f96; font-size:11px; font-weight:700; display:flex; align-items:center; justify-content:center;">1</span>
+        <span style="display:flex; flex-direction:column; gap:1px; text-align:left;">
+          <span style="font-size:12.5px; font-weight:600; color:#8a8f96;">{{ tbl.nav }}</span>
+          <span style="font-size:9.5px; color:#b4b9c0;">{{ tbl.navSub }}</span>
+        </span>
+      </button>
+      <button type="button" onClick="{{ gotoMain }}" style="cursor:pointer; display:flex; align-items:center; gap:10px; padding:13px 22px; border:none; border-bottom:3px solid {{ navGuideLine }}; background:{{ navGuideBg }};">
+        <span style="width:23px; height:23px; border-radius:50%; background:{{ navGuideDot }}; color:{{ navGuideDotFg }}; font-size:11px; font-weight:700; display:flex; align-items:center; justify-content:center;">2</span>
+        <span style="display:flex; flex-direction:column; gap:1px; text-align:left;">
+          <span style="font-size:12.5px; font-weight:700; color:{{ navGuideFg }};">{{ t.stepGuide }}</span>
+          <span style="font-size:9.5px; color:#b4b9c0;">{{ t.stepGuideSub }}</span>
+        </span>
+      </button>
+      <button type="button" onClick="{{ gotoCover }}" style="cursor:pointer; display:flex; align-items:center; gap:10px; padding:13px 22px; border:none; border-bottom:3px solid {{ navCoverLine }}; background:{{ navCoverBg }};">
+        <span style="width:23px; height:23px; border-radius:50%; background:{{ navCoverDot }}; color:{{ navCoverDotFg }}; font-size:11px; font-weight:700; display:flex; align-items:center; justify-content:center;">3</span>
+        <span style="display:flex; flex-direction:column; gap:1px; text-align:left;">
+          <span style="font-size:12.5px; font-weight:700; color:{{ navCoverFg }};">{{ t.stepCoverNav }}</span>
+          <span style="font-size:9.5px; color:#b4b9c0;">{{ t.stepCoverSub }}</span>
+        </span>
+      </button>
+      <button type="button" onClick="{{ gotoFinal }}" style="cursor:pointer; display:flex; align-items:center; gap:10px; padding:13px 22px; border:none; border-bottom:3px solid {{ navFinLine }}; background:{{ navFinBg }};">
+        <span style="width:23px; height:23px; border-radius:50%; background:{{ navFinDot }}; color:{{ navFinDotFg }}; font-size:11px; font-weight:700; display:flex; align-items:center; justify-content:center;">4</span>
+        <span style="display:flex; flex-direction:column; gap:1px; text-align:left;">
+          <span style="font-size:12.5px; font-weight:700; color:{{ navFinFg }};">{{ fin.nav }}</span>
+          <span style="font-size:9.5px; color:#b4b9c0;">{{ fin.navSub }}</span>
+        </span>
+      </button>
+      <button type="button" onClick="{{ openHelp }}" title="{{ helpUi.title }}" style="margin-left:auto; margin-right:18px; align-self:center; cursor:pointer; display:flex; align-items:center; gap:7px; font-family:'Pretendard','Inter',sans-serif; font-size:11.5px; font-weight:600; color:#6b6f76; background:#f4f5f7; border:1px solid #e0e3e7; padding:7px 13px; border-radius:20px;"><span style="display:flex; align-items:center; justify-content:center; width:16px; height:16px; border-radius:50%; background:#8E1626; color:#fff; font-size:10px; font-weight:800;">?</span> {{ helpUi.btn }}</button>
+    </div>
+  </div>
+  </sc-if>
+
+  <!-- PRODUCT DATA GRID (entry point, screen only) -->
+  <sc-if value="{{ isTable }}" hint-placeholder-val="{{ true }}">
+  <div style="width:100%; max-width:1440px; background:#ffffff; box-shadow:0 6px 28px rgba(20,22,28,.18); display:flex; flex-direction:column; color:#1c1d1f; overflow:hidden;">
+
+    <div style="background:#8E1626; padding:13px 26px; display:flex; align-items:center; gap:15px;">
+      <span style="font-size:16px; font-weight:800; letter-spacing:3.5px; color:#ffffff;">AVYCON<span style="color:#E8637A;">.</span></span>
+      <span style="width:1px; height:16px; background:rgba(255,255,255,.32);"></span>
+      <span style="font-size:14.5px; font-weight:600; letter-spacing:.2px; color:#ffffff;">{{ t.appTitle }}</span>
+      <div style="margin-left:auto; display:flex; align-items:center; gap:9px;">
+        <select value="{{ lang }}" onChange="{{ onLangChange }}" style="cursor:pointer; font-family:'Pretendard','Inter',sans-serif; font-size:11.5px; font-weight:700; padding:7px 12px; border-radius:6px; border:1px solid rgba(255,255,255,.34); background:rgba(0,0,0,.16); color:#ffffff; outline:none;">
+          <sc-for list="{{ langOptions }}" as="lo" hint-placeholder-count="4">
+            <option value="{{ lo.value }}" style="color:#1c1d1f;">{{ lo.label }}</option>
+          </sc-for>
+        </select>
+        <button type="button" onClick="{{ gotoDb }}" style="cursor:pointer; display:flex; align-items:center; gap:6px; font-family:'Pretendard','Inter',sans-serif; font-size:11.5px; font-weight:700; padding:7px 12px; border-radius:6px; border:1px solid {{ dbBtnBorder }}; background:{{ dbBtnBg }}; color:#ffffff;"><span style="font-size:12px; line-height:1;">▤</span> {{ t.stepDbNav }}</button>
+        <button type="button" onClick="{{ toggleSysMenu }}" style="cursor:pointer; display:flex; align-items:center; gap:6px; font-family:'Pretendard','Inter',sans-serif; font-size:11.5px; font-weight:700; padding:7px 12px; border-radius:6px; border:1px solid rgba(255,255,255,.34); background:rgba(0,0,0,.16); color:#ffffff;"><span style="font-size:12px; line-height:1;">⚙</span> {{ sys.btn }}</button>
+      </div>
+    </div>
+
+    <div style="display:flex; align-items:stretch; border-bottom:1px solid #e6e8ec; background:#ffffff;">
+      <div style="display:flex; align-items:center; gap:10px; padding:14px 22px; border-bottom:3px solid #9E1B32; background:#ffffff;">
+        <span style="width:24px; height:24px; border-radius:50%; background:#9E1B32; color:#fff; font-size:11px; font-weight:700; display:flex; align-items:center; justify-content:center;">1</span>
+        <span style="display:flex; flex-direction:column; gap:1px;">
+          <span style="font-size:12.5px; font-weight:700; color:#1c1d1f;">{{ tbl.nav }}</span>
+          <span style="font-size:9.5px; color:#9aa0a7;">{{ tbl.navSub }}</span>
+        </span>
+      </div>
+      <button type="button" onClick="{{ gotoMain }}" style="cursor:pointer; display:flex; align-items:center; gap:10px; padding:14px 22px; border:none; background:transparent;">
+        <span style="width:24px; height:24px; border-radius:50%; background:#e6e8ec; color:#8a8f96; font-size:11px; font-weight:700; display:flex; align-items:center; justify-content:center;">2</span>
+        <span style="display:flex; flex-direction:column; gap:1px; text-align:left;">
+          <span style="font-size:12.5px; font-weight:600; color:#8a8f96;">{{ t.stepGuide }}</span>
+          <span style="font-size:9.5px; color:#b4b9c0;">{{ t.stepGuideSub }}</span>
+        </span>
+      </button>
+      <button type="button" onClick="{{ gotoCover }}" style="cursor:pointer; display:flex; align-items:center; gap:10px; padding:14px 22px; border:none; background:transparent;">
+        <span style="width:24px; height:24px; border-radius:50%; background:#e6e8ec; color:#8a8f96; font-size:11px; font-weight:700; display:flex; align-items:center; justify-content:center;">3</span>
+        <span style="display:flex; flex-direction:column; gap:1px; text-align:left;">
+          <span style="font-size:12.5px; font-weight:600; color:#8a8f96;">{{ t.stepCoverNav }}</span>
+          <span style="font-size:9.5px; color:#b4b9c0;">{{ t.stepCoverSub }}</span>
+        </span>
+      </button>
+      <button type="button" onClick="{{ gotoFinal }}" style="cursor:pointer; display:flex; align-items:center; gap:10px; padding:14px 22px; border:none; background:transparent;">
+        <span style="width:24px; height:24px; border-radius:50%; background:#e6e8ec; color:#8a8f96; font-size:11px; font-weight:700; display:flex; align-items:center; justify-content:center;">4</span>
+        <span style="display:flex; flex-direction:column; gap:1px; text-align:left;">
+          <span style="font-size:12.5px; font-weight:600; color:#8a8f96;">{{ fin.nav }}</span>
+          <span style="font-size:9.5px; color:#b4b9c0;">{{ fin.navSub }}</span>
+        </span>
+      </button>
+      <button type="button" onClick="{{ openHelp }}" title="{{ helpUi.title }}" style="margin-left:auto; margin-right:18px; align-self:center; cursor:pointer; display:flex; align-items:center; gap:7px; font-family:'Pretendard','Inter',sans-serif; font-size:11.5px; font-weight:600; color:#6b6f76; background:#f4f5f7; border:1px solid #e0e3e7; padding:7px 13px; border-radius:20px;"><span style="display:flex; align-items:center; justify-content:center; width:16px; height:16px; border-radius:50%; background:#8E1626; color:#fff; font-size:10px; font-weight:800;">?</span> {{ helpUi.btn }}</button>
+    </div>
+
+    <!-- toolbar -->
+    <div style="padding:22px 30px 16px; display:flex; flex-direction:column; gap:14px;">
+      <div style="display:flex; align-items:flex-end; gap:20px; flex-wrap:wrap;">
+        <div style="display:flex; flex-direction:column; gap:5px; flex:1; min-width:280px;">
+          <span style="font-size:17px; font-weight:700; color:#1c1d1f;">{{ tbl.title }}</span>
+          <span style="max-width:720px; font-size:11.5px; line-height:1.6; color:#8a8f96; text-wrap:pretty;">{{ tbl.desc }}</span>
+        </div>
+        <div style="display:flex; align-items:center; gap:9px;">
+          <input value="{{ tableQuery }}" onChange="{{ setTableQuery }}" placeholder="{{ tbl.search }}" style="font-family:'Pretendard','Inter',sans-serif; font-size:12px; padding:9px 13px; width:230px; border:1px solid #d4d7db; border-radius:7px; background:#fff; color:#1c1d1f; outline:none;">
+          <label style="cursor:pointer; display:flex; align-items:center; font-size:12px; font-weight:700; color:#fff; background:#9E1B32; padding:10px 16px; border-radius:7px;">{{ tbl.importBtn }}
+            <input type="file" accept=".csv,text/csv" onChange="{{ onRosterFile }}" style="display:none;"></label>
+          <button type="button" onClick="{{ gotoSetup }}" style="cursor:pointer; font-family:'Pretendard','Inter',sans-serif; font-size:12px; font-weight:600; color:#1c1d1f; background:#fff; border:1px solid #d4d7db; padding:10px 16px; border-radius:7px;">{{ tbl.manageBtn }}</button>
+        </div>
+      </div>
+      <sc-if value="{{ importNotice }}" hint-placeholder-val="{{ false }}">
+        <div style="display:flex; align-items:flex-start; gap:12px; padding:12px 14px; border:1px solid {{ importNoticeBorder }}; background:{{ importNoticeBg }}; border-radius:8px;">
+          <span style="flex:1; font-size:12px; line-height:1.55; font-weight:600; color:{{ importNoticeColor }}; text-wrap:pretty;">{{ importNoticeText }}</span>
+          <button type="button" onClick="{{ dismissImportNotice }}" style="flex-shrink:0; cursor:pointer; font-family:'Pretendard','Inter',sans-serif; font-size:10.5px; font-weight:600; color:#6b6f76; background:#fff; border:1px solid #d4d7db; padding:5px 10px; border-radius:5px;">{{ importNoticeDismiss }}</button>
+        </div>
+      </sc-if>
+      <div style="display:flex; align-items:center; gap:10px;">
+        <span style="font-size:10px; font-weight:700; letter-spacing:1.4px; color:#9E1B32;">{{ tableCountText }}</span>
+        <span style="flex:1; height:1px; background:#e6e8ec;"></span>
+      </div>
+    </div>
+
+    <!-- grid -->
+    <div style="margin:0 30px 30px; border:1px solid #e6e8ec; border-radius:8px; overflow:auto; max-height:70vh;">
+      <div style="min-width:100%; display:flex; flex-direction:column;">
+        <div style="display:flex; align-items:stretch; position:sticky; top:0; z-index:3; background:#f4f5f7; border-bottom:1px solid #dfe2e6;">
+          <span style="flex:0 0 44px; padding:11px 8px; font-size:9.5px; font-weight:700; letter-spacing:.6px; color:#9aa0a7; text-align:center;">#</span>
+          <span style="flex:0 0 170px; padding:11px 12px; font-size:9.5px; font-weight:700; letter-spacing:.9px; color:#4a4e54; border-left:1px solid #e6e8ec;">{{ tbl.model }}</span>
+          <span style="flex:0 0 130px; padding:11px 12px; font-size:9.5px; font-weight:700; letter-spacing:.9px; color:#4a4e54; border-left:1px solid #e6e8ec;">{{ tbl.cat }}</span>
+          <sc-for list="{{ tableCols }}" as="col" hint-placeholder-count="5">
+            <span style="flex:1 0 160px; padding:11px 12px; font-size:9.5px; font-weight:700; letter-spacing:.9px; color:#4a4e54; border-left:1px solid #e6e8ec;">{{ col.label }}</span>
+          </sc-for>
+          <span style="flex:0 0 108px; border-left:1px solid #e6e8ec;"></span>
+        </div>
+        <sc-for list="{{ tableRows }}" as="row" hint-placeholder-count="6">
+          <div style="display:flex; align-items:stretch; border-bottom:1px solid #eef0f3; background:{{ row.rowBg }};" style-hover="background:#f2f6fb;">
+            <span style="flex:0 0 44px; padding:12px 8px; font-size:10.5px; color:#b4b9c0; text-align:center;">{{ row.num }}</span>
+            <button type="button" onClick="{{ row.onOpen }}" title="{{ tbl.open }}" style="flex:0 0 170px; text-align:left; cursor:pointer; padding:12px; font-family:'Pretendard','Inter',sans-serif; font-size:12px; font-weight:700; color:#9E1B32; background:transparent; border:none; border-left:1px solid #eef0f3; word-break:break-all;" style-hover="text-decoration:underline;">{{ row.model }}</button>
+            <span style="flex:0 0 130px; padding:12px; font-size:11px; color:#6b6f76; border-left:1px solid #eef0f3;">{{ row.category }}</span>
+            <sc-for list="{{ row.cells }}" as="cell" hint-placeholder-count="5">
+              <span style="flex:1 0 160px; padding:12px; font-size:11px; line-height:1.5; color:{{ cell.color }}; border-left:1px solid #eef0f3; word-break:break-word;">{{ cell.text }}</span>
+            </sc-for>
+            <span style="flex:0 0 108px; padding:9px 10px; border-left:1px solid #eef0f3; display:flex; align-items:center; gap:6px;">
+              <button type="button" onClick="{{ row.onOpen }}" style="cursor:pointer; font-family:'Pretendard','Inter',sans-serif; font-size:10.5px; font-weight:700; color:#fff; background:#9E1B32; border:none; padding:7px 10px; border-radius:5px;">{{ tbl.open }}</button>
+              <button type="button" onClick="{{ row.onRemove }}" title="{{ tbl.del }}" style="cursor:pointer; font-size:11px; line-height:1; color:#b4b9c0; background:#fff; border:1px solid #e6e8ec; width:24px; height:24px; border-radius:5px;">×</button>
+            </span>
+          </div>
+        </sc-for>
+        <sc-if value="{{ tableEmpty }}" hint-placeholder-val="{{ false }}">
+          <div style="padding:54px 20px; display:flex; flex-direction:column; align-items:center; gap:6px;">
+            <span style="font-size:12.5px; font-weight:600; color:#8a8f96;">{{ tableEmptyText }}</span>
+          </div>
+        </sc-if>
+      </div>
+    </div>
+  </div>
+  </sc-if>
+
+  <!-- SETUP SCREEN (entry point, screen only) -->
+  <sc-if value="{{ isSetup }}" hint-placeholder-val="{{ true }}">
+  <div style="width:100%; max-width:1000px; background:#ffffff; box-shadow:0 6px 28px rgba(20,22,28,.18); display:flex; flex-direction:column; color:#1c1d1f; overflow:hidden;">
+
+    <!-- app header -->
+    <div style="background:#8E1626; padding:13px 26px; display:flex; align-items:center; gap:15px;">
+      <span style="font-size:16px; font-weight:800; letter-spacing:3.5px; color:#ffffff;">AVYCON<span style="color:#E8637A;">.</span></span>
+      <span style="width:1px; height:16px; background:rgba(255,255,255,.32);"></span>
+      <span style="font-size:14.5px; font-weight:600; letter-spacing:.2px; color:#ffffff;">{{ t.appTitle }}</span>
+      <div style="margin-left:auto; display:flex; align-items:center; gap:9px;">
+        <select value="{{ lang }}" onChange="{{ onLangChange }}" style="cursor:pointer; font-family:'Pretendard','Inter',sans-serif; font-size:11.5px; font-weight:700; padding:7px 12px; border-radius:6px; border:1px solid rgba(255,255,255,.34); background:rgba(0,0,0,.16); color:#ffffff; outline:none;">
+          <sc-for list="{{ langOptions }}" as="lo" hint-placeholder-count="4">
+            <option value="{{ lo.value }}" style="color:#1c1d1f;">{{ lo.label }}</option>
+          </sc-for>
+        </select>
+        <button type="button" onClick="{{ gotoDb }}" style="cursor:pointer; display:flex; align-items:center; gap:6px; font-family:'Pretendard','Inter',sans-serif; font-size:11.5px; font-weight:700; padding:7px 12px; border-radius:6px; border:1px solid {{ dbBtnBorder }}; background:{{ dbBtnBg }}; color:#ffffff;"><span style="font-size:12px; line-height:1;">▤</span> {{ t.stepDbNav }}</button>
+        <button type="button" onClick="{{ toggleSysMenu }}" style="cursor:pointer; display:flex; align-items:center; gap:6px; font-family:'Pretendard','Inter',sans-serif; font-size:11.5px; font-weight:700; padding:7px 12px; border-radius:6px; border:1px solid rgba(255,255,255,.34); background:rgba(0,0,0,.16); color:#ffffff;"><span style="font-size:12px; line-height:1;">⚙</span> {{ sys.btn }}</button>
+      </div>
+    </div>
+
+    <!-- step nav -->
+    <div style="display:flex; align-items:stretch; border-bottom:1px solid #e6e8ec; background:#ffffff;">
+      <button type="button" onClick="{{ gotoTable }}" style="cursor:pointer; display:flex; align-items:center; gap:10px; padding:14px 22px; border:none; background:transparent;">
+        <span style="width:24px; height:24px; border-radius:50%; background:#e6e8ec; color:#8a8f96; font-size:11px; font-weight:700; display:flex; align-items:center; justify-content:center;">←</span>
+        <span style="display:flex; flex-direction:column; gap:1px; text-align:left;">
+          <span style="font-size:12.5px; font-weight:600; color:#8a8f96;">{{ tbl.nav }}</span>
+          <span style="font-size:9.5px; color:#b4b9c0;">{{ tbl.navSub }}</span>
+        </span>
+      </button>
+      <div style="display:flex; align-items:center; gap:10px; padding:14px 22px; border-bottom:3px solid #9E1B32; background:#ffffff;">
+        <span style="width:24px; height:24px; border-radius:50%; background:#9E1B32; color:#fff; font-size:11px; font-weight:700; display:flex; align-items:center; justify-content:center;">1</span>
+        <span style="display:flex; flex-direction:column; gap:1px;">
+          <span style="font-size:12.5px; font-weight:700; color:#1c1d1f;">{{ t.stepSetup }}</span>
+          <span style="font-size:9.5px; color:#9aa0a7;">{{ t.stepSetupSub }}</span>
+        </span>
+      </div>
+      <button type="button" onClick="{{ gotoMain }}" style="cursor:pointer; display:flex; align-items:center; gap:10px; padding:14px 22px; border:none; background:transparent;">
+        <span style="width:24px; height:24px; border-radius:50%; background:#e6e8ec; color:#8a8f96; font-size:11px; font-weight:700; display:flex; align-items:center; justify-content:center;">2</span>
+        <span style="display:flex; flex-direction:column; gap:1px; text-align:left;">
+          <span style="font-size:12.5px; font-weight:600; color:#8a8f96;">{{ t.stepGuide }}</span>
+          <span style="font-size:9.5px; color:#b4b9c0;">{{ t.stepGuideSub }}</span>
+        </span>
+      </button>
+      <button type="button" onClick="{{ gotoCover }}" style="cursor:pointer; display:flex; align-items:center; gap:10px; padding:14px 22px; border:none; background:transparent;">
+        <span style="width:24px; height:24px; border-radius:50%; background:#e6e8ec; color:#8a8f96; font-size:11px; font-weight:700; display:flex; align-items:center; justify-content:center;">3</span>
+        <span style="display:flex; flex-direction:column; gap:1px; text-align:left;">
+          <span style="font-size:12.5px; font-weight:600; color:#8a8f96;">{{ t.stepCoverNav }}</span>
+          <span style="font-size:9.5px; color:#b4b9c0;">{{ t.stepCoverSub }}</span>
+        </span>
+      </button>
+      <button type="button" onClick="{{ gotoFinal }}" style="cursor:pointer; display:flex; align-items:center; gap:10px; padding:14px 22px; border:none; background:transparent;">
+        <span style="width:24px; height:24px; border-radius:50%; background:#e6e8ec; color:#8a8f96; font-size:11px; font-weight:700; display:flex; align-items:center; justify-content:center;">4</span>
+        <span style="display:flex; flex-direction:column; gap:1px; text-align:left;">
+          <span style="font-size:12.5px; font-weight:600; color:#8a8f96;">{{ fin.nav }}</span>
+          <span style="font-size:9.5px; color:#b4b9c0;">{{ fin.navSub }}</span>
+        </span>
+      </button>
+      <button type="button" onClick="{{ openHelp }}" title="{{ helpUi.title }}" style="margin-left:auto; margin-right:18px; align-self:center; cursor:pointer; display:flex; align-items:center; gap:7px; font-family:'Pretendard','Inter',sans-serif; font-size:11.5px; font-weight:600; color:#6b6f76; background:#f4f5f7; border:1px solid #e0e3e7; padding:7px 13px; border-radius:20px;"><span style="display:flex; align-items:center; justify-content:center; width:16px; height:16px; border-radius:50%; background:#8E1626; color:#fff; font-size:10px; font-weight:800;">?</span> {{ helpUi.btn }}</button>
+    </div>
+
+    <div style="padding:34px 44px 40px; display:flex; flex-direction:column; gap:30px;">
+
+      <!-- import -->
+      <div style="display:flex; flex-direction:column; align-items:center; gap:12px; text-align:center;">
+        <div style="font-size:22px; font-weight:700; letter-spacing:-.3px; color:#9E1B32;">{{ t.importTitle }}</div>
+        <div style="max-width:620px; font-size:12.5px; color:#6b6f76; line-height:1.6; text-wrap:pretty;">{{ t.importDesc }}</div>
+        <div style="margin-top:4px; display:flex; align-items:center; gap:10px;">
+          <label style="cursor:pointer; display:flex; align-items:center; gap:8px; font-size:12.5px; font-weight:700; color:#fff; background:#9E1B32; padding:11px 18px; border-radius:7px;">{{ t.importCsvBtn }}
+            <input type="file" accept=".csv,text/csv" onChange="{{ onRosterFile }}" style="display:none;"></label>
+          <button type="button" onClick="{{ loadSampleRoster }}" style="cursor:pointer; font-size:12.5px; font-weight:600; color:#1c1d1f; background:#fff; border:1px solid #d4d7db; padding:11px 18px; border-radius:7px;">{{ t.sampleBtn }}</button>
+        </div>
+        <div onDrop="{{ onRosterDrop }}" onDragOver="{{ onDragOver }}" onDragLeave="{{ onDragLeave }}" style="margin-top:8px; width:100%; padding:34px 20px; border:2px dashed {{ dropBorder }}; border-radius:10px; background:{{ dropBg }}; display:flex; flex-direction:column; align-items:center; gap:7px;">
+          <span style="font-size:24px; line-height:1; color:#9E1B32;">⬍</span>
+          <span style="font-size:13px; font-weight:600; color:#1c1d1f;">{{ t.dropHint }}</span>
+          <span style="font-size:10.5px; color:#9aa0a7;">{{ csvCols }}</span>
+        </div>
+        <sc-if value="{{ importNotice }}" hint-placeholder-val="{{ false }}">
+          <div style="margin-top:10px; width:100%; display:flex; align-items:flex-start; gap:12px; padding:12px 14px; border:1px solid {{ importNoticeBorder }}; background:{{ importNoticeBg }}; border-radius:8px;">
+            <span style="flex:1; font-size:12px; line-height:1.55; font-weight:600; color:{{ importNoticeColor }}; text-wrap:pretty;">{{ importNoticeText }}</span>
+            <button type="button" onClick="{{ dismissImportNotice }}" style="flex-shrink:0; cursor:pointer; font-family:'Pretendard','Inter',sans-serif; font-size:10.5px; font-weight:600; color:#6b6f76; background:#fff; border:1px solid #d4d7db; padding:5px 10px; border-radius:5px;">{{ importNoticeDismiss }}</button>
+          </div>
+        </sc-if>
+      </div>
+
+      <!-- roster -->
+      <div style="display:flex; flex-direction:column; gap:12px;">
+        <div style="display:flex; align-items:center; gap:12px;">
+          <span style="font-size:11px; font-weight:700; letter-spacing:1.5px; color:#8a8f96;">{{ t.rosterTitle }} · {{ rosterCount }}</span>
+          <span style="flex:1; height:1px; background:#e6e8ec;"></span>
+          <span style="font-size:10px; color:#b4b9c0;">{{ t.skipNote }}</span>
+        </div>
+
+        <sc-if value="{{ noRoster }}" hint-placeholder-val="{{ true }}">
+          <div style="padding:26px; border:1px dashed #e6e8ec; border-radius:9px; background:#fafbfc; text-align:center; font-size:12px; color:#9aa0a7;">{{ t.rosterEmpty }}</div>
+        </sc-if>
+
+        <sc-for list="{{ roster }}" as="rp" hint-placeholder-count="0">
+          <div style="border:1px solid #e6e8ec; border-radius:10px; background:#ffffff; overflow:hidden;">
+            <div style="display:flex; align-items:center; gap:12px; padding:14px 18px; background:#fafbfc; border-bottom:1px solid #eef0f3;">
+              <span style="font-size:15px; font-weight:700; color:#1c1d1f;">{{ rp.model }}</span>
+              <span style="font-size:11px; color:#6b6f76; padding:3px 9px; border-radius:20px; background:#eef0f3;">{{ rp.category }}</span>
+              <span style="font-size:10.5px; color:#9aa0a7;">{{ rp.accCount }} {{ t.accessoriesLabel }} · {{ rp.pageCount }} {{ t.pagesLabel }}</span>
+              <div style="margin-left:auto; display:flex; align-items:center; gap:8px;">
+                <button type="button" onClick="{{ rp.onOpen }}" style="cursor:pointer; font-size:11.5px; font-weight:700; color:#fff; background:#9E1B32; border:none; padding:9px 16px; border-radius:7px;">{{ t.openGuide }} →</button>
+                <button type="button" onClick="{{ rp.onRemove }}" title="{{ t.deleteProduct }}" style="cursor:pointer; width:28px; height:28px; border-radius:7px; border:1px solid #e6c4c4; background:#fbeeee; color:#b04f4f; font-size:14px; line-height:1;">×</button>
+              </div>
+            </div>
+            <div style="padding:14px 18px; display:flex; flex-direction:column; gap:12px;">
+              <div style="display:grid; grid-template-columns:repeat(5, 1fr); gap:8px;">
+                <sc-for list="{{ rp.locChips }}" as="lc" hint-placeholder-count="5">
+                  <div style="padding:9px 10px; border-radius:7px; border:1px solid #e6e8ec; background:#fafbfc; display:flex; flex-direction:column; gap:3px;">
+                    <span style="font-size:10.5px; font-weight:700; color:#1c1d1f;">{{ lc.name }}</span>
+                    <sc-if value="{{ lc.has }}" hint-placeholder-val="{{ true }}">
+                      <span style="font-size:9.5px; color:#2f8f6b; word-break:break-all; line-height:1.3;">{{ lc.models }}</span>
+                    </sc-if>
+                    <sc-if value="{{ lc.missing }}" hint-placeholder-val="{{ false }}">
+                      <span style="font-size:9.5px; color:#b4b9c0;">— skip</span>
+                    </sc-if>
+                  </div>
+                </sc-for>
+              </div>
+              <sc-if value="{{ rp.hasAux }}" hint-placeholder-val="{{ false }}">
+                <div style="display:flex; align-items:center; gap:8px; flex-wrap:wrap;">
+                  <span style="font-size:9.5px; font-weight:700; letter-spacing:1px; color:#9aa0a7;">{{ t.auxLabel }}</span>
+                  <sc-for list="{{ rp.aux }}" as="ax" hint-placeholder-count="0">
+                    <span style="font-size:10.5px; color:#1c1d1f; padding:4px 10px; border-radius:20px; border:1px solid #e6e8ec; background:#fff;">{{ ax.name }} <span style="color:#b4b9c0;">· {{ ax.catLabel }}</span></span>
+                  </sc-for>
+                </div>
+              </sc-if>
+            </div>
+          </div>
+        </sc-for>
+      </div>
+
+      <!-- manual register -->
+      <div style="display:flex; flex-direction:column; gap:12px; padding:20px; border:1px solid #e6e8ec; border-radius:10px; background:#fafbfc;">
+        <span style="font-size:11px; font-weight:700; letter-spacing:1.5px; color:#8a8f96;">{{ t.manualTitle }}</span>
+        <div style="display:flex; gap:10px; align-items:flex-end; flex-wrap:wrap;">
+          <div style="display:flex; flex-direction:column; gap:5px; flex:1.4; min-width:190px;">
+            <label style="font-size:9.5px; letter-spacing:1px; color:#6b6f76;">{{ t.modelLabel }}</label>
+            <input type="text" value="{{ draftModel }}" onChange="{{ onDraftModel }}" placeholder="{{ t.modelPh }}" style="width:100%; font-family:'Pretendard','Inter',sans-serif; font-size:12.5px; padding:9px 11px; border:1px solid #d4d7db; border-radius:6px; background:#fff; outline:none; box-sizing:border-box;">
+          </div>
+          <div style="display:flex; flex-direction:column; gap:5px; flex:1; min-width:150px;">
+            <label style="font-size:9.5px; letter-spacing:1px; color:#6b6f76;">{{ t.camCategory }}</label>
+            <select value="{{ draftCategory }}" onChange="{{ onDraftCategory }}" style="width:100%; font-family:'Pretendard','Inter',sans-serif; font-size:12.5px; padding:9px 11px; border:1px solid #d4d7db; border-radius:6px; background:#fff; outline:none;">
+              <sc-for list="{{ categoryOptions }}" as="opt" hint-placeholder-count="6">
+                <option value="{{ opt.value }}">{{ opt.label }}</option>
+              </sc-for>
+            </select>
+          </div>
+        </div>
+        <div style="display:flex; gap:10px; align-items:flex-end; flex-wrap:wrap;">
+          <div style="display:flex; flex-direction:column; gap:5px; flex:1; min-width:170px;">
+            <label style="font-size:9.5px; letter-spacing:1px; color:#6b6f76;">{{ t.accessoryLabel }}</label>
+            <select value="{{ draftAccCat }}" onChange="{{ onDraftAccCat }}" style="width:100%; font-family:'Pretendard','Inter',sans-serif; font-size:12.5px; padding:9px 11px; border:1px solid #d4d7db; border-radius:6px; background:#fff; outline:none;">
+              <sc-for list="{{ dbCatOptions }}" as="dc" hint-placeholder-count="7">
+                <option value="{{ dc.value }}">{{ dc.label }}</option>
+              </sc-for>
+            </select>
+          </div>
+          <div style="display:flex; flex-direction:column; gap:5px; flex:1.4; min-width:190px;">
+            <label style="font-size:9.5px; letter-spacing:1px; color:#6b6f76;">{{ t.enterModel }}</label>
+            <input type="text" value="{{ draftAccName }}" onChange="{{ onDraftAccName }}" placeholder="{{ t.enterModel }}" style="width:100%; font-family:'Pretendard','Inter',sans-serif; font-size:12.5px; padding:9px 11px; border:1px solid #d4d7db; border-radius:6px; background:#fff; outline:none; box-sizing:border-box;">
+          </div>
+          <button type="button" onClick="{{ addDraftAcc }}" style="cursor:pointer; font-size:11.5px; font-weight:600; color:#1c1d1f; background:#fff; border:1px solid #1c1d1f; padding:10px 15px; border-radius:6px;">＋ {{ t.addAccessory }}</button>
+        </div>
+        <sc-if value="{{ hasDraftAccs }}" hint-placeholder-val="{{ false }}">
+          <div style="display:flex; gap:7px; flex-wrap:wrap;">
+            <sc-for list="{{ draftAccs }}" as="da" hint-placeholder-count="0">
+              <span style="display:flex; align-items:center; gap:7px; font-size:10.5px; color:#1c1d1f; padding:5px 9px 5px 11px; border-radius:20px; border:1px solid #e6e8ec; background:#fff;">{{ da.name }} <span style="color:#b4b9c0;">· {{ da.catLabel }}</span>
+                <button type="button" onClick="{{ da.onRemove }}" style="cursor:pointer; width:16px; height:16px; border-radius:50%; border:none; background:#f1f2f4; color:#6b6f76; font-size:11px; line-height:1;">×</button>
+              </span>
+            </sc-for>
+          </div>
+        </sc-if>
+        <button type="button" onClick="{{ registerProduct }}" style="align-self:flex-start; cursor:pointer; font-size:12px; font-weight:700; color:#fff; background:#1c1d1f; border:none; padding:11px 20px; border-radius:7px;">{{ t.registerBtn }}</button>
+      </div>
+    </div>
+  </div>
   </sc-if>
 
   <!-- UNIFIED DRAWER (screen only) -->
-  <sc-if value="{{ drawerOpen }}" hint-placeholder-val="{{ false }}">
-    <div class="screen-only" style="position:fixed; top:0; right:0; height:100vh; width:412px; z-index:60; background:#ffffff; border-left:1px solid #e6e8ec; box-shadow:-8px 0 30px rgba(20,22,28,.16); display:flex; flex-direction:column;">
-      <div style="padding:16px 18px; border-bottom:1px solid #eef0f3; display:flex; align-items:center; justify-content:space-between; flex-shrink:0;">
-        <div style="display:flex; flex-direction:column; gap:2px;">
-          <span style="font-size:14px; font-weight:700; color:#1c1d1f;">{{ t.drawerTitle }}</span>
-          <span style="font-size:10px; color:#9aa0a7;">{{ t.drawerSub }}</span>
+  <sc-if value="{{ drawerVisible }}" hint-placeholder-val="{{ false }}">
+    <div class="screen-only" style="position:fixed; top:114px; right:0; bottom:0; width:360px; z-index:45; background:#fafbfc; border-left:1px solid #dfe2e6; box-shadow:-6px 0 20px rgba(20,22,28,.07); display:flex; flex-direction:column;">
+      <div style="padding:14px 16px; background:#ffffff; border-bottom:1px solid #e6e8ec; display:flex; align-items:center; justify-content:space-between; gap:10px; flex-shrink:0;">
+        <div style="display:flex; flex-direction:column; gap:3px; min-width:0;">
+          <span style="font-size:13.5px; font-weight:700; color:#1c1d1f;">{{ t.drawerTitle }}</span>
+          <span style="font-size:9.5px; line-height:1.4; color:#9aa0a7; text-wrap:pretty;">{{ t.drawerSub }}</span>
         </div>
-        <button type="button" onClick="{{ toggleDrawer }}" style="cursor:pointer; font-size:17px; line-height:1; color:#6b6f76; background:#f1f2f4; border:1px solid #e6e8ec; width:30px; height:30px; border-radius:7px;">×</button>
+        <button type="button" onClick="{{ toggleDrawer }}" title="{{ t.drawerTitle }}" style="flex-shrink:0; cursor:pointer; font-size:15px; line-height:1; color:#6b6f76; background:#f1f2f4; border:1px solid #e6e8ec; width:28px; height:28px; border-radius:7px;">›</button>
       </div>
       <div style="flex:1; overflow-y:auto; padding:16px 18px 24px; display:flex; flex-direction:column; gap:15px;">
-
-        <div style="display:flex; flex-direction:column; gap:6px;">
-          <label style="font-family:'Pretendard','Inter',sans-serif; font-size:10px; letter-spacing:1px; color:#6b6f76;">{{ t.langLabel }}</label>
-          <select value="{{ lang }}" onChange="{{ onLangChange }}" style="width:100%; font-family:'Pretendard','Inter',sans-serif; font-size:13px; padding:9px 10px; border:1px solid #d4d7db; border-radius:6px; background:#fff; color:#1c1d1f; outline:none;">
-            <sc-for list="{{ langOptions }}" as="lo" hint-placeholder-count="4">
-              <option value="{{ lo.value }}">{{ lo.label }}</option>
-            </sc-for>
-          </select>
-        </div>
 
         <span style="font-family:'Pretendard','Inter',sans-serif; font-size:10px; letter-spacing:1.5px; color:#9aa0a7;">{{ t.docSettings }}</span>
 
@@ -135,19 +590,33 @@
             <button type="button" onClick="{{ newProduct }}" style="cursor:pointer; flex:1; font-family:'Pretendard','Inter',sans-serif; font-size:10.5px; font-weight:600; letter-spacing:.3px; color:#1c1d1f; background:#fff; border:1px solid #1c1d1f; padding:10px; border-radius:6px;">＋ {{ t.newProduct }}</button>
             <button type="button" onClick="{{ saveProfile }}" style="cursor:pointer; flex:1.3; font-family:'Pretendard','Inter',sans-serif; font-size:10.5px; font-weight:700; letter-spacing:.3px; color:#fff; background:{{ accent }}; border:none; padding:10px; border-radius:6px;">{{ t.saveProduct }}</button>
           </div>
-          <button type="button" onClick="{{ exportCsv }}" style="cursor:pointer; font-family:'Pretendard','Inter',sans-serif; font-size:10.5px; font-weight:600; letter-spacing:.3px; color:#1c1d1f; background:#fff; border:1px solid #d4d7db; padding:9px; border-radius:6px;">{{ t.exportCsv }} ({{ savedCount }})</button>
           <sc-if value="{{ noSave }}" hint-placeholder-val="{{ false }}">
             <span style="font-size:9px; color:#b08a2a; font-style:italic; text-align:center;">{{ t.saveHint }}</span>
           </sc-if>
         </div>
 
         <div style="margin-top:10px; padding-top:12px; border-top:1px solid #eef0f3; display:flex; flex-direction:column; gap:8px;">
-          <button type="button" onClick="{{ gotoCover }}" style="cursor:pointer; display:flex; align-items:center; justify-content:center; gap:9px; font-family:'Pretendard','Inter',sans-serif; font-size:11px; font-weight:700; letter-spacing:.3px; color:#fff; background:#9E1B32; border:none; padding:12px; border-radius:7px;">{{ t.coverPage }} <span style="font-size:14px; line-height:1;">→</span></button>
-          <span style="font-size:9px; color:#9aa0a7; text-align:center; line-height:1.4;">{{ t.coverHint }}</span>
-          <button type="button" onClick="{{ gotoDb }}" style="cursor:pointer; margin-top:4px; display:flex; align-items:center; justify-content:center; gap:9px; font-family:'Pretendard','Inter',sans-serif; font-size:11px; font-weight:700; letter-spacing:.3px; color:#fff; background:#1c1d1f; border:none; padding:12px; border-radius:7px;">{{ t.manageDb }} <span style="font-size:14px; line-height:1;">→</span></button>
-          <span style="font-size:9px; color:#9aa0a7; text-align:center; line-height:1.4;">{{ t.dbHintShort }}</span>
+          <button type="button" onClick="{{ gotoSetup }}" style="cursor:pointer; display:flex; align-items:center; justify-content:center; gap:9px; font-family:'Pretendard','Inter',sans-serif; font-size:11px; font-weight:700; letter-spacing:.3px; color:#1c1d1f; background:#fff; border:1px solid #d4d7db; padding:11px; border-radius:7px;"><span style="font-size:14px; line-height:1;">←</span> {{ t.backToSetup }}</button>
         </div>
 
+      </div>
+    </div>
+  </sc-if>
+
+  <!-- FINAL REVIEW TOOLBAR (screen only) -->
+  <sc-if value="{{ isFinal }}" hint-placeholder-val="{{ false }}">
+    <div class="screen-only" style="width:816px; max-width:100%; background:#ffffff; border:1px solid #e6e8ec; border-radius:10px; box-shadow:0 4px 18px rgba(20,22,28,.10); padding:18px 22px; display:flex; align-items:center; gap:18px; flex-wrap:wrap;">
+      <div style="display:flex; flex-direction:column; gap:4px; flex:1; min-width:240px;">
+        <span style="font-size:15px; font-weight:700; color:#1c1d1f;">{{ fin.title }}</span>
+        <span style="font-size:11px; line-height:1.55; color:#8a8f96; text-wrap:pretty;">{{ fin.desc }}</span>
+      </div>
+      <div style="display:flex; align-items:center; gap:16px;">
+        <div style="display:flex; flex-direction:column; gap:2px; text-align:right;">
+          <span style="font-size:9.5px; font-weight:700; letter-spacing:1px; color:#9aa0a7;">{{ fin.pages }}</span>
+          <span style="font-size:18px; font-weight:700; color:#1c1d1f;">{{ finalPageCount }}</span>
+        </div>
+        <button type="button" onClick="{{ gotoMain }}" style="cursor:pointer; font-family:'Pretendard','Inter',sans-serif; font-size:11.5px; font-weight:600; color:#1c1d1f; background:#fff; border:1px solid #d4d7db; padding:11px 15px; border-radius:7px;">{{ fin.edit }}</button>
+        <button type="button" onClick="{{ savePdf }}" style="cursor:pointer; display:flex; align-items:center; gap:8px; font-family:'Pretendard','Inter',sans-serif; font-size:12px; font-weight:700; color:#fff; background:#9E1B32; border:none; padding:12px 20px; border-radius:7px;">{{ fin.pdf }} <span style="font-size:13px; line-height:1;">↓</span></button>
       </div>
     </div>
   </sc-if>
@@ -458,7 +927,6 @@
         <span style="font-family:'Pretendard','Inter',sans-serif; font-weight:600; font-size:14px; letter-spacing:4px;">AVYCON</span>
         <span style="font-size:10px; color:#8a8f96; letter-spacing:1px;">ACCESSORY PRODUCT DATABASE</span>
       </div>
-      <button type="button" onClick="{{ gotoMain }}" style="cursor:pointer; display:flex; align-items:center; gap:7px; font-family:'Pretendard','Inter',sans-serif; font-size:11px; font-weight:600; color:#1c1d1f; background:#f1f2f4; border:1px solid #d4d7db; padding:8px 14px; border-radius:7px;"><span style="font-size:14px; line-height:1;">←</span> {{ t.backToGuide }}</button>
     </div>
 
     <div style="margin-top:18px;">
@@ -544,7 +1012,7 @@
   &quot;showNotes&quot;: { &quot;editor&quot;: null, &quot;default&quot;: true, &quot;tsType&quot;: &quot;boolean&quot; }
 }">
 class Component extends DCLogic {
-  state = { camImage: null, accNames: {}, imgByName: {}, drawerOpen: false, openLoc: null, settings: {}, profiles: {}, layout: {}, uidSeq: 1, addMenuLoc: null, productDb: {}, dbDraft: {}, dbDraftImg: {}, view: 'main', dbSaved: false, pickerKey: null, pickerCat: null, noteText: '', disabledLocs: {}, currentProfile: null };
+  state = { camImage: null, accNames: {}, imgByName: {}, drawerOpen: true, view: 'table', tableQuery: '', roster: {}, rosterDraft: { model:'', category:'Turret', accCat:'MNT_WALL', accName:'', accs:[] }, dropActive: false, openLoc: null, settings: {}, profiles: {}, layout: {}, uidSeq: 1, addMenuLoc: null, productDb: {}, dbDraft: {}, dbDraftImg: {}, dbSaved: false, pickerKey: null, pickerCat: null, noteText: '', disabledLocs: {}, currentProfile: null };
 
   LOCS = ['Wall', 'Ceiling', 'Pole', 'Corner', 'Parapet'];
   CODES = { Wall:'WL', Ceiling:'CL', Pole:'PO', Corner:'CR', Parapet:'PA' };
@@ -557,17 +1025,21 @@ class Component extends DCLogic {
   };
   TPL_ORDER = ['single','box','adp','ext'];
   // Accessory product database categories (independent of install location)
-  DB_CATS = [
-    { key:'MNT_WALL', label:'Wall Mount', ko:'월 마운트' },
-    { key:'MNT_CEIL', label:'Ceiling Mount', ko:'천장 마운트' },
-    { key:'MNT_POLE', label:'Pole Mount', ko:'폴 마운트' },
-    { key:'MNT_BRKT', label:'Ceiling Bracket', ko:'천장 브래킷' },
-    { key:'MNT_CORN', label:'Corner Mount', ko:'코너 마운트' },
-    { key:'BOX', label:'Junction Box', ko:'정션 박스' },
-    { key:'ADP', label:'Adaptor', ko:'마운트 어댑터' },
-  ];
-  // mount sub-categories that feed a combo's generic 'MNT' slot (incl. legacy 'MNT')
-  MNT_GROUP = ['MNT','MNT_WALL','MNT_CEIL','MNT_POLE','MNT_BRKT','MNT_CORN'];
+  // 9 accessory categories: 6 location mounts + junction box, dual junction box, adaptor & others
+  DB_CAT_KEYS = ['MNT_WALL','MNT_CEIL','MNT_INCEIL','MNT_POLE','MNT_CORN','MNT_PARA','BOX','BOX_DUAL','ADP'];
+  // labels come from CAT_I18N so every screen names a category the same way
+  get DB_CATS() {
+    return this.DB_CAT_KEYS.map(key => {
+      const i18 = this.CAT_I18N[key] || {};
+      return { key, label: i18.en || key, ko: i18.ko || key };
+    });
+  }
+  // mount sub-categories that feed a combo's generic 'MNT' slot (incl. legacy keys)
+  MNT_GROUP = ['MNT','MNT_WALL','MNT_CEIL','MNT_INCEIL','MNT_POLE','MNT_CORN','MNT_PARA','MNT_BRKT'];
+  // which mount categories serve each install location (no match → the page is skipped)
+  LOC_MOUNTS = { Wall:['MNT_WALL'], Ceiling:['MNT_CEIL','MNT_INCEIL','MNT_BRKT'], Pole:['MNT_POLE'], Corner:['MNT_CORN'], Parapet:['MNT_PARA'] };
+  // every DB category that is not a mount — derived so it can't drift when a category is added
+  get AUX_CATS() { return this.DB_CATS.map(c => c.key).filter(k => this.MNT_GROUP.indexOf(k) === -1); }
 
   // ---- Internationalization ----
   LANGS = [ { value:'en', label:'English' }, { value:'ko', label:'한국어' }, { value:'ja', label:'日本語' }, { value:'es', label:'Español' } ];
@@ -580,18 +1052,222 @@ class Component extends DCLogic {
   };
   CAT_I18N = {
     MNT_WALL:{ en:'Wall Mount',     ko:'월 마운트',   ja:'ウォールマウント',     es:'Montaje en pared' },
-    MNT_CEIL:{ en:'Ceiling Mount',  ko:'천장 마운트', ja:'天井マウント',         es:'Montaje en techo' },
+    MNT_CEIL:{ en:'Ceiling Mount (single unit)', ko:'천장 마운트', ja:'天井マウント', es:'Montaje en techo' },
     MNT_POLE:{ en:'Pole Mount',     ko:'폴 마운트',   ja:'ポールマウント',       es:'Montaje en poste' },
     MNT_BRKT:{ en:'Ceiling Bracket',ko:'천장 브래킷', ja:'天井ブラケット',       es:'Soporte de techo' },
+    MNT_INCEIL:{ en:'In-Ceiling Mount', ko:'매입형 천장 마운트', ja:'埋込天井マウント', es:'Montaje empotrado' },
     MNT_CORN:{ en:'Corner Mount',   ko:'코너 마운트', ja:'コーナーマウント',     es:'Montaje en esquina' },
+    MNT_PARA:{ en:'Parapet Mount',  ko:'파라펫 마운트', ja:'パラペットマウント',   es:'Montaje en parapeto' },
     BOX:     { en:'Junction Box',   ko:'정션 박스',   ja:'ジャンクションボックス', es:'Caja de conexiones' },
-    ADP:     { en:'Adaptor',        ko:'어댑터',     ja:'アダプター',           es:'Adaptador' },
+    BOX_DUAL:{ en:'Dual Junction Box', ko:'듀얼 정션 박스', ja:'デュアルジャンクションボックス', es:'Caja de conexiones doble' },
+    ADP:     { en:'Adapter & others', ko:'어댑터 · 기타', ja:'アダプター・その他', es:'Adaptador y otros' },
+    HOUSING: { en:'Housing',        ko:'하우징',     ja:'ハウジング',           es:'Carcasa' },
   };
   T = {
-    en: { launcher:'Settings · Products', useLoc:'Use this location', notUsedTag:'NOT USED · excluded from export', coverPage:'Cover page', coverHint:'Edit & preview the document cover', drawerTitle:'Settings · Products', drawerSub:'Product data follows the document settings · screen only', langLabel:'LANGUAGE', docSettings:'DOCUMENT SETTINGS', camCategory:'CAMERA CATEGORY', camModel:'CAMERA MODEL', modelPh:'e.g. AVC-NPB81M', registered:'Saved', loadSaved:'— Load saved product —', modelImage:'MODEL IMAGE', camPhotoHint:'Camera photo · applied to all camera cells', upload:'Upload', remove:'Remove', location:'LOCATION', docRev:'DOCUMENT REV', notesToggle:'SHOW NOTES', reset:'Reset', newProduct:'New product', saveProduct:'Save product', exportCsv:'Export products (CSV + images)', saveHint:'Enter a model name first', manageDb:'Manage product database', dbHintShort:'Manage accessory models & photos by category, independent of install location', titleMain:'Accessory Combination Guide', titleSub:'Accessory combinations by install location', subjectCamera:'SUBJECT CAMERA', cases:'CASES', combinations:'COMBINATIONS', networkCamera:'Network Camera', cameraWord:'Camera', selectCamera:'Select Camera', directInstall:'Direct install', placement:'Placement', addCombination:'Add combination', selectCount:'Select number of accessories', selectProduct:'Select product', changeProduct:'Click to change product', deselect:'Deselect', step1:'STEP 1 · Category', step2:'STEP 2', noProdInCat:'No products · add them in the Accessory Product Database', notePh:'Enter a memo · also shown in PDF/PPTX output', deleteBanner:'Delete this banner', backToCategory:'Back to categories', backToGuide:'Back to guide', dbTitle:'Accessory Product Database', dbDesc:'Manage accessory products by category, independent of install location. Registered models and photos appear in the guide combination slots and the photo is shown automatically.', data:'DATA', csvExport:'Export CSV', csvImport:'Import CSV', savedTag:'Saved', saveDatabase:'Save database', newTag:'NEW', photoTag:'＋ Photo', enterModel:'Enter model', addTag:'＋ Add', deleteProduct:'Delete product', addPhotoTitle:'Click to add photo', uploadImageTitle:'Upload image', localStorageNote:'Local storage', syncImages:'☁ Sync images to cloud', syncing:'Syncing…', imagesAllSynced:'All images are already cloud URLs. Nothing to sync.', imagesSynced:'Uploaded {done} image(s) to the cloud. {fail} failed.', importNothing:'No new products were imported. Check the CSV format (category / model).' },
-    ko: { launcher:'설정 · 제품 관리', useLoc:'이 위치 사용', notUsedTag:'사용 안 함 · 출력 제외', coverPage:'커버 페이지', coverHint:'문서 커버 편집 · 미리보기', drawerTitle:'설정 · 제품 관리', drawerSub:'문서 설정에 따라 제품 정보가 연동됩니다 · 화면 전용', langLabel:'언어', docSettings:'문서 설정', camCategory:'카메라 카테고리', camModel:'카메라 모델', modelPh:'예: AVC-NPB81M', registered:'제품 등록', loadSaved:'— 등록된 제품 불러오기 —', modelImage:'모델 이미지', camPhotoHint:'카메라(모델) 사진 · 모든 카메라 칸에 적용', upload:'업로드', remove:'제거', location:'설치 위치', docRev:'문서 버전', notesToggle:'메모 표시', reset:'기본값 초기화', newProduct:'새 제품', saveProduct:'제품 정보 저장', exportCsv:'전체 제품 내보내기 (CSV + 이미지)', saveHint:'저장하려면 먼저 모델명을 입력하세요', manageDb:'제품 데이터베이스 관리', dbHintShort:'설치 위치와 무관한 액세서리 카테고리별 모델·사진 관리', titleMain:'악세서리 결합 가이드', titleSub:'설치 위치별 액세서리 결합 조합', subjectCamera:'대상 카메라', cases:'케이스', combinations:'결합 조합', networkCamera:'네트워크 카메라', cameraWord:'카메라', selectCamera:'카메라 선택', directInstall:'직접 설치', placement:'설치면', addCombination:'조합 배너 추가', selectCount:'중간 악세서리 개수 선택', selectProduct:'제품 선택', changeProduct:'클릭하여 제품 변경', deselect:'선택 해제', step1:'STEP 1 · 카테고리', step2:'STEP 2', noProdInCat:'등록된 제품이 없습니다 · 악세서리 제품 데이터베이스에서 추가하세요', notePh:'여기에 메모를 입력하세요 · 출력(PDF·PPTX)에도 표시됩니다', deleteBanner:'이 조합 배너 삭제', backToCategory:'카테고리로', backToGuide:'가이드로 돌아가기', dbTitle:'악세서리 제품 데이터베이스', dbDesc:'설치 위치와 무관한 액세서리 카테고리별 제품 관리 · 모델명과 사진을 등록하면 가이드의 결합 칸에서 바로 선택되고 사진이 자동 표시됩니다.', data:'데이터', csvExport:'CSV 내보내기', csvImport:'CSV 가져오기', savedTag:'저장됨', saveDatabase:'데이터베이스 저장', newTag:'신규', photoTag:'＋ 사진', enterModel:'모델명 입력', addTag:'＋ 추가', deleteProduct:'제품 삭제', addPhotoTitle:'클릭하여 사진 추가', uploadImageTitle:'이미지 업로드', localStorageNote:'로컬 저장', syncImages:'☁ 이미지 클라우드 동기화', syncing:'동기화 중…', imagesAllSynced:'모든 이미지가 이미 클라우드 URL입니다. 동기화할 항목이 없습니다.', imagesSynced:'{done}개 이미지를 클라우드로 업로드했습니다. 실패 {fail}개.', importNothing:'가져온 새 제품이 없습니다. CSV 형식(분류/모델명)을 확인하세요.' },
-    ja: { launcher:'設定 · 製品管理', useLoc:'この設置場所を使用', notUsedTag:'未使用 · 出力対象外', coverPage:'カバーページ', coverHint:'文書カバーの編集・プレビュー', drawerTitle:'設定 · 製品管理', drawerSub:'製品情報は文書設定に連動します · 画面専用', langLabel:'言語', docSettings:'文書設定', camCategory:'カメラカテゴリ', camModel:'カメラモデル', modelPh:'例: AVC-NPB81M', registered:'製品登録', loadSaved:'— 登録済み製品を読み込む —', modelImage:'モデル画像', camPhotoHint:'カメラ（モデル）写真 · すべてのカメラ枠に適用', upload:'アップロード', remove:'削除', location:'設置場所', docRev:'文書バージョン', notesToggle:'メモ表示', reset:'初期化', newProduct:'新規製品', saveProduct:'製品情報を保存', exportCsv:'全製品エクスポート (CSV + 画像)', saveHint:'保存するにはまずモデル名を入力してください', manageDb:'製品データベース管理', dbHintShort:'設置場所に依存しないアクセサリのカテゴリ別モデル・写真管理', titleMain:'アクセサリ組合せガイド', titleSub:'設置場所別のアクセサリ組合せ', subjectCamera:'対象カメラ', cases:'ケース', combinations:'組合せ', networkCamera:'ネットワークカメラ', cameraWord:'カメラ', selectCamera:'カメラを選択', directInstall:'直接設置', placement:'設置面', addCombination:'組合せバナーを追加', selectCount:'中間アクセサリの数を選択', selectProduct:'製品を選択', changeProduct:'クリックして製品を変更', deselect:'選択解除', step1:'STEP 1 · カテゴリ', step2:'STEP 2', noProdInCat:'登録製品がありません · アクセサリ製品データベースで追加してください', notePh:'メモを入力 · 出力（PDF·PPTX）にも表示されます', deleteBanner:'この組合せバナーを削除', backToCategory:'カテゴリへ', backToGuide:'ガイドに戻る', dbTitle:'アクセサリ製品データベース', dbDesc:'設置場所に依存しないアクセサリのカテゴリ別製品管理 · モデル名と写真を登録するとガイドの組合せ枠で選択でき、写真が自動表示されます。', data:'データ', csvExport:'CSVエクスポート', csvImport:'CSVインポート', savedTag:'保存済み', saveDatabase:'データベースを保存', newTag:'新規', photoTag:'＋ 写真', enterModel:'モデル名を入力', addTag:'＋ 追加', deleteProduct:'製品を削除', addPhotoTitle:'クリックして写真を追加', uploadImageTitle:'画像をアップロード', localStorageNote:'ローカル保存', syncImages:'☁ 画像をクラウド同期', syncing:'同期中…', imagesAllSynced:'すべての画像はすでにクラウドURLです。同期する項目はありません。', imagesSynced:'{done}件の画像をクラウドにアップロードしました。失敗 {fail}件。', importNothing:'新しい製品は取り込まれませんでした。CSV形式(分類/モデル名)を確認してください。' },
-    es: { launcher:'Ajustes · Productos', useLoc:'Usar esta ubicación', notUsedTag:'NO USADA · excluida de la exportación', coverPage:'Portada', coverHint:'Editar y previsualizar la portada', drawerTitle:'Ajustes · Productos', drawerSub:'Los datos del producto siguen los ajustes del documento · solo pantalla', langLabel:'IDIOMA', docSettings:'AJUSTES DEL DOCUMENTO', camCategory:'CATEGORÍA DE CÁMARA', camModel:'MODELO DE CÁMARA', modelPh:'ej.: AVC-NPB81M', registered:'Guardados', loadSaved:'— Cargar producto guardado —', modelImage:'IMAGEN DEL MODELO', camPhotoHint:'Foto de la cámara · aplicada a todas las celdas', upload:'Subir', remove:'Quitar', location:'UBICACIÓN', docRev:'REV. DEL DOCUMENTO', notesToggle:'MOSTRAR NOTAS', reset:'Restablecer', newProduct:'Nuevo producto', saveProduct:'Guardar producto', exportCsv:'Exportar productos (CSV + imágenes)', saveHint:'Introduzca primero un nombre de modelo', manageDb:'Gestionar base de datos', dbHintShort:'Gestione modelos y fotos de accesorios por categoría, independiente de la ubicación', titleMain:'Guía de combinación de accesorios', titleSub:'Combinaciones de accesorios por ubicación de instalación', subjectCamera:'CÁMARA OBJETO', cases:'CASOS', combinations:'COMBINACIONES', networkCamera:'Cámara de red', cameraWord:'Cámara', selectCamera:'Seleccionar cámara', directInstall:'Instalación directa', placement:'Superficie', addCombination:'Añadir combinación', selectCount:'Seleccione el número de accesorios', selectProduct:'Seleccionar producto', changeProduct:'Haga clic para cambiar el producto', deselect:'Deseleccionar', step1:'PASO 1 · Categoría', step2:'PASO 2', noProdInCat:'Sin productos · añádalos en la Base de datos de accesorios', notePh:'Escriba una nota · también se muestra en la salida PDF/PPTX', deleteBanner:'Eliminar este banner', backToCategory:'A categorías', backToGuide:'Volver a la guía', dbTitle:'Base de datos de accesorios', dbDesc:'Gestione productos de accesorios por categoría, independiente de la ubicación. Los modelos y fotos registrados aparecen en las casillas de combinación y la foto se muestra automáticamente.', data:'DATOS', csvExport:'Exportar CSV', csvImport:'Importar CSV', savedTag:'Guardado', saveDatabase:'Guardar base de datos', newTag:'NUEVO', photoTag:'＋ Foto', enterModel:'Introducir modelo', addTag:'＋ Añadir', deleteProduct:'Eliminar producto', addPhotoTitle:'Haga clic para añadir foto', uploadImageTitle:'Subir imagen', localStorageNote:'Almacenamiento local', syncImages:'☁ Sincronizar imágenes', syncing:'Sincronizando…', imagesAllSynced:'Todas las imágenes ya son URLs en la nube. Nada que sincronizar.', imagesSynced:'{done} imagen(es) subidas a la nube. {fail} fallidas.', importNothing:'No se importaron productos nuevos. Revisa el formato CSV (categoría / modelo).' },
+    en: { launcher:'Settings · Products', useLoc:'Use this location', notUsedTag:'NOT USED · excluded from export', coverPage:'Cover page', coverHint:'Edit & preview the document cover', drawerTitle:'Settings · Products', drawerSub:'Product data follows the document settings · screen only', langLabel:'LANGUAGE', docSettings:'DOCUMENT SETTINGS', camCategory:'CAMERA CATEGORY', camModel:'CAMERA MODEL', modelPh:'e.g. AVC-NPB81M', registered:'Saved', loadSaved:'— Load saved product —', modelImage:'MODEL IMAGE', camPhotoHint:'Camera photo · applied to all camera cells', upload:'Upload', remove:'Remove', location:'LOCATION', docRev:'DOCUMENT REV', notesToggle:'SHOW NOTES', reset:'Reset', newProduct:'New product', saveProduct:'Save product', exportCsv:'Export products (CSV + images)', saveHint:'Enter a model name first', manageDb:'Manage product database', dbHintShort:'Manage accessory models & photos by category, independent of install location', titleMain:'Accessory Combination Guide', titleSub:'Accessory combinations by install location', subjectCamera:'SUBJECT CAMERA', cases:'CASES', combinations:'COMBINATIONS', networkCamera:'Network Camera', cameraWord:'Camera', selectCamera:'Select Camera', directInstall:'Direct install', placement:'Placement', addCombination:'Add combination', selectCount:'Select number of accessories', selectProduct:'Select product', changeProduct:'Click to change product', deselect:'Deselect', step1:'STEP 1 · Category', step2:'STEP 2', noProdInCat:'No products · add them in the Accessory Product Database', notePh:'Enter a memo · also shown in PDF/PPTX output', deleteBanner:'Delete this banner', backToCategory:'Back to categories', backToGuide:'Back to guide', dbTitle:'Accessory Product Database', dbDesc:'Manage accessory products by category, independent of install location. Registered models and photos appear in the guide combination slots and the photo is shown automatically.', data:'DATA', csvExport:'Export CSV', csvImport:'Import CSV', savedTag:'Saved', saveDatabase:'Save database', newTag:'NEW', photoTag:'＋ Photo', enterModel:'Enter model', addTag:'＋ Add', deleteProduct:'Delete product', addPhotoTitle:'Click to add photo', uploadImageTitle:'Upload image', localStorageNote:'Local storage', syncImages:'☁ Sync images to cloud', syncing:'Syncing…', imagesAllSynced:'All images are already cloud URLs. Nothing to sync.', imagesSynced:'Uploaded {done} image(s) to the cloud. {fail} failed.', importNothing:'No new products were imported. Check the CSV format (category / model).', appTitle:'Accessory Combination Studio', appDesc:'Register cameras and the accessories each one uses, then build install-location combination guides.', stepSetup:'Products & Accessories', stepSetupSub:'Setup', stepGuide:'Combination Guide', stepGuideSub:'Build', stepCoverNav:'Cover', stepCoverSub:'Document', stepDbNav:'Accessory DB', stepDbSub:'Library', importTitle:'Import product data', importDesc:'Upload a CSV of products and the accessories each one uses — the roster and its accessories are set up automatically. You can also register products manually below.', importCsvBtn:'Product CSV (.csv)', sampleBtn:'Start with sample data', dropHint:'Drop your product CSV here', dropSub:'Columns: model_number_sku · housing_style · wall_mount · ceiling_mount_single_unit · in-ceiling_mount · pole_mount · corner_mount · parapet_mount · junction_box · dual_junction_box · Adapter and others', manualTitle:'Register manually', modelLabel:'CAMERA MODEL', accessoryLabel:'ACCESSORY', addAccessory:'Add accessory', registerBtn:'Register product', rosterTitle:'Registered products', rosterEmpty:'No products yet — import a CSV or register one manually.', openGuide:'Open guide', pagesLabel:'pages', accessoriesLabel:'accessories', mountsLabel:'MOUNTS', auxLabel:'AUXILIARY', skipNote:'Locations without a mount are skipped in the document.', backToSetup:'Products & Accessories' },
+    ko: { launcher:'설정 · 제품 관리', useLoc:'이 위치 사용', notUsedTag:'사용 안 함 · 출력 제외', coverPage:'커버 페이지', coverHint:'문서 커버 편집 · 미리보기', drawerTitle:'설정 · 제품 관리', drawerSub:'문서 설정에 따라 제품 정보가 연동됩니다 · 화면 전용', langLabel:'언어', docSettings:'문서 설정', camCategory:'카메라 카테고리', camModel:'카메라 모델', modelPh:'예: AVC-NPB81M', registered:'제품 등록', loadSaved:'— 등록된 제품 불러오기 —', modelImage:'모델 이미지', camPhotoHint:'카메라(모델) 사진 · 모든 카메라 칸에 적용', upload:'업로드', remove:'제거', location:'설치 위치', docRev:'문서 버전', notesToggle:'메모 표시', reset:'기본값 초기화', newProduct:'새 제품', saveProduct:'제품 정보 저장', exportCsv:'전체 제품 내보내기 (CSV + 이미지)', saveHint:'저장하려면 먼저 모델명을 입력하세요', manageDb:'제품 데이터베이스 관리', dbHintShort:'설치 위치와 무관한 액세서리 카테고리별 모델·사진 관리', titleMain:'악세서리 결합 가이드', titleSub:'설치 위치별 액세서리 결합 조합', subjectCamera:'대상 카메라', cases:'케이스', combinations:'결합 조합', networkCamera:'네트워크 카메라', cameraWord:'카메라', selectCamera:'카메라 선택', directInstall:'직접 설치', placement:'설치면', addCombination:'조합 배너 추가', selectCount:'중간 악세서리 개수 선택', selectProduct:'제품 선택', changeProduct:'클릭하여 제품 변경', deselect:'선택 해제', step1:'STEP 1 · 카테고리', step2:'STEP 2', noProdInCat:'등록된 제품이 없습니다 · 악세서리 제품 데이터베이스에서 추가하세요', notePh:'여기에 메모를 입력하세요 · 출력(PDF·PPTX)에도 표시됩니다', deleteBanner:'이 조합 배너 삭제', backToCategory:'카테고리로', backToGuide:'가이드로 돌아가기', dbTitle:'악세서리 제품 데이터베이스', dbDesc:'설치 위치와 무관한 액세서리 카테고리별 제품 관리 · 모델명과 사진을 등록하면 가이드의 결합 칸에서 바로 선택되고 사진이 자동 표시됩니다.', data:'데이터', csvExport:'CSV 내보내기', csvImport:'CSV 가져오기', savedTag:'저장됨', saveDatabase:'데이터베이스 저장', newTag:'신규', photoTag:'＋ 사진', enterModel:'모델명 입력', addTag:'＋ 추가', deleteProduct:'제품 삭제', addPhotoTitle:'클릭하여 사진 추가', uploadImageTitle:'이미지 업로드', localStorageNote:'로컬 저장', syncImages:'☁ 이미지 클라우드 동기화', syncing:'동기화 중…', imagesAllSynced:'모든 이미지가 이미 클라우드 URL입니다. 동기화할 항목이 없습니다.', imagesSynced:'{done}개 이미지를 클라우드로 업로드했습니다. 실패 {fail}개.', importNothing:'가져온 새 제품이 없습니다. CSV 형식(분류/모델명)을 확인하세요.', appTitle:'악세서리 결합 스튜디오', appDesc:'카메라 제품과 각 제품에 사용되는 악세서리를 등록하고, 설치 위치별 결합 가이드를 만듭니다.', stepSetup:'제품 · 악세서리 설정', stepSetupSub:'Setup', stepGuide:'결합 가이드', stepGuideSub:'Build', stepCoverNav:'커버', stepCoverSub:'Document', stepDbNav:'악세서리 DB', stepDbSub:'Library', importTitle:'제품 데이터 가져오기', importDesc:'제품과 그 제품에 사용되는 악세서리 목록을 CSV로 업로드하면 제품 목록과 악세서리가 자동으로 세팅됩니다. 아래에서 수동으로 개별 등록도 가능합니다.', importCsvBtn:'제품 CSV (.csv)', sampleBtn:'샘플 데이터로 시작', dropHint:'제품 CSV를 끌어다 놓기', dropSub:'컬럼: 모델 · 카테고리 · 악세서리 카테고리 · 악세서리명', manualTitle:'수동으로 등록', modelLabel:'카메라 모델', accessoryLabel:'악세서리', addAccessory:'악세서리 추가', registerBtn:'제품 등록', rosterTitle:'등록된 제품', rosterEmpty:'등록된 제품이 없습니다 — CSV를 가져오거나 수동으로 등록하세요.', openGuide:'가이드 열기', pagesLabel:'페이지', accessoriesLabel:'악세서리', mountsLabel:'마운트', auxLabel:'보조 악세서리', skipNote:'해당 위치에 마운트가 없으면 그 페이지는 생략됩니다.', backToSetup:'제품 · 악세서리 설정' },
+    ja: { launcher:'設定 · 製品管理', useLoc:'この設置場所を使用', notUsedTag:'未使用 · 出力対象外', coverPage:'カバーページ', coverHint:'文書カバーの編集・プレビュー', drawerTitle:'設定 · 製品管理', drawerSub:'製品情報は文書設定に連動します · 画面専用', langLabel:'言語', docSettings:'文書設定', camCategory:'カメラカテゴリ', camModel:'カメラモデル', modelPh:'例: AVC-NPB81M', registered:'製品登録', loadSaved:'— 登録済み製品を読み込む —', modelImage:'モデル画像', camPhotoHint:'カメラ（モデル）写真 · すべてのカメラ枠に適用', upload:'アップロード', remove:'削除', location:'設置場所', docRev:'文書バージョン', notesToggle:'メモ表示', reset:'初期化', newProduct:'新規製品', saveProduct:'製品情報を保存', exportCsv:'全製品エクスポート (CSV + 画像)', saveHint:'保存するにはまずモデル名を入力してください', manageDb:'製品データベース管理', dbHintShort:'設置場所に依存しないアクセサリのカテゴリ別モデル・写真管理', titleMain:'アクセサリ組合せガイド', titleSub:'設置場所別のアクセサリ組合せ', subjectCamera:'対象カメラ', cases:'ケース', combinations:'組合せ', networkCamera:'ネットワークカメラ', cameraWord:'カメラ', selectCamera:'カメラを選択', directInstall:'直接設置', placement:'設置面', addCombination:'組合せバナーを追加', selectCount:'中間アクセサリの数を選択', selectProduct:'製品を選択', changeProduct:'クリックして製品を変更', deselect:'選択解除', step1:'STEP 1 · カテゴリ', step2:'STEP 2', noProdInCat:'登録製品がありません · アクセサリ製品データベースで追加してください', notePh:'メモを入力 · 出力（PDF·PPTX）にも表示されます', deleteBanner:'この組合せバナーを削除', backToCategory:'カテゴリへ', backToGuide:'ガイドに戻る', dbTitle:'アクセサリ製品データベース', dbDesc:'設置場所に依存しないアクセサリのカテゴリ別製品管理 · モデル名と写真を登録するとガイドの組合せ枠で選択でき、写真が自動表示されます。', data:'データ', csvExport:'CSVエクスポート', csvImport:'CSVインポート', savedTag:'保存済み', saveDatabase:'データベースを保存', newTag:'新規', photoTag:'＋ 写真', enterModel:'モデル名を入力', addTag:'＋ 追加', deleteProduct:'製品を削除', addPhotoTitle:'クリックして写真を追加', uploadImageTitle:'画像をアップロード', localStorageNote:'ローカル保存', syncImages:'☁ 画像をクラウド同期', syncing:'同期中…', imagesAllSynced:'すべての画像はすでにクラウドURLです。同期する項目はありません。', imagesSynced:'{done}件の画像をクラウドにアップロードしました。失敗 {fail}件。', importNothing:'新しい製品は取り込まれませんでした。CSV形式(分類/モデル名)を確認してください。', appTitle:'アクセサリ組合せスタジオ', appDesc:'カメラ製品と各製品に使用するアクセサリを登録し、設置場所別の組合せガイドを作成します。', stepSetup:'製品・アクセサリ設定', stepSetupSub:'Setup', stepGuide:'組合せガイド', stepGuideSub:'Build', stepCoverNav:'カバー', stepCoverSub:'Document', stepDbNav:'アクセサリDB', stepDbSub:'Library', importTitle:'製品データを取り込む', importDesc:'製品と各製品に使うアクセサリのCSVをアップロードすると、製品リストとアクセサリが自動設定されます。下から手動登録も可能です。', importCsvBtn:'製品CSV (.csv)', sampleBtn:'サンプルデータで開始', dropHint:'製品CSVをドラッグ＆ドロップ', dropSub:'列: モデル · カテゴリ · アクセサリカテゴリ · アクセサリ名', manualTitle:'手動で登録', modelLabel:'カメラモデル', accessoryLabel:'アクセサリ', addAccessory:'アクセサリを追加', registerBtn:'製品を登録', rosterTitle:'登録済み製品', rosterEmpty:'製品がありません — CSVを取り込むか手動で登録してください。', openGuide:'ガイドを開く', pagesLabel:'ページ', accessoriesLabel:'アクセサリ', mountsLabel:'マウント', auxLabel:'補助アクセサリ', skipNote:'その場所にマウントがない場合、そのページは省略されます。', backToSetup:'製品・アクセサリ設定' },
+    es: { launcher:'Ajustes · Productos', useLoc:'Usar esta ubicación', notUsedTag:'NO USADA · excluida de la exportación', coverPage:'Portada', coverHint:'Editar y previsualizar la portada', drawerTitle:'Ajustes · Productos', drawerSub:'Los datos del producto siguen los ajustes del documento · solo pantalla', langLabel:'IDIOMA', docSettings:'AJUSTES DEL DOCUMENTO', camCategory:'CATEGORÍA DE CÁMARA', camModel:'MODELO DE CÁMARA', modelPh:'ej.: AVC-NPB81M', registered:'Guardados', loadSaved:'— Cargar producto guardado —', modelImage:'IMAGEN DEL MODELO', camPhotoHint:'Foto de la cámara · aplicada a todas las celdas', upload:'Subir', remove:'Quitar', location:'UBICACIÓN', docRev:'REV. DEL DOCUMENTO', notesToggle:'MOSTRAR NOTAS', reset:'Restablecer', newProduct:'Nuevo producto', saveProduct:'Guardar producto', exportCsv:'Exportar productos (CSV + imágenes)', saveHint:'Introduzca primero un nombre de modelo', manageDb:'Gestionar base de datos', dbHintShort:'Gestione modelos y fotos de accesorios por categoría, independiente de la ubicación', titleMain:'Guía de combinación de accesorios', titleSub:'Combinaciones de accesorios por ubicación de instalación', subjectCamera:'CÁMARA OBJETO', cases:'CASOS', combinations:'COMBINACIONES', networkCamera:'Cámara de red', cameraWord:'Cámara', selectCamera:'Seleccionar cámara', directInstall:'Instalación directa', placement:'Superficie', addCombination:'Añadir combinación', selectCount:'Seleccione el número de accesorios', selectProduct:'Seleccionar producto', changeProduct:'Haga clic para cambiar el producto', deselect:'Deseleccionar', step1:'PASO 1 · Categoría', step2:'PASO 2', noProdInCat:'Sin productos · añádalos en la Base de datos de accesorios', notePh:'Escriba una nota · también se muestra en la salida PDF/PPTX', deleteBanner:'Eliminar este banner', backToCategory:'A categorías', backToGuide:'Volver a la guía', dbTitle:'Base de datos de accesorios', dbDesc:'Gestione productos de accesorios por categoría, independiente de la ubicación. Los modelos y fotos registrados aparecen en las casillas de combinación y la foto se muestra automáticamente.', data:'DATOS', csvExport:'Exportar CSV', csvImport:'Importar CSV', savedTag:'Guardado', saveDatabase:'Guardar base de datos', newTag:'NUEVO', photoTag:'＋ Foto', enterModel:'Introducir modelo', addTag:'＋ Añadir', deleteProduct:'Eliminar producto', addPhotoTitle:'Haga clic para añadir foto', uploadImageTitle:'Subir imagen', localStorageNote:'Almacenamiento local', syncImages:'☁ Sincronizar imágenes', syncing:'Sincronizando…', imagesAllSynced:'Todas las imágenes ya son URLs en la nube. Nada que sincronizar.', imagesSynced:'{done} imagen(es) subidas a la nube. {fail} fallidas.', importNothing:'No se importaron productos nuevos. Revisa el formato CSV (categoría / modelo).', appTitle:'Estudio de combinación de accesorios', appDesc:'Registre cámaras y los accesorios que usa cada una, y genere guías de combinación por ubicación.', stepSetup:'Productos y accesorios', stepSetupSub:'Configuración', stepGuide:'Guía de combinación', stepGuideSub:'Crear', stepCoverNav:'Portada', stepCoverSub:'Documento', stepDbNav:'BD de accesorios', stepDbSub:'Biblioteca', importTitle:'Importar datos de productos', importDesc:'Suba un CSV con los productos y los accesorios de cada uno: la lista y sus accesorios se configuran automáticamente. También puede registrarlos manualmente abajo.', importCsvBtn:'CSV de productos (.csv)', sampleBtn:'Empezar con datos de ejemplo', dropHint:'Arrastre aquí su CSV de productos', dropSub:'Columnas: Modelo · Categoría · Categoría de accesorio · Nombre', manualTitle:'Registrar manualmente', modelLabel:'MODELO DE CÁMARA', accessoryLabel:'ACCESORIO', addAccessory:'Añadir accesorio', registerBtn:'Registrar producto', rosterTitle:'Productos registrados', rosterEmpty:'Aún no hay productos: importe un CSV o registre uno manualmente.', openGuide:'Abrir guía', pagesLabel:'páginas', accessoriesLabel:'accesorios', mountsLabel:'MONTAJES', auxLabel:'AUXILIARES', skipNote:'Las ubicaciones sin montaje se omiten en el documento.', backToSetup:'Productos y accesorios' },
+  };
+  // system settings menu — app-wide only (never per-document values)
+  SYS = {
+    en: { btn:'Settings', title:'System settings', sub:'Applies to the whole app', lang:'Language', data:'Data', exportAll:'Export all products (CSV + images)', importAll:'Import product CSV', dbLink:'Accessory product database', danger:'Reset', clearAll:'Clear all local data', clearHint:'Removes every product, accessory and document setting stored in this browser.', confirm:'Clear all locally stored data? This cannot be undone.', storage:'Stored in this browser · localStorage', close:'Close' },
+    ko: { btn:'설정', title:'시스템 설정', sub:'앱 전체에 적용됩니다', lang:'언어', data:'데이터', exportAll:'전체 제품 내보내기 (CSV + 이미지)', importAll:'제품 CSV 가져오기', dbLink:'악세서리 제품 데이터베이스', danger:'초기화', clearAll:'로컬 데이터 전체 삭제', clearHint:'이 브라우저에 저장된 제품 · 악세서리 · 문서 설정이 모두 삭제됩니다.', confirm:'로컬에 저장된 데이터를 모두 삭제할까요? 되돌릴 수 없습니다.', storage:'이 브라우저에 저장됨 · localStorage', close:'닫기' },
+    ja: { btn:'設定', title:'システム設定', sub:'アプリ全体に適用されます', lang:'言語', data:'データ', exportAll:'全製品エクスポート (CSV + 画像)', importAll:'製品CSVを取り込む', dbLink:'アクセサリ製品データベース', danger:'初期化', clearAll:'ローカルデータをすべて削除', clearHint:'このブラウザに保存された製品・アクセサリ・文書設定がすべて削除されます。', confirm:'ローカル保存データをすべて削除しますか？元に戻せません。', storage:'このブラウザに保存 · localStorage', close:'閉じる' },
+    es: { btn:'Ajustes', title:'Ajustes del sistema', sub:'Se aplica a toda la aplicación', lang:'Idioma', data:'Datos', exportAll:'Exportar todos los productos (CSV + imágenes)', importAll:'Importar CSV de productos', dbLink:'Base de datos de accesorios', danger:'Restablecer', clearAll:'Borrar todos los datos locales', clearHint:'Elimina todos los productos, accesorios y ajustes guardados en este navegador.', confirm:'¿Borrar todos los datos locales? No se puede deshacer.', storage:'Guardado en este navegador · localStorage', close:'Cerrar' },
+  };
+  HELP_UI = {
+    en: { btn:'Help', title:'Help & documentation', sub:'Feature reference and step-by-step guide', catF:'FEATURES', catU:'HOW TO USE', pdf:'Save full help as PDF', close:'Close' },
+    ko: { btn:'도움말', title:'도움말 · 사용 안내', sub:'기능 설명과 단계별 사용 설명', catF:'기능 설명', catU:'사용 설명', pdf:'전체 도움말 PDF 저장', close:'닫기' },
+  };
+  HELP = {
+    ko: [
+      { id:'f1', cat:'f', title:'개요 · 전체 흐름', sub:'이 도구가 하는 일', blocks:[
+        { p:'카메라 제품별로 어떤 악세서리를 어느 설치 위치에 쓸 수 있는지 정리하고, 그 데이터를 바탕으로 인쇄용 결합 가이드 문서를 만드는 도구입니다.' },
+        { h:'4단계 작업 흐름', items:['1) 제품 데이터 — CSV로 제품·악세서리를 불러오고 표로 확인합니다.','2) 결합 가이드 — 선택한 제품의 설치 위치별 결합 조합 페이지를 만듭니다.','3) 커버 — 문서 표지를 편집합니다.','4) 최종 확인 — 완성 문서를 미리보고 PDF로 저장합니다.'] },
+        { h:'상단 바 구성', items:['화이트 스텝바 — 1~4단계 이동, 우측 ? 아이콘은 이 도움말','레드바 언어 — 한국어 · English · 日本語 · Español','레드바 Accessory DB — 악세서리 제품 라이브러리 (다시 누르면 이전 화면 복귀)','레드바 ⚙ 설정 — 앱 전체에 적용되는 시스템 설정'] },
+        { note:'모든 데이터는 사용 중인 브라우저(localStorage)에 저장됩니다. 서버로 전송되지 않습니다.' },
+      ]},
+      { id:'f2', cat:'f', title:'제품 데이터 매트릭스', sub:'1단계 · 첫 화면', blocks:[
+        { p:'등록된 모든 카메라를 행으로, 악세서리 카테고리를 열로 보여주는 표입니다. 스프레드시트와 같은 구조로 전체 데이터를 한눈에 확인합니다.' },
+        { h:'표 구성', items:['# — 순번','MODEL — 카메라 모델명 (클릭하면 해당 제품의 2단계 결합 가이드가 열립니다)','HOUSING / TYPE — 하우징 타입 (Turret · Bullet · Vandal Dome 등)','악세서리 카테고리 열 — 데이터가 있는 카테고리만 표시되며, 한 칸에 여러 모델이 있으면 콤마로 나열됩니다','값이 없으면 흐린 — 로 표시됩니다'] },
+        { h:'행 동작', items:['모델명 클릭 또는 우측 가이드 버튼 — 해당 제품으로 결합 가이드 열기','× 버튼 — 목록에서 제품 삭제'] },
+        { h:'검색', items:['모델명과 악세서리 모델명을 함께 검색합니다','예: NSV 입력 시 AVC-NSV로 시작하는 제품만, AVM-JB 입력 시 해당 정션박스를 쓰는 제품만 표시'] },
+      ]},
+      { id:'f3', cat:'f', title:'데이터 가져오기 (CSV)', sub:'스프레드시트 연동', blocks:[
+        { p:'제품과 악세서리를 한 번에 등록하는 가장 빠른 방법입니다. 엑셀/구글시트에서 CSV로 내보낸 파일을 그대로 사용합니다.' },
+        { h:'권장 형식 — 가로형 시트', items:['한 행 = 한 제품, 한 열 = 한 악세서리 카테고리','열 이름: model_number_sku · housing_style · wall_mount · ceiling_mount_single_unit · in-ceiling_mount · pole_mount · corner_mount · parapet_mount · junction_box · dual_junction_box · Adapter and others','한 칸에 여러 모델을 넣으려면 콤마로 구분합니다 (예: AVM-CWM-EV-S2, AVM-HWM-E-L1)','빈 칸은 해당 악세서리 없음으로 처리됩니다','No 같은 순번 열은 자동으로 무시됩니다'] },
+        { h:'열 이름 인식', items:['대소문자, 공백, 밑줄, 하이픈 차이는 무시합니다 (wall mount = Wall_Mount = wall-mount)','영어·한국어·일본어·스페인어 명칭과 흔한 축약형(JBOX, adapter 등)도 인식합니다'] },
+        { h:'세로형도 지원', items:['Model · CameraCategory · AccessoryCategory · AccessoryName 4열 형식도 그대로 가져올 수 있습니다'] },
+        { h:'가져오기 결과 알림', items:['가져온 제품 수와 악세서리 행 수를 표시합니다','인식하지 못한 카테고리가 있으면 원본 값과 건수를 함께 알려줍니다 — 누락을 놓치지 않도록','모델명이 비어 제외된 행도 별도로 표시됩니다'] },
+        { note:'같은 모델을 다시 가져오면 기존 제품에 악세서리가 추가·병합됩니다. 중복은 자동으로 걸러집니다.' },
+      ]},
+      { id:'f4', cat:'f', title:'결합 가이드', sub:'2단계 · 문서 편집', blocks:[
+        { p:'선택한 카메라 한 대에 대해 설치 위치별로 한 페이지씩 결합 조합을 구성합니다.' },
+        { h:'설치 위치 5곳', items:['Wall(벽면) · Ceiling(천장) · Pole(폴) · Corner(코너) · Parapet(파라펫)','천장 페이지에는 일반 천장 마운트와 매입형(in-ceiling) 마운트가 함께 배치됩니다','해당 위치용 마운트가 데이터에 없으면 그 위치는 자동으로 제외되고 문서에도 나오지 않습니다'] },
+        { h:'조합 배너', items:['WL-01, CL-02 처럼 위치 코드 + 번호로 자동 번호가 매겨집니다','01번은 항상 직접 설치(악세서리 없음)입니다','조합 추가 — 중간 악세서리 개수(1~3개)를 고르면 새 배너가 생성됩니다','각 칸을 클릭해 카테고리 → 제품 순서로 선택합니다','악세서리 DB에 사진이 등록되어 있으면 자동으로 표시됩니다'] },
+        { h:'우측 문서 패널', items:['카메라 카테고리 · 모델 · 모델 이미지 · 설치 위치 · 문서 버전 · 메모 표시','Reset — 현재 작업 중인 제품을 저장 시점으로 되돌립니다','New product / Save product — 제품 단위로 작업 내용을 저장·전환합니다','패널 헤더의 › 로 접고, 우측 가장자리 탭으로 다시 엽니다'] },
+        { h:'위치 사용 / 제외', items:['페이지 우측 상단 토글로 그 위치를 출력에 포함할지 정합니다','끈 위치는 사용 안 함 표시가 되고 PDF·최종 확인에서 빠집니다'] },
+      ]},
+      { id:'f5', cat:'f', title:'커버 페이지', sub:'3단계 · 표지', blocks:[
+        { p:'문서 표지를 편집하고 미리봅니다. 제목·부제·문서 버전은 문서 설정과 연동되어 자동으로 반영됩니다.' },
+        { items:['커버의 텍스트는 화면에서 바로 편집할 수 있습니다','문서 버전(Rev.)은 우측 패널의 DOCUMENT REV 값을 따릅니다','커버는 최종 확인과 PDF 출력의 첫 페이지가 됩니다'] },
+      ]},
+      { id:'f6', cat:'f', title:'악세서리 제품 데이터베이스', sub:'상단 레드바', blocks:[
+        { p:'설치 위치와 무관하게 악세서리 모델과 사진을 카테고리별로 관리하는 라이브러리입니다. 여기에 등록된 모델이 결합 가이드의 선택 목록에 나타납니다.' },
+        { h:'9개 카테고리', items:['월 마운트 · 천장 마운트(single unit) · 매입형 천장 마운트','폴 마운트 · 코너 마운트 · 파라펫 마운트','정션 박스 · 듀얼 정션 박스 · 어댑터 및 기타'] },
+        { h:'사용법', items:['+ 사진 을 눌러 악세서리 실물 사진을 등록하면 가이드 문서에 자동으로 표시됩니다','Enter model 칸에 모델명을 입력하고 + Add 로 추가합니다','CSV 내보내기 / 가져오기로 라이브러리 전체를 백업·복원할 수 있습니다'] },
+        { note:'상단 Accessory DB 버튼을 한 번 더 누르면 열기 전 화면으로 돌아갑니다.' },
+      ]},
+      { id:'f7', cat:'f', title:'최종 확인 · PDF', sub:'4단계 · 출력', blocks:[
+        { p:'커버와 사용 설정된 모든 위치 페이지를 인쇄될 그대로 이어서 보여주는 검수 화면입니다.' },
+        { items:['편집용 컨트롤(위치 토글, 조합 추가, 삭제 ×)은 숨겨져 완성 문서만 보입니다','상단에 총 페이지 수가 표시됩니다','PDF로 저장 — 브라우저 인쇄 대화상자에서 대상을 PDF로 저장으로 선택합니다','편집으로 돌아가기 — 2단계로 복귀'] },
+        { note:'인쇄 설정에서 여백 없음, 배경 그래픽 켜기로 설정하면 화면과 동일하게 출력됩니다.' },
+      ]},
+      { id:'f8', cat:'f', title:'시스템 설정', sub:'레드바 ⚙ 설정', blocks:[
+        { p:'앱 전체에 적용되는 항목만 모여 있습니다. 문서별 설정은 결합 가이드의 우측 패널에 있습니다.' },
+        { h:'언어', items:['한국어 · English · 日本語 · Español — 화면과 문서 용어가 함께 바뀝니다'] },
+        { h:'데이터', items:['제품 CSV 가져오기 — 어느 화면에서든 가져오기 실행','전체 제품 내보내기 — 등록된 제품과 이미지를 CSV로 백업','악세서리 제품 데이터베이스 바로가기'] },
+        { h:'초기화', items:['로컬 데이터 전체 삭제 — 제품·악세서리·문서 설정이 모두 지워집니다 (확인 후 실행, 되돌릴 수 없음)'] },
+      ]},
+      { id:'u1', cat:'u', title:'1단계 · 제품 데이터 준비', sub:'CSV 만들기 → 가져오기', blocks:[
+        { h:'① 시트 준비', items:['엑셀 또는 구글시트에 첫 행을 열 이름으로 만듭니다','필수: model_number_sku (모델명). 권장: housing_style (하우징 타입)','악세서리는 카테고리별로 열을 하나씩 만듭니다','한 제품에 같은 카테고리 악세서리가 여럿이면 한 칸에 콤마로 나열합니다'] },
+        { h:'② CSV로 저장', items:['파일 → 다른 이름으로 저장 → CSV(쉼표로 분리) 선택','한글이 포함된 경우 UTF-8 인코딩을 권장합니다'] },
+        { h:'③ 가져오기', items:['1단계 화면의 Import CSV 버튼을 누르거나, 가져오기·등록 화면의 점선 영역에 파일을 끌어다 놓습니다','가져오기 후 상단 알림에서 제품 수와 제외된 행을 확인합니다'] },
+        { h:'④ 확인', items:['표에서 각 제품의 위치별 악세서리가 올바른 열에 들어갔는지 확인합니다','흐린 — 이 있는 위치는 해당 마운트가 없다는 뜻이며, 문서에서 그 위치 페이지가 생성되지 않습니다'] },
+        { note:'CSV 없이 시작하려면 가져오기·등록 화면에서 모델명과 카테고리를 입력해 한 건씩 직접 등록할 수도 있습니다.' },
+      ]},
+      { id:'u2', cat:'u', title:'2단계 · 결합 가이드 만들기', sub:'제품 선택 → 조합 구성', blocks:[
+        { h:'① 제품 열기', items:['1단계 표에서 모델명을 클릭하거나 우측 가이드 버튼을 누릅니다','카메라와 위치별 기본 마운트가 자동으로 배치되고, 마운트가 없는 위치는 자동 제외됩니다'] },
+        { h:'② 위치 선택', items:['우측 패널의 LOCATION에서 편집할 설치 위치를 고릅니다','한 번에 한 위치를 편집하며, 최종 확인에서 전체를 함께 봅니다'] },
+        { h:'③ 조합 구성', items:['+ 조합 추가 → 중간 악세서리 개수 선택','생성된 배너의 각 칸을 클릭 → 카테고리 선택 → 제품 선택','잘못 넣었으면 칸 우측 상단 × 로 해제, 배너 자체는 우측 − 로 삭제'] },
+        { h:'④ 메모', items:['페이지 하단 NOTE 칸에 입력한 내용은 PDF에도 함께 출력됩니다','메모를 숨기려면 우측 패널의 SHOW NOTES 를 끕니다'] },
+        { h:'⑤ 저장', items:['Save product 를 누르면 현재 구성이 제품 단위로 저장됩니다','다른 제품 작업 후 Load saved product 로 다시 불러올 수 있습니다'] },
+      ]},
+      { id:'u3', cat:'u', title:'3단계 · 커버 편집', sub:'표지 다듬기', blocks:[
+        { items:['스텝바 3) Cover 로 이동합니다','표지 텍스트를 클릭해 문구를 수정합니다','문서 버전은 우측 패널 DOCUMENT REV 에서 한 번에 바꿉니다','수정 후 2) Combination Guide 로 돌아가 이어서 작업합니다'] },
+      ]},
+      { id:'u4', cat:'u', title:'4단계 · 최종 확인 후 PDF 저장', sub:'검수 → 출력', blocks:[
+        { h:'① 검수', items:['스텝바 4) 최종 확인 으로 이동합니다','커버부터 마지막 위치 페이지까지 순서대로 확인합니다','빠진 위치가 있으면 2단계로 돌아가 해당 위치의 사용 토글을 켭니다'] },
+        { h:'② PDF 저장', items:['PDF로 저장 버튼을 누릅니다','브라우저 인쇄 창에서 대상을 PDF로 저장 으로 선택합니다','용지: Letter, 여백: 없음, 배경 그래픽: 켜기 를 권장합니다'] },
+        { note:'페이지 수가 화면 상단에 표시되므로 인쇄 미리보기의 페이지 수와 비교해 누락을 확인할 수 있습니다.' },
+      ]},
+      { id:'u5', cat:'u', title:'악세서리 사진 등록하기', sub:'문서 품질 높이기', blocks:[
+        { items:['상단 레드바의 Accessory DB 를 누릅니다','카테고리에서 해당 악세서리 카드를 찾습니다','+ 사진 을 눌러 이미지 파일을 선택합니다','등록 즉시 결합 가이드의 모든 조합 칸에 자동 반영됩니다','카메라 본체 사진은 결합 가이드 우측 패널의 MODEL IMAGE 에서 등록합니다'] },
+        { note:'사진은 브라우저에 저장되므로 용량이 큰 원본보다 적당히 줄인 이미지를 권장합니다.' },
+      ]},
+      { id:'u6', cat:'u', title:'문제 해결', sub:'자주 묻는 상황', blocks:[
+        { h:'가져왔는데 악세서리가 비어 있어요', items:['가져오기 알림에 인식하지 못한 카테고리 이름이 표시됩니다','해당 열 이름을 권장 열 이름으로 바꾼 뒤 다시 가져오세요'] },
+        { h:'문서에 특정 위치 페이지가 없어요', items:['그 위치용 마운트가 데이터에 없으면 페이지가 생성되지 않습니다','1단계 표에서 해당 열이 — 인지 확인하고 CSV를 보완하세요','데이터는 있는데 안 보이면 2단계에서 그 위치의 사용 토글이 꺼져 있는지 확인하세요'] },
+        { h:'PDF 배경색이 안 나와요', items:['브라우저 인쇄 창의 배경 그래픽 옵션을 켜주세요'] },
+        { h:'처음부터 다시 하고 싶어요', items:['⚙ 설정 → 초기화 → 로컬 데이터 전체 삭제','삭제 전 전체 제품 내보내기로 백업해 두는 것을 권장합니다'] },
+      ]},
+    ],
+    en: [
+      { id:'f1', cat:'f', title:'Overview', sub:'What this tool does', blocks:[
+        { p:'Catalog which accessories each camera can use at each install location, then turn that data into a print-ready accessory combination guide.' },
+        { h:'Four-step flow', items:['1) Product Data — import products and accessories from CSV and review them in a grid.','2) Combination Guide — build combination pages per install location for one camera.','3) Cover — edit the document cover.','4) Final review — preview the complete document and save it as PDF.'] },
+        { h:'Top bars', items:['White step bar — steps 1-4; the ? icon on the right opens this help','Red bar language — English · 한국어 · 日本語 · Español','Red bar Accessory DB — accessory library (press again to return)','Red bar ⚙ Settings — app-wide system settings'] },
+        { note:'All data is stored in this browser (localStorage). Nothing is sent to a server.' },
+      ]},
+      { id:'f2', cat:'f', title:'Product · accessory matrix', sub:'Step 1 · home screen', blocks:[
+        { p:'One row per registered camera, one column per accessory category — the whole dataset at a glance, like a spreadsheet.' },
+        { h:'Columns', items:['# — row number','MODEL — camera model; click it to open that product in step 2','HOUSING / TYPE — housing style (Turret, Bullet, Vandal Dome …)','Accessory columns — only categories that hold data appear; several models in one cell are listed comma-separated','An empty value shows a faint —'] },
+        { h:'Row actions', items:['Click the model or the Guide button — open the combination guide for that product','× — remove the product from the list'] },
+        { h:'Search', items:['Matches both model names and accessory model names','e.g. "NSV" narrows to AVC-NSV…; "AVM-JB" shows every product using that junction box'] },
+      ]},
+      { id:'f3', cat:'f', title:'Importing data (CSV)', sub:'Spreadsheet workflow', blocks:[
+        { p:'The fastest way to register products and accessories at once. Export from Excel or Google Sheets as CSV and drop it in.' },
+        { h:'Recommended — wide sheet', items:['One row per product, one column per accessory category','Columns: model_number_sku · housing_style · wall_mount · ceiling_mount_single_unit · in-ceiling_mount · pole_mount · corner_mount · parapet_mount · junction_box · dual_junction_box · Adapter and others','Separate multiple models in one cell with commas (e.g. AVM-CWM-EV-S2, AVM-HWM-E-L1)','An empty cell means the product has no accessory of that type','Index columns such as "No" are ignored automatically'] },
+        { h:'Header matching', items:['Case, spaces, underscores and hyphens are ignored (wall mount = Wall_Mount = wall-mount)','English, Korean, Japanese and Spanish names plus common short forms (JBOX, adapter …) are recognised'] },
+        { h:'Tall layout also works', items:['A four-column Model · CameraCategory · AccessoryCategory · AccessoryName file imports as-is'] },
+        { h:'Import report', items:['Shows how many products and accessory rows were imported','Lists the raw value and count of any category it could not recognise, so nothing is dropped silently','Rows skipped for a missing model name are reported separately'] },
+        { note:'Re-importing the same model merges accessories into the existing product; duplicates are filtered out.' },
+      ]},
+      { id:'f4', cat:'f', title:'Combination guide', sub:'Step 2 · document editing', blocks:[
+        { p:'For one camera, build a page of accessory combinations per install location.' },
+        { h:'Five install locations', items:['Wall · Ceiling · Pole · Corner · Parapet','The ceiling page carries both standard ceiling mounts and in-ceiling mounts','A location with no matching mount in the data is skipped automatically and never appears in the document'] },
+        { h:'Combination rows', items:['Numbered automatically by location code (WL-01, CL-02 …)','Row 01 is always direct install (no accessory)','Add combination — pick how many accessories sit between camera and surface (1-3)','Click a slot to choose a category, then a product','Photos registered in the Accessory DB appear automatically'] },
+        { h:'Document panel (right)', items:['Camera category · model · model image · install location · document revision · show notes','Reset — revert the current product to its saved state','New product / Save product — store and switch work per product','Collapse with › in the panel header; reopen from the right-edge tab'] },
+        { h:'Use / exclude a location', items:['The toggle at the top right of each page decides whether that location is included','Excluded locations are marked NOT USED and dropped from the final review and PDF'] },
+      ]},
+      { id:'f5', cat:'f', title:'Cover page', sub:'Step 3', blocks:[
+        { p:'Edit and preview the document cover. Title, subtitle and revision follow the document settings.' },
+        { items:['Cover text can be edited directly on screen','The revision follows DOCUMENT REV in the right-hand panel','The cover becomes page 1 of the final review and the PDF'] },
+      ]},
+      { id:'f6', cat:'f', title:'Accessory product database', sub:'Red bar', blocks:[
+        { p:'A library of accessory models and photos by category, independent of install location. Models registered here appear in the guide selectors.' },
+        { h:'Nine categories', items:['Wall Mount · Ceiling Mount (single unit) · In-Ceiling Mount','Pole Mount · Corner Mount · Parapet Mount','Junction Box · Dual Junction Box · Adapter & others'] },
+        { h:'Usage', items:['Add a real product photo with + Photo and it appears in the guide automatically','Type a model name in the Enter model field and press + Add','Export / Import CSV backs up and restores the whole library'] },
+        { note:'Pressing Accessory DB again returns to the screen you came from.' },
+      ]},
+      { id:'f7', cat:'f', title:'Final review · PDF', sub:'Step 4 · output', blocks:[
+        { p:'A review screen showing the cover and every enabled location page exactly as it will print.' },
+        { items:['Editing controls (location toggle, add combination, delete ×) are hidden — the finished document only','The total page count is shown at the top','Save as PDF — choose "Save as PDF" as the destination in the browser print dialog','Back to editing returns to step 2'] },
+        { note:'Set margins to None and enable background graphics so the print matches the screen.' },
+      ]},
+      { id:'f8', cat:'f', title:'System settings', sub:'Red bar ⚙ Settings', blocks:[
+        { p:'App-wide items only. Per-document settings live in the right-hand panel of the combination guide.' },
+        { h:'Language', items:['English · 한국어 · 日本語 · Español — switches both the interface and document wording'] },
+        { h:'Data', items:['Import product CSV — run an import from any screen','Export all products — back up registered products and images as CSV','Shortcut to the accessory product database'] },
+        { h:'Reset', items:['Clear all local data — removes every product, accessory and document setting (confirmed, cannot be undone)'] },
+      ]},
+      { id:'u1', cat:'u', title:'Step 1 · Prepare product data', sub:'Build a CSV, then import', blocks:[
+        { h:'① Build the sheet', items:['Put column names in the first row of an Excel or Google Sheet','Required: model_number_sku. Recommended: housing_style','Give each accessory category its own column','List several accessories of the same category in one cell, comma-separated'] },
+        { h:'② Save as CSV', items:['File → Save as → CSV (comma delimited)','Use UTF-8 encoding if the file contains non-Latin text'] },
+        { h:'③ Import', items:['Press Import CSV on step 1, or drop the file on the dashed area of the import screen','Check the notice for the product count and any skipped rows'] },
+        { h:'④ Verify', items:['Confirm each accessory landed in the right column','A faint — means no mount for that location, so no page will be generated for it'] },
+        { note:'You can also register products one by one on the Import & register screen without a CSV.' },
+      ]},
+      { id:'u2', cat:'u', title:'Step 2 · Build the guide', sub:'Pick a product, compose rows', blocks:[
+        { h:'① Open a product', items:['Click the model name in the step 1 grid, or its Guide button','The camera and default mounts are placed automatically; locations without a mount are excluded'] },
+        { h:'② Choose a location', items:['Pick the install location to edit under LOCATION in the right panel','You edit one location at a time and review them all in step 4'] },
+        { h:'③ Compose combinations', items:['+ Add combination → choose the number of intermediate accessories','Click each slot → pick a category → pick a product','Clear a slot with the × at its top right; delete a whole row with the − on the right'] },
+        { h:'④ Notes', items:['Text typed in the NOTE field prints with the document','Turn SHOW NOTES off in the right panel to hide it'] },
+        { h:'⑤ Save', items:['Save product stores the current composition against that product','Reload it later with Load saved product'] },
+      ]},
+      { id:'u3', cat:'u', title:'Step 3 · Edit the cover', sub:'Polish the title page', blocks:[
+        { items:['Go to 3) Cover in the step bar','Click cover text to edit the wording','Change the revision once in DOCUMENT REV in the right panel','Return to 2) Combination Guide to continue'] },
+      ]},
+      { id:'u4', cat:'u', title:'Step 4 · Review and export', sub:'Check, then save PDF', blocks:[
+        { h:'① Review', items:['Go to 4) Final review','Read through from the cover to the last location page','If a location is missing, return to step 2 and switch its Use this location toggle on'] },
+        { h:'② Save as PDF', items:['Press Save as PDF','Choose "Save as PDF" as the destination in the print dialog','Recommended: Letter paper, margins None, background graphics on'] },
+        { note:'Compare the page count shown on screen with the print preview to catch anything missing.' },
+      ]},
+      { id:'u5', cat:'u', title:'Register accessory photos', sub:'Raise document quality', blocks:[
+        { items:['Press Accessory DB in the red bar','Find the accessory card under its category','Press + Photo and choose an image file','It appears in every matching guide slot immediately','Register the camera photo itself under MODEL IMAGE in the guide panel'] },
+        { note:'Photos are stored in the browser, so moderately sized images work better than full-resolution originals.' },
+      ]},
+      { id:'u6', cat:'u', title:'Troubleshooting', sub:'Common situations', blocks:[
+        { h:'Accessories are empty after import', items:['The import notice names the categories it could not recognise','Rename those columns to the recommended names and import again'] },
+        { h:'A location page is missing', items:['No mount for that location in the data means no page','Check whether that column shows — in the step 1 grid and complete the CSV','If the data is there, check the Use this location toggle in step 2'] },
+        { h:'PDF prints without background colour', items:['Enable background graphics in the browser print dialog'] },
+        { h:'I want to start over', items:['⚙ Settings → Reset → Clear all local data','Export all products first as a backup'] },
+      ]},
+    ],
+  };
+  // final review step
+  FIN = {
+    en: { nav:'Final review', navSub:'Preview & PDF', title:'Review the complete document', desc:'Cover and every enabled install-location page, exactly as it will print. Locations turned off in the guide are excluded.', pages:'PAGES', pdf:'Save as PDF', edit:'Back to editing' },
+    ko: { nav:'최종 확인', navSub:'Preview & PDF', title:'완성 문서 최종 확인', desc:'커버와 사용 설정된 모든 설치 위치 페이지를 출력될 그대로 미리봅니다. 가이드에서 끈 위치는 제외됩니다.', pages:'페이지', pdf:'PDF로 저장', edit:'편집으로 돌아가기' },
+    ja: { nav:'最終確認', navSub:'Preview & PDF', title:'完成文書の最終確認', desc:'カバーと有効な設置場所ページを印刷そのままにプレビューします。オフにした場所は除外されます。', pages:'ページ', pdf:'PDFで保存', edit:'編集に戻る' },
+    es: { nav:'Revisión final', navSub:'Preview & PDF', title:'Revise el documento completo', desc:'Portada y todas las páginas de ubicación activadas, tal como se imprimirán. Las ubicaciones desactivadas se excluyen.', pages:'PÁGINAS', pdf:'Guardar como PDF', edit:'Volver a editar' },
+  };
+  // the wide sheet layout this tool imports (shown as the drop-zone hint, language-independent)
+  CSV_COLS = 'model_number_sku · housing_style · wall_mount · ceiling_mount_single_unit · in-ceiling_mount · pole_mount · corner_mount · parapet_mount · junction_box · dual_junction_box · Adapter and others';
+  // CMS grid screen
+  TBL = {
+    en: { nav:'Product Data', navSub:'Library', title:'Product · accessory matrix', desc:'Every registered camera and the accessories it uses, by category. Import a CSV or open a product to build its combination guide.', search:'Search model or accessory', count:'{n} product{ns}', model:'MODEL', cat:'HOUSING / TYPE', act:'', open:'Guide', importBtn:'Import CSV', manageBtn:'Import & register', empty:'No products yet — import a CSV or register products manually.', noHit:'No products match your search.', del:'Remove' },
+    ko: { nav:'제품 데이터', navSub:'Library', title:'제품 · 악세서리 매트릭스', desc:'등록된 카메라와 각 제품에 사용되는 악세서리를 카테고리별로 정리한 표입니다. CSV로 가져오거나, 제품을 열어 결합 가이드를 만드세요.', search:'모델명 · 악세서리 검색', count:'제품 {n}개', model:'모델', cat:'하우징 / 타입', act:'', open:'가이드', importBtn:'CSV 가져오기', manageBtn:'가져오기 · 등록', empty:'등록된 제품이 없습니다 — CSV를 가져오거나 직접 등록하세요.', noHit:'검색 결과가 없습니다.', del:'삭제' },
+    ja: { nav:'製品データ', navSub:'Library', title:'製品 · アクセサリ一覧', desc:'登録済みカメラと各製品に使用するアクセサリをカテゴリ別に整理した表です。CSVで取り込むか、製品を開いて組合せガイドを作成します。', search:'モデル・アクセサリを検索', count:'製品 {n}件', model:'モデル', cat:'ハウジング / タイプ', act:'', open:'ガイド', importBtn:'CSV取込', manageBtn:'取込・登録', empty:'登録製品がありません — CSVを取り込むか手動で登録してください。', noHit:'該当する製品がありません。', del:'削除' },
+    es: { nav:'Datos de producto', navSub:'Library', title:'Matriz de productos y accesorios', desc:'Todas las cámaras registradas y los accesorios que usan, por categoría. Importe un CSV o abra un producto para crear su guía.', search:'Buscar modelo o accesorio', count:'{n} producto{ns}', model:'MODELO', cat:'CARCASA / TIPO', act:'', open:'Guía', importBtn:'Importar CSV', manageBtn:'Importar y registrar', empty:'Aún no hay productos — importe un CSV o regístrelos manualmente.', noHit:'Ningún producto coincide.', del:'Quitar' },
+  };
+  // CSV import result messages
+  IMP = {
+    en: { ok:'Imported {p} product{ps} · {a} accessory row{as}', badCat:'{n} accessory row{ns} skipped — unknown categor{ny} {list}', noModel:'{n} row{ns} skipped — no model name', nothing:'Nothing imported. Expected a model column (model_number_sku) plus accessory columns such as wall_mount, ceiling_mount_single_unit, junction_box.', dismiss:'Dismiss' },
+    ko: { ok:'제품 {p}개 · 악세서리 {a}건 가져왔습니다', badCat:'악세서리 {n}건 제외 — 알 수 없는 카테고리 {list}', noModel:'{n}행 제외 — 모델명 없음', nothing:'가져온 항목이 없습니다. 모델 열(model_number_sku)과 wall_mount · ceiling_mount_single_unit · junction_box 같은 악세서리 열이 필요합니다.', dismiss:'닫기' },
+    ja: { ok:'製品 {p}件 · アクセサリ {a}件を取り込みました', badCat:'アクセサリ {n}件を除外 — 不明なカテゴリ {list}', noModel:'{n}行を除外 — モデル名なし', nothing:'取り込めた項目がありません。モデル列(model_number_sku)と wall_mount・ceiling_mount_single_unit・junction_box などのアクセサリ列が必要です。', dismiss:'閉じる' },
+    es: { ok:'{p} producto{ps} · {a} fila{as} de accesorios importada{as}', badCat:'{n} fila{ns} de accesorios omitida{ns} — categoría desconocida {list}', noModel:'{n} fila{ns} omitida{ns} — sin nombre de modelo', nothing:'No se importó nada. Columnas esperadas: Model, CameraCategory, AccessoryCategory, AccessoryName.', dismiss:'Cerrar' },
   };
   _accCount(n, lang) {
     if (lang === 'ko') return n + '개 악세서리';
@@ -653,6 +1329,8 @@ class Component extends DCLogic {
       if (dl) this.setState({ disabledLocs: JSON.parse(dl) || {} });
       const cp = localStorage.getItem('avycon_current_profile');
       if (cp) this.setState({ currentProfile: cp });
+      const rs = localStorage.getItem('avycon_roster');
+      if (rs) this.setState({ roster: JSON.parse(rs) || {} });
     } catch (e) {}
   }
 
@@ -835,9 +1513,342 @@ class Component extends DCLogic {
 
   // --- Accessory product database ---
   _persistDb = (db) => { try { localStorage.setItem('avycon_product_db', JSON.stringify(db)); } catch (e) {} };
-  gotoDb = () => this.setState({ view: 'db', drawerOpen: false, addMenuLoc: null });
+  // toggles: pressing Accessory DB again returns to the view it was opened from
+  gotoDb = () => this.setState(s => (s.view === 'db'
+    ? { view: s.dbReturnView || 'table', sysMenuOpen: false }
+    : { view: 'db', dbReturnView: s.view, drawerOpen: false, addMenuLoc: null, sysMenuOpen: false }));
   gotoMain = () => this.setState({ view: 'main', drawerOpen: false });
   gotoCover = () => this.setState({ view: 'cover', drawerOpen: false, addMenuLoc: null });
+  gotoSetup = () => this.setState({ view: 'setup', drawerOpen: false, addMenuLoc: null, pickerKey: null });
+  gotoTable = () => this.setState({ view: 'table', drawerOpen: false, addMenuLoc: null, pickerKey: null });
+  setTableQuery = (e) => this.setState({ tableQuery: e.target.value });
+  gotoFinal = () => this.setState({ view: 'final', drawerOpen: false, addMenuLoc: null, pickerKey: null, sysMenuOpen: false });
+  savePdf = () => { try { window.print(); } catch (e) {} };
+  openHelp = () => this.setState({ helpOpen: true, sysMenuOpen: false });
+  closeHelp = () => this.setState({ helpOpen: false });
+  setHelpSection = (id) => this.setState({ helpSection: id });
+  _helpSet = () => this.HELP[(this.state.settings || {}).lang === 'ko' ? 'ko' : 'en'];
+  // Renders the whole wiki off-screen and downloads it as a real .pdf file (no print dialog).
+  printHelp = () => {
+    if (this.state.helpPdfBusy) return;
+    const ko = (this.state.settings || {}).lang === 'ko';
+    const ui = this.HELP_UI[ko ? 'ko' : 'en'];
+    const esc = (s) => String(s == null ? '' : s).replace(/&/g, '&amp;').replace(/</g, '&lt;').replace(/>/g, '&gt;');
+    const secs = this._helpSet();
+    const S = {
+      // the 5px top padding keeps glyph tops off the page cut line
+      sec: 'margin:0 0 6px; padding-top:5px; page-break-inside:avoid; break-inside:avoid;',
+      h3: "margin:0; font-family:'Pretendard','Inter',sans-serif; font-size:17px; font-weight:700; color:#1c1d1f; letter-spacing:-.2px;",
+      sub: "margin:0 0 5px; font-family:'Pretendard','Inter',sans-serif; font-size:9.5px; font-weight:700; color:#9aa0a7; letter-spacing:1.3px;",
+      rule: 'margin:9px 0 14px; width:46px; height:3px; background:#8E1626;',
+      h4: "margin:14px 0 6px; font-family:'Pretendard','Inter',sans-serif; font-size:12.5px; font-weight:700; color:#1c1d1f;",
+      p: "margin:0 0 8px; font-family:'Pretendard','Inter',sans-serif; font-size:11.5px; line-height:1.75; color:#4a4e54;",
+      li: "margin:0 0 5px; font-family:'Pretendard','Inter',sans-serif; font-size:11.5px; line-height:1.7; color:#4a4e54;",
+      note: "margin:8px 0 0; padding:10px 13px; background:#f7f8f9; border-left:3px solid #cdd1d6; font-family:'Pretendard','Inter',sans-serif; font-size:11px; line-height:1.65; color:#4a4e54;",
+      cat: "margin:0 0 14px; padding-bottom:7px; border-bottom:2px solid #8E1626; font-family:'Pretendard','Inter',sans-serif; font-size:11px; font-weight:700; letter-spacing:2.2px; color:#8E1626;",
+    };
+    // Flat top-level units, each its own block-formatting context so no vertical margin
+    // collapses between siblings — pagination below shifts units by padding-top alone.
+    const unit = (pad, attrs, inner) =>
+      '<div class="pdf-u" ' + attrs + ' style="display:flow-root; padding-top:' + pad + 'px;">' + inner + '</div>';
+    const part = (cat, label, first) => {
+      const list = secs.filter(s => s.cat === cat);
+      if (!list.length) return '';
+      const head = unit(first ? 0 : 34, first ? '' : 'data-brk="1"',
+        '<div style="' + S.cat + '">' + esc(label) + '</div>');
+      const blockHtml = (b) => (b.h ? '<div style="' + S.h4 + '">' + esc(b.h) + '</div>' : '')
+        + (b.p ? '<div style="' + S.p + '">' + esc(b.p) + '</div>' : '')
+        + (b.items ? '<ul style="margin:0 0 4px; padding-left:18px;">' + b.items.map(i => '<li style="' + S.li + '">' + esc(i) + '</li>').join('') + '</ul>' : '')
+        + (b.note ? '<div style="' + S.note + '">' + esc(b.note) + '</div>' : '');
+      return head + list.map((s, si) => {
+        const bl = s.blocks || [];
+        // step label above the title, red rule below — matching the on-screen wiki
+        const header = unit(si === 0 ? 26 : 46, 'data-glue="1"',
+          '<div style="' + S.sub + '">' + esc(s.sub || '') + '</div>'
+          + '<div style="' + S.h3 + '">' + esc(s.title) + '</div>'
+          + '<div style="' + S.rule + '"></div>');
+        return header + bl.map(b => unit(2, '', blockHtml(b))).join('');
+      }).join('');
+    };
+    const el = document.createElement('div');
+    // must render inside the viewport for html2canvas; z-index keeps it under the help modal (z 80)
+    el.setAttribute('style', "position:absolute; left:0; top:0; z-index:1; width:660px; padding:0; background:#ffffff; font-family:'Pretendard','Inter',system-ui,sans-serif; color:#1c1d1f;");
+    el.innerHTML = '<div style="margin:0 0 22px; padding-bottom:12px; border-bottom:3px solid #8E1626;">'
+      + '<div style="font-family:\'Pretendard\',\'Inter\',sans-serif; font-size:13px; font-weight:800; letter-spacing:3.5px; color:#8E1626;">AVYCON.</div>'
+      + '<div style="margin-top:9px; font-family:\'Pretendard\',\'Inter\',sans-serif; font-size:23px; font-weight:700; color:#1c1d1f;">' + esc(ui.title) + '</div>'
+      + '<div style="margin-top:3px; font-family:\'Pretendard\',\'Inter\',sans-serif; font-size:11px; color:#8a8f96;">' + esc(ui.sub) + '</div>'
+      + '</div>' + part('f', ui.catF, true) + part('u', ui.catU, false);
+    document.body.appendChild(el);
+    // Deterministic pagination: measure every unit against the real page box and push
+    // anything that would straddle a cut onto the next page. html2pdf then only slices.
+    const PXMM = 660 / (215.9 - 26);
+    const PAGE_H = (279.4 - 14 - 15) * PXMM;
+    const units = Array.prototype.slice.call(el.querySelectorAll(':scope > .pdf-u'));
+    units.forEach(u => {
+      const top = u.offsetTop, h = u.offsetHeight;
+      const start = Math.floor(top / PAGE_H) * PAGE_H, end = start + PAGE_H;
+      let push = 0;
+      if (u.dataset.brk === '1' && top - start > 2) push = end - top;          // forced new page
+      else if (h < PAGE_H && top + h > end - 2) push = end - top;              // would be cut
+      else if (u.dataset.glue === '1' && end - (top + h) < 120) push = end - top; // no orphan title
+      if (push > 0) u.style.paddingTop = ((parseFloat(u.style.paddingTop) || 0) + push) + 'px';
+    });
+    const done = () => { try { document.body.removeChild(el); } catch (e) {} this.setState({ helpPdfBusy: false }); };
+    this.setState({ helpPdfBusy: true });
+    const run = () => {
+      if (typeof window.html2pdf !== 'function') { done(); return; }
+      try { window.scrollTo(0, 0); } catch (e) {}
+      window.html2pdf().set({
+        margin: [14, 13, 15, 13],
+        filename: ko ? 'AVYCON-도움말.pdf' : 'AVYCON-Help.pdf',
+        image: { type: 'jpeg', quality: 0.96 },
+        html2canvas: { scale: 2, backgroundColor: '#ffffff', useCORS: true, logging: false, x: 0, y: 0, scrollX: 0, scrollY: 0, windowWidth: 700, width: 660, height: el.scrollHeight },
+        jsPDF: { unit: 'mm', format: 'letter', orientation: 'portrait' },
+        pagebreak: { mode: [] },
+      }).from(el).save().then(done, done);
+    };
+    // let fonts settle so Hangul rasterises with Pretendard rather than a fallback
+    if (document.fonts && document.fonts.ready) document.fonts.ready.then(() => setTimeout(run, 60), run);
+    else setTimeout(run, 200);
+  };
+  toggleSysMenu = () => this.setState(s => ({ sysMenuOpen: !s.sysMenuOpen }));
+  closeSysMenu = () => this.setState({ sysMenuOpen: false });
+  clearAllData = () => {
+    const t = this.SYS[(this.state.settings || {}).lang || 'en'] || this.SYS.en;
+    let ok = true; try { ok = window.confirm(t.confirm); } catch (e) {}
+    if (!ok) return;
+    const lang = (this.state.settings || {}).lang;
+    ['avycon_cam_image','avycon_acc_names','avycon_img_by_name','avycon_doc_settings','avycon_profiles','avycon_layout','avycon_product_db','avycon_note','avycon_disabled_locs','avycon_current_profile','avycon_roster'].forEach(k => { try { localStorage.removeItem(k); } catch (e) {} });
+    const settings = lang ? { lang } : {};
+    try { localStorage.setItem('avycon_doc_settings', JSON.stringify(settings)); } catch (e) {}
+    this.setState({ camImage: null, accNames: {}, imgByName: {}, settings, profiles: {}, layout: {}, uidSeq: 1,
+      productDb: {}, noteText: '', disabledLocs: {}, currentProfile: null, roster: {}, importNotice: null,
+      sysMenuOpen: false, view: 'table', tableQuery: '' });
+  };
+
+  // ---- Product roster (setup screen) ----
+  _persistRoster = (roster) => { try { localStorage.setItem('avycon_roster', JSON.stringify(roster)); } catch (e) {} };
+  // extra spellings accepted in imported CSVs (normalized: lowercase, no spaces/_/-)
+  CAT_ALIASES = {
+    MNT_WALL: ['wall','mntwall','wallmount','mountwall','벽면','벽면마운트','월마운트','pared'],
+    MNT_CEIL: ['ceiling','mntceil','mntceiling','ceilingmount','mountceiling','천장','천장마운트','techo'],
+    MNT_POLE: ['pole','mntpole','polemount','mountpole','longmount','폴','폴마운트','poste'],
+    MNT_BRKT: ['bracket','mntbrkt','mntbracket','ceilingbracket','천장브래킷','브래킷'],
+    MNT_CORN: ['corner','mntcorn','mntcorner','cornermount','mountcorner','코너','코너마운트','esquina'],
+    MNT_PARA: ['parapet','mntpara','mntparapet','parapetmount','난간','난간마운트','파라펫','파라펫마운트','parapeto'],
+    BOX:      ['jbox','junctionbox','junction','mntbox','singlejunctionbox','정션박스','정션','컨트롤박스'],
+    BOX_DUAL: ['dualjunctionbox','dualjbox','dualbox','boxdual','듀얼정션박스','듀얼박스'],
+    MNT_INCEIL: ['inceiling','inceilingmount','inceilingmounts','recessedmount','flushmount','매입','매입형','매입마운트','매입형천장마운트'],
+    ADP:      ['adp','adapter','adaptor','mountadaptor','mountadapter','mntadp','adapterandothers','adaptersandothers','others','어댑터','마운트어댑터','아답터','어댑터기타'],
+  };
+  // extra header spellings for the wide (one column per category) CSV layout
+  WIDE_ALIASES = {
+    MNT_WALL: ['wallmount','wallmounts','wallmountsingle','wallmountsku'],
+    MNT_CEIL: ['ceilingmount','ceilingmountsingle','ceilingmountsingleunit','ceilingmountsingleun','ceilingmountsi','ceilingmountsku','ceilingmounts'],
+    MNT_POLE: ['polemount','polemounts','polemountsku'],
+    MNT_CORN: ['cornermount','cornermounts','cornermountsku'],
+    MNT_PARA: ['parapetmount','parapetmounts','parapetmountsku'],
+    MNT_BRKT: ['ceilingbracket','bracket','mountbracket'],
+    BOX:      ['junctionbox','jbox','junctionboxes'],
+    BOX_DUAL: ['dualjunctionbox','dualjunctionboxes','dualjbox'],
+    MNT_INCEIL: ['inceilingmount','inceilingmounts','inceiling','recessedceilingmount'],
+    ADP:      ['adaptor','adapter','mountadaptor','adapterandothers','adaptersandothers','adaptorandothers'],
+  };
+  _catKeyFrom = (raw) => {
+    const v = String(raw || '').trim().toLowerCase();
+    if (!v) return null;
+    const norm = (s) => String(s || '').toLowerCase().replace(/[\s_\-·.]/g, '');
+    const n = norm(v);
+    if (!n) return null;
+    let hit = null;
+    this.DB_CATS.forEach(c => {
+      if (hit) return;
+      const cands = [c.key, c.label, c.ko].concat(Object.values(this.CAT_I18N[c.key] || {}));
+      if (cands.some(x => norm(x) === n)) hit = c.key;
+    });
+    if (!hit) Object.keys(this.CAT_ALIASES).forEach(k => { if (!hit && this.CAT_ALIASES[k].some(a => norm(a) === n)) hit = k; });
+    if (!hit && n === 'mnt') hit = 'MNT_WALL';
+    return hit;
+  };
+  setDraft = (k, v) => this.setState(s => ({ rosterDraft: { ...s.rosterDraft, [k]: v } }));
+  addDraftAcc = () => this.setState(s => {
+    const d = s.rosterDraft; const name = (d.accName || '').trim();
+    if (!name) return {};
+    if ((d.accs || []).some(a => a.cat === d.accCat && a.name === name)) return { rosterDraft: { ...d, accName: '' } };
+    return { rosterDraft: { ...d, accs: (d.accs || []).concat([{ cat: d.accCat, name }]), accName: '' } };
+  });
+  removeDraftAcc = (i) => this.setState(s => {
+    const accs = (s.rosterDraft.accs || []).slice(); accs.splice(i, 1);
+    return { rosterDraft: { ...s.rosterDraft, accs } };
+  });
+  registerProduct = () => this.setState(s => {
+    const d = s.rosterDraft; const model = (d.model || '').trim();
+    if (!model) return {};
+    const roster = { ...s.roster, [model]: { model, category: d.category || 'Turret', accs: (d.accs || []).slice() } };
+    this._persistRoster(roster);
+    const productDb = { ...s.productDb };
+    (d.accs || []).forEach(a => { const list = (productDb[a.cat] || []); if (list.indexOf(a.name) === -1) productDb[a.cat] = list.concat([a.name]); });
+    this._persistDb(productDb);
+    return { roster, productDb, rosterDraft: { model:'', category:'Turret', accCat:'MNT_WALL', accName:'', accs:[] } };
+  });
+  removeRosterProduct = (model) => this.setState(s => {
+    const roster = { ...s.roster }; delete roster[model];
+    this._persistRoster(roster);
+    return { roster };
+  });
+  setDropActive = (v) => this.setState({ dropActive: !!v });
+  onRosterDrop = (e) => {
+    e.preventDefault(); this.setState({ dropActive: false });
+    const f = e.dataTransfer && e.dataTransfer.files && e.dataTransfer.files[0];
+    if (f) this._readRosterFile(f);
+  };
+  onRosterFile = (e) => {
+    const f = e.target && e.target.files && e.target.files[0];
+    e.target.value = '';
+    if (f) this._readRosterFile(f);
+  };
+  _readRosterFile = (file) => {
+    const r = new FileReader();
+    r.onload = () => this._ingestRosterCsv(r.result);
+    r.readAsText(file);
+  };
+  _ingestRosterCsv = (text) => {
+    const rows = this._parseCsv(text).filter(r => r.length && r.some(c => String(c).trim() !== ''));
+    if (!rows.length) return;
+    const h = rows[0].map(c => String(c).trim().toLowerCase());
+    const find = (names) => { for (let i = 0; i < names.length; i++) { const k = h.indexOf(names[i]); if (k !== -1) return k; } return -1; };
+    let iModel = find(['model','camera','cameramodel','camera model','제품','모델','모델명']);
+    let iCat   = find(['housing_style','housing style','housingstyle','housing','cameracategory','category','camera category','카테고리','제품군','하우징']);
+    let iAccC  = find(['accessorycategory','accessory category','acccategory','악세서리 카테고리','악세서리카테고리','분류']);
+    let iAccN  = find(['accessoryname','accessory','accessorymodel','accessory model','악세서리','악세서리명','악세서리 모델']);
+    // wide layout: one column per accessory category (junction_box, wall_mount, …), cells may list several models
+    const norm = (s) => String(s || '').toLowerCase().replace(/[\s_\-·.]/g, '');
+    const wideCols = [];
+    h.forEach((name, i) => {
+      if (i === iModel || i === iCat || i === iAccC || i === iAccN) return;
+      const n = norm(name); if (!n) return;
+      if (n === 'no' || n === 'number' || n === 'idx' || n === 'index' || n === '순번') return;
+      let key = this._catKeyFrom(name);
+      if (!key) Object.keys(this.WIDE_ALIASES).forEach(k => { if (!key && this.WIDE_ALIASES[k].some(a => norm(a) === n)) key = k; });
+      if (key) wideCols.push({ i, key });
+    });
+    if (wideCols.length) {
+      let iM = find(['model','camera','cameramodel','camera model','modelnumbersku','model_number_sku','sku','제품','모델','모델명']);
+      if (iM === -1) iM = h.findIndex(x => norm(x).indexOf('model') !== -1);
+      if (iM === -1) iM = 0;
+      return this._ingestWideCsv(rows, iM, iCat, wideCols);
+    }
+    let start = 1;
+    if (iModel === -1 && iAccN === -1) { start = 0; iModel = 0; iCat = 1; iAccC = 2; iAccN = 3; }
+    if (iModel === -1) iModel = 0;
+    const roster = { ...this.state.roster };
+    const productDb = { ...this.state.productDb };
+    let added = 0, accOk = 0, noModel = 0, badRows = 0;
+    const badCats = [];
+    for (let r = start; r < rows.length; r++) {
+      const cols = rows[r];
+      const model = String(cols[iModel] != null ? cols[iModel] : '').trim();
+      const accNameRaw = iAccN !== -1 ? String(cols[iAccN] != null ? cols[iAccN] : '').trim() : '';
+      if (!model) { if (accNameRaw) noModel++; continue; }
+      const cat = iCat !== -1 ? String(cols[iCat] != null ? cols[iCat] : '').trim() : '';
+      const accName = accNameRaw;
+      const rawCat = iAccC !== -1 ? String(cols[iAccC] != null ? cols[iAccC] : '').trim() : '';
+      const accCat = iAccC !== -1 ? this._catKeyFrom(rawCat) : null;
+      if (!roster[model]) { roster[model] = { model, category: cat || 'Turret', accs: [] }; added++; }
+      else if (cat && !roster[model].category) roster[model].category = cat;
+      if (accName && accCat) {
+        accOk++;
+        if (!roster[model].accs.some(a => a.cat === accCat && a.name === accName)) roster[model].accs.push({ cat: accCat, name: accName });
+        const list = (productDb[accCat] || []);
+        if (list.indexOf(accName) === -1) productDb[accCat] = list.concat([accName]);
+      } else if (accName && !accCat) {
+        badRows++;
+        const shown = rawCat || '(empty)';
+        if (badCats.indexOf(shown) === -1) badCats.push(shown);
+      }
+    }
+    this._persistRoster(roster); this._persistDb(productDb);
+    this.setState({ roster, productDb, importNotice: this._importNotice(added, accOk, badCats, badRows, noModel) });
+  };
+  _ingestWideCsv = (rows, iModel, iCat, wideCols) => {
+    const roster = { ...this.state.roster };
+    const productDb = { ...this.state.productDb };
+    let added = 0, accOk = 0, noModel = 0;
+    for (let r = 1; r < rows.length; r++) {
+      const cols = rows[r];
+      const model = String(cols[iModel] != null ? cols[iModel] : '').trim();
+      if (!model) { if (cols.some(c => String(c || '').trim())) noModel++; continue; }
+      const cat = iCat !== -1 ? String(cols[iCat] != null ? cols[iCat] : '').trim() : '';
+      if (!roster[model]) { roster[model] = { model, category: cat || 'Turret', accs: [] }; added++; }
+      else if (cat && !roster[model].category) roster[model].category = cat;
+      wideCols.forEach(wc => {
+        const cell = String(cols[wc.i] != null ? cols[wc.i] : '').trim();
+        if (!cell || cell === '-' || cell === '—') return;
+        cell.split(/[,;\n\/|]+/).map(s => s.trim()).filter(Boolean).forEach(name => {
+          accOk++;
+          if (!roster[model].accs.some(a => a.cat === wc.key && a.name === name)) roster[model].accs.push({ cat: wc.key, name });
+          const list = (productDb[wc.key] || []);
+          if (list.indexOf(name) === -1) productDb[wc.key] = list.concat([name]);
+        });
+      });
+    }
+    this._persistRoster(roster); this._persistDb(productDb);
+    this.setState({ roster, productDb, importNotice: this._importNotice(added, accOk, [], 0, noModel) });
+  };
+  // Build a localized import summary; null when everything imported cleanly.
+  _importNotice = (added, accOk, badCats, badRows, noModel) => {
+    const t = this.IMP[(this.state.settings || {}).lang || 'en'] || this.IMP.en;
+    if (!added && !accOk) return { kind: 'error', text: t.nothing };
+    const s = (str, tok, n) => str.split('{' + tok + 's}').join(n === 1 ? '' : 's').split('{' + tok + 'y}').join(n === 1 ? 'y' : 'ies');
+    const okText = s(s(t.ok.replace('{p}', added).replace('{a}', accOk), 'p', added), 'a', accOk);
+    if (!badCats.length && !noModel) return { kind: 'ok', text: okText };
+    const parts = [okText];
+    if (badCats.length) {
+      let bc = t.badCat.replace('{n}', badRows).replace('{list}', badCats.slice(0, 6).map(c => '"' + c + '"').join(', ') + (badCats.length > 6 ? ' …' : ''));
+      bc = bc.split('{ns}').join(badRows === 1 ? '' : 's').split('{ny}').join(badCats.length === 1 ? 'y' : 'ies');
+      parts.push(bc);
+    }
+    if (noModel) parts.push(s(t.noModel.replace('{n}', noModel), 'n', noModel));
+    return { kind: 'warn', text: parts.join(' · ') };
+  };
+  dismissImportNotice = () => this.setState({ importNotice: null });
+  loadSampleRoster = () => {
+    const roster = { ...this.state.roster };
+    const sample = {
+      'AVC-NPB81M': { model:'AVC-NPB81M', category:'Bullet', accs:[
+        { cat:'MNT_WALL', name:'AVM-HWM-E-L1' }, { cat:'MNT_POLE', name:'AVM-P-POM-A2' },
+        { cat:'BOX', name:'AVM-JB-BE-S2' }, { cat:'ADP', name:'AVM-AD-CN-01' } ] },
+      'AVC-NSV81F': { model:'AVC-NSV81F', category:'Vandal Dome', accs:[
+        { cat:'MNT_WALL', name:'AVM-DWM-B1' }, { cat:'MNT_CEIL', name:'AVM-DCM-P1' },
+        { cat:'MNT_CORN', name:'AVM-CNR-A1' }, { cat:'BOX', name:'AVM-JB-BE-S2' } ] },
+    };
+    Object.keys(sample).forEach(k => { roster[k] = sample[k]; });
+    const productDb = { ...this.state.productDb };
+    Object.keys(sample).forEach(k => sample[k].accs.forEach(a => {
+      const list = (productDb[a.cat] || []); if (list.indexOf(a.name) === -1) productDb[a.cat] = list.concat([a.name]);
+    }));
+    this._persistRoster(roster); this._persistDb(productDb);
+    this.setState({ roster, productDb, importNotice: null });
+  };
+  // Build the guide from a roster product: camera + mount per location; locations without a mount are skipped.
+  openProduct = (model) => {
+    const entry = (this.state.roster || {})[model]; if (!entry) return;
+    const lang = (this.state.settings || {}).lang;
+    const accNames = {}; const layout = {}; const disabledLocs = {};
+    let uid = 1;
+    this.LOCS.forEach(L => {
+      const cats = this.LOC_MOUNTS[L] || [];
+      const mounts = (entry.accs || []).filter(a => cats.indexOf(a.cat) !== -1);
+      if (!mounts.length) { disabledLocs[L] = true; return; }
+      layout[L] = mounts.map(m => { const u = 'c' + (uid++); accNames[u + ':0'] = m.name; return { uid: u, n: 1 }; });
+    });
+    const firstOn = this.LOCS.filter(L => !disabledLocs[L])[0] || 'Wall';
+    const settings = { ...(this.state.settings || {}), cameraModel: model, cameraCategory: entry.category || 'Turret', location: firstOn };
+    if (lang) settings.lang = lang;
+    this._persistSettings(settings); this._persistNames(accNames); this._persistLayout(layout);
+    try { localStorage.setItem('avycon_disabled_locs', JSON.stringify(disabledLocs)); } catch (e) {}
+    this.setState({ settings, accNames, layout, uidSeq: uid, disabledLocs, view: 'main', drawerOpen: false, currentProfile: null, camImage: null });
+  };
   setDbDraft = (cat, val) => this.setState(s => ({ dbDraft: { ...s.dbDraft, [cat]: val } }));
   setDbDraftImage = (cat, e) => {
     const f = e.target && e.target.files && e.target.files[0]; if (!f) return;
@@ -1055,11 +2066,6 @@ class Component extends DCLogic {
   };
   _safeFileName = (s) => String(s || '').trim().replace(/[\\/:*?"<>|]+/g, '_').replace(/\s+/g, ' ').slice(0, 80);
 
-  // Full breakdown of every saved product: each location \u00d7 each combination case \u00d7
-  // each accessory (with name + image URL). Reconstructed from the saved layout/accNames
-  // (the same model buildCombos uses), so it always reflects the actual combinations.
-  // Image cells emit http(s) Blob URLs only (base64/local-only images are skipped \u2014 run
-  // "Sync images to cloud" first to get shareable URLs).
   exportCsv = () => {
     const profiles = this.state.profiles || {};
     const productDb = this.state.productDb || {};
@@ -1338,8 +2344,9 @@ class Component extends DCLogic {
       const isEmpty = (this.state.layout[L] || []).length === 0;
       if (!isDisabled) enabledSeq++;
       const pageNo = isDisabled ? '\u2014' : String(enabledSeq).padStart(2, '0');
-      const screenShow = isActive && view === 'main';
       const printShow = !isDisabled;
+      // final review shows every page that will print, not just the page being edited
+      const screenShow = (view === 'final') ? printShow : (isActive && view === 'main');
       let hideClass;
       if (screenShow && printShow) hideClass = '';
       else if (screenShow && !printShow) hideClass = 'print-hide';
@@ -1359,7 +2366,7 @@ class Component extends DCLogic {
       };
     });
     const cover = {
-      hideClass: (view === 'cover') ? '' : 'pg-hidden',
+      hideClass: (view === 'cover' || view === 'final') ? '' : 'pg-hidden',
       eyebrow: 'CAMERA ACCESSORY PROGRAM',
       title: t.titleMain, sub: t.titleSub, rev: revVal,
       camModel: camName, camType: camType, camImgEl: mkImg(camImg), noCamImg: !camImg,
@@ -1398,11 +2405,179 @@ class Component extends DCLogic {
         onDraft:(e)=>this.setDbDraft(c.key, e.target.value), onDraftImg:(e)=>this.setDbDraftImage(c.key, e), onAdd:()=>this.addProduct(c.key) };
     });
 
+    // --- Setup screen data ---
+    const draft = this.state.rosterDraft || {};
+    const rosterObj = this.state.roster || {};
+    const rosterList = Object.keys(rosterObj).map(k => {
+      const e = rosterObj[k] || {};
+      const accs = e.accs || [];
+      const locChips = this.LOCS.map(L => {
+        const cats = this.LOC_MOUNTS[L] || [];
+        const hit = accs.filter(a => cats.indexOf(a.cat) !== -1);
+        return { loc:L, name: locName(L), has: hit.length > 0, missing: hit.length === 0,
+          models: hit.map(a => a.name).join(', ') || '\u2014' };
+      });
+      const mounts = accs.filter(a => this.MNT_GROUP.indexOf(a.cat) !== -1).map(a => ({ name:a.name, catLabel: catName(a.cat) }));
+      const aux = accs.filter(a => this.AUX_CATS.indexOf(a.cat) !== -1).map(a => ({ name:a.name, catLabel: catName(a.cat) }));
+      const pageCount = locChips.filter(c => c.has).length;
+      return {
+        model: e.model || k, category: e.category || '',
+        locChips, mounts, aux,
+        hasMounts: mounts.length > 0, noMounts: mounts.length === 0,
+        hasAux: aux.length > 0,
+        accCount: accs.length, pageCount,
+        onOpen: () => this.openProduct(k),
+        onRemove: () => this.removeRosterProduct(k),
+      };
+    }).sort((a, b) => String(a.model).localeCompare(String(b.model)));
+
+    // --- CMS grid: one row per product, one column per accessory category ---
+    const rosterAll = this.state.roster || {};
+    const usedCats = {};
+    Object.keys(rosterAll).forEach(k => (rosterAll[k].accs || []).forEach(a => { usedCats[a.cat] = true; }));
+    const gridCats = this.DB_CATS.filter(c => usedCats[c.key]);
+    const shownCats = gridCats.length ? gridCats : this.DB_CATS.filter(c => this.MNT_GROUP.indexOf(c.key) !== -1);
+    const tableCols = shownCats.map(c => ({ key: c.key, label: (this.CAT_I18N[c.key] || {})[lang] || c.key }));
+    const q = String(this.state.tableQuery || '').trim().toLowerCase();
+    const tableRows = Object.keys(rosterAll).sort((a, b) => a.localeCompare(b)).map((k, idx) => {
+      const e = rosterAll[k] || {};
+      const accs = e.accs || [];
+      const cells = shownCats.map(c => {
+        const names = accs.filter(a => a.cat === c.key).map(a => a.name);
+        return { key: c.key, text: names.length ? names.join(', ') : '—', color: names.length ? '#2c3138' : '#d0d4d9' };
+      });
+      return {
+        key: k, model: e.model || k, category: e.category || '—',
+        cells, accCount: accs.length,
+        onOpen: () => this.openProduct(k),
+        onRemove: () => this.removeRosterProduct(k),
+        rowBg: idx % 2 ? '#fbfcfd' : '#ffffff',
+        _hay: (k + ' ' + (e.category || '') + ' ' + accs.map(a => a.name).join(' ')).toLowerCase(),
+      };
+    }).filter(r => !q || r._hay.indexOf(q) !== -1).map((r, i) => ({ ...r, num: i + 1 }));
+
+    const IN = this.state.importNotice;
+    const sidebarOn = this.state.drawerOpen && view !== 'setup' && view !== 'table' && view !== 'final';
     return {
-      isMain: view !== 'db',
+      importNotice: !!IN,
+      importNoticeText: IN ? IN.text : '',
+      importNoticeBg: IN ? (IN.kind === 'ok' ? '#f2f8f4' : IN.kind === 'warn' ? '#fdf6ec' : '#fdf1f3') : '#fff',
+      importNoticeBorder: IN ? (IN.kind === 'ok' ? '#cbe4d3' : IN.kind === 'warn' ? '#efd9b4' : '#f0c9d1') : '#e6e8ec',
+      importNoticeColor: IN ? (IN.kind === 'ok' ? '#256b43' : IN.kind === 'warn' ? '#8a5a12' : '#9E1B32') : '#1c1d1f',
+      importNoticeDismiss: (this.IMP[(this.state.settings || {}).lang || 'en'] || this.IMP.en).dismiss,
+      dismissImportNotice: this.dismissImportNotice,
+      isMain: (view === 'main' || view === 'cover' || view === 'final'),
+      isFinal: view === 'final',
+      finalClass: view === 'final' ? 'final' : '',
+      fin: this.FIN[lang] || this.FIN.en,
+      gotoFinal: this.gotoFinal,
+      savePdf: this.savePdf,
+      dbBtnBg: view === 'db' ? 'rgba(255,255,255,.22)' : 'rgba(0,0,0,.16)',
+      dbBtnBorder: view === 'db' ? 'rgba(255,255,255,.65)' : 'rgba(255,255,255,.34)',
+      navFinBg: view === 'final' ? '#ffffff' : 'transparent',
+      navFinLine: view === 'final' ? '#9E1B32' : 'transparent',
+      navFinDot: view === 'final' ? '#9E1B32' : '#e6e8ec',
+      navFinDotFg: view === 'final' ? '#ffffff' : '#8a8f96',
+      navFinFg: view === 'final' ? '#1c1d1f' : '#8a8f96',
       isDb: view === 'db',
       isCover: view === 'cover',
+      isSetup: view === 'setup',
+      isTable: view === 'table',
       notDb: view !== 'db',
+      gotoTable: this.gotoTable,
+      tableQuery: this.state.tableQuery || '',
+      setTableQuery: this.setTableQuery,
+      tbl: this.TBL[lang] || this.TBL.en,
+      csvCols: this.CSV_COLS,
+      ...(() => {
+        const hui = this.HELP_UI[lang === 'ko' ? 'ko' : 'en'];
+        const secs = this._helpSet();
+        const curId = this.state.helpSection || secs[0].id;
+        const cur = secs.find(s => s.id === curId) || secs[0];
+        const mkNav = (cat) => secs.filter(s => s.cat === cat).map(s => ({
+          id: s.id, title: s.title, sub: s.sub || '',
+          onPick: () => this.setHelpSection(s.id),
+          bg: s.id === cur.id ? '#fdf1f3' : 'transparent',
+          fg: s.id === cur.id ? '#9E1B32' : '#4a4e54',
+          bar: s.id === cur.id ? '#9E1B32' : 'transparent',
+          weight: s.id === cur.id ? '700' : '500',
+        }));
+        return {
+          helpUi: hui,
+          helpOpen: !!this.state.helpOpen,
+          openHelp: this.openHelp, closeHelp: this.closeHelp, printHelp: this.printHelp,
+      stopEvt: (e) => { if (e && e.stopPropagation) e.stopPropagation(); },
+      helpPdfLabel: this.state.helpPdfBusy ? (lang === 'ko' ? 'PDF 만드는 중…' : 'Building PDF…') : hui.pdf,
+      helpPdfOpacity: this.state.helpPdfBusy ? '.6' : '1',
+          helpNavF: mkNav('f'), helpNavU: mkNav('u'),
+          helpTitle: cur.title, helpSub: cur.sub || '',
+          helpBlocks: (cur.blocks || []).map((b, i) => ({
+            key: cur.id + '-' + i,
+            h: b.h || '', hasH: !!b.h,
+            p: b.p || '', hasP: !!b.p,
+            items: (b.items || []).map(x => ({ text: x })), hasItems: !!(b.items && b.items.length),
+            note: b.note || '', hasNote: !!b.note,
+          })),
+        };
+      })(),
+      sys: this.SYS[lang] || this.SYS.en,
+      sysMenuOpen: !!this.state.sysMenuOpen,
+      toggleSysMenu: this.toggleSysMenu,
+      closeSysMenu: this.closeSysMenu,
+      clearAllData: this.clearAllData,
+      tableCountText: ((this.TBL[lang] || this.TBL.en).count).replace('{n}', tableRows.length).split('{ns}').join(tableRows.length === 1 ? '' : 's'),
+      tableCols, tableRows, tableCount: tableRows.length,
+      tableEmpty: tableRows.length === 0,
+      tableEmptyText: (this.state.tableQuery || '').trim() ? (this.TBL[lang] || this.TBL.en).noHit : (this.TBL[lang] || this.TBL.en).empty,
+      hasTableRows: tableRows.length > 0,
+      drawerVisible: sidebarOn,
+      launcherVisible: (view === 'main' || view === 'cover') && !this.state.drawerOpen,
+      appBarVisible: (view === 'main' || view === 'cover' || view === 'db' || view === 'final'),
+      navDbBg: view === 'db' ? '#ffffff' : 'transparent',
+      navDbLine: view === 'db' ? '#9E1B32' : 'transparent',
+      navDbDot: view === 'db' ? '#9E1B32' : '#e6e8ec',
+      navDbDotFg: view === 'db' ? '#ffffff' : '#8a8f96',
+      navDbFg: view === 'db' ? '#1c1d1f' : '#8a8f96',
+      settingsBtnVisible: false,
+      navGuideBg: view === 'main' ? '#ffffff' : 'transparent',
+      navGuideLine: view === 'main' ? '#9E1B32' : 'transparent',
+      navGuideDot: view === 'main' ? '#9E1B32' : '#e6e8ec',
+      navGuideDotFg: view === 'main' ? '#ffffff' : '#8a8f96',
+      navGuideFg: view === 'main' ? '#1c1d1f' : '#8a8f96',
+      navCoverBg: view === 'cover' ? '#ffffff' : 'transparent',
+      navCoverLine: view === 'cover' ? '#9E1B32' : 'transparent',
+      navCoverDot: view === 'cover' ? '#9E1B32' : '#e6e8ec',
+      navCoverDotFg: view === 'cover' ? '#ffffff' : '#8a8f96',
+      navCoverFg: view === 'cover' ? '#1c1d1f' : '#8a8f96',
+      shellPad: sidebarOn ? '360px' : '0px',
+      // 816px document + 360px panel + margins — keeps the covered strip scrollable on narrow viewports
+      shellMinW: sidebarOn ? '1224px' : '0px',
+      gotoSetup: this.gotoSetup,
+      stepGuideActive: (view === 'main' || view === 'cover'),
+      roster: rosterList,
+      rosterCount: rosterList.length,
+      hasRoster: rosterList.length > 0,
+      noRoster: rosterList.length === 0,
+      draftModel: draft.model || '',
+      draftCategory: draft.category || 'Turret',
+      draftAccCat: draft.accCat || 'MNT_WALL',
+      draftAccName: draft.accName || '',
+      draftAccs: (draft.accs || []).map((a, i) => ({ cat:a.cat, catLabel: catName(a.cat), name:a.name, onRemove: () => this.removeDraftAcc(i) })),
+      hasDraftAccs: (draft.accs || []).length > 0,
+      dbCatOptions: this.DB_CATS.map(c => ({ value:c.key, label: catName(c.key) })),
+      onDraftModel: (e) => this.setDraft('model', e.target.value),
+      onDraftCategory: (e) => this.setDraft('category', e.target.value),
+      onDraftAccCat: (e) => this.setDraft('accCat', e.target.value),
+      onDraftAccName: (e) => this.setDraft('accName', e.target.value),
+      addDraftAcc: this.addDraftAcc,
+      registerProduct: this.registerProduct,
+      onRosterFile: this.onRosterFile,
+      onRosterDrop: this.onRosterDrop,
+      onDragOver: (e) => { e.preventDefault(); if (!this.state.dropActive) this.setState({ dropActive: true }); },
+      onDragLeave: (e) => { e.preventDefault(); this.setState({ dropActive: false }); },
+      dropBorder: this.state.dropActive ? '#9E1B32' : '#cdd2d8',
+      dropBg: this.state.dropActive ? '#fbf1f3' : '#ffffff',
+      loadSampleRoster: this.loadSampleRoster,
       cover: cover,
       gotoDb: this.gotoDb,
       gotoMain: this.gotoMain,
@@ -1434,6 +2609,7 @@ class Component extends DCLogic {
       comboCount: pageBuilt.combos.length,
       combos: pageBuilt.combos,
       pages: (view === 'db') ? [] : pages,
+      finalPageCount: 1 + pages.filter(p => !p.isDisabled).length,
       camImageEl: mkImg(camImg),
       hasCamImage: !!camImg,
       noCamImage: !camImg,
