@@ -1332,7 +1332,25 @@ class Component extends DCLogic {
       const rs = localStorage.getItem('avycon_roster');
       if (rs) this.setState({ roster: JSON.parse(rs) || {} });
     } catch (e) {}
+    this._loadDefaultRoster();
   }
+
+  // Auto-load the bundled product dataset (CSV committed at the repo root) when the
+  // roster is empty, so every visitor lands on a populated Product Data table without
+  // importing manually. Skipped once the visitor has their own saved roster.
+  DEFAULT_DATA_CSV = 'Accesory data (2026-07-28).csv';
+  _loadDefaultRoster = () => {
+    try {
+      const rs = localStorage.getItem('avycon_roster');
+      if (rs) { const r = JSON.parse(rs) || {}; if (r && Object.keys(r).length) return; }
+    } catch (e) {}
+    try {
+      fetch(encodeURI(this.DEFAULT_DATA_CSV), { cache: 'no-store' })
+        .then((resp) => (resp && resp.ok) ? resp.text() : null)
+        .then((text) => { if (text && String(text).trim()) this._ingestRosterCsv(text, true); })
+        .catch(() => {});
+    } catch (e) {}
+  };
 
   _persistNames = (m) => { try { localStorage.setItem('avycon_acc_names', JSON.stringify(m)); } catch (e) {} };
   _persistImgs = (m) => { try { localStorage.setItem('avycon_img_by_name', JSON.stringify(m)); } catch (e) {} };
@@ -1712,7 +1730,7 @@ class Component extends DCLogic {
     r.onload = () => this._ingestRosterCsv(r.result);
     r.readAsText(file);
   };
-  _ingestRosterCsv = (text) => {
+  _ingestRosterCsv = (text, silent) => {
     const rows = this._parseCsv(text).filter(r => r.length && r.some(c => String(c).trim() !== ''));
     if (!rows.length) return;
     const h = rows[0].map(c => String(c).trim().toLowerCase());
@@ -1736,7 +1754,7 @@ class Component extends DCLogic {
       let iM = find(['model','camera','cameramodel','camera model','modelnumbersku','model_number_sku','sku','제품','모델','모델명']);
       if (iM === -1) iM = h.findIndex(x => norm(x).indexOf('model') !== -1);
       if (iM === -1) iM = 0;
-      return this._ingestWideCsv(rows, iM, iCat, wideCols);
+      return this._ingestWideCsv(rows, iM, iCat, wideCols, silent);
     }
     let start = 1;
     if (iModel === -1 && iAccN === -1) { start = 0; iModel = 0; iCat = 1; iAccC = 2; iAccN = 3; }
@@ -1768,9 +1786,9 @@ class Component extends DCLogic {
       }
     }
     this._persistRoster(roster); this._persistDb(productDb);
-    this.setState({ roster, productDb, importNotice: this._importNotice(added, accOk, badCats, badRows, noModel) });
+    this.setState({ roster, productDb, importNotice: silent ? null : this._importNotice(added, accOk, badCats, badRows, noModel) });
   };
-  _ingestWideCsv = (rows, iModel, iCat, wideCols) => {
+  _ingestWideCsv = (rows, iModel, iCat, wideCols, silent) => {
     const roster = { ...this.state.roster };
     const productDb = { ...this.state.productDb };
     let added = 0, accOk = 0, noModel = 0;
@@ -1793,7 +1811,7 @@ class Component extends DCLogic {
       });
     }
     this._persistRoster(roster); this._persistDb(productDb);
-    this.setState({ roster, productDb, importNotice: this._importNotice(added, accOk, [], 0, noModel) });
+    this.setState({ roster, productDb, importNotice: silent ? null : this._importNotice(added, accOk, [], 0, noModel) });
   };
   // Build a localized import summary; null when everything imported cleanly.
   _importNotice = (added, accOk, badCats, badRows, noModel) => {
