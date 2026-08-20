@@ -1050,12 +1050,13 @@
                   </div>
 
                   <sc-if value="{{ item.pickerOpen }}" hint-placeholder-val="{{ false }}">
-                    <div class="screen-only" style="position:absolute; top:80px; left:50%; transform:translateX(-50%); z-index:30; width:210px; background:#fff; border:1px solid #e6e8ec; border-radius:10px; box-shadow:0 14px 34px rgba(20,22,28,.24); padding:7px; display:flex; flex-direction:column; gap:2px; text-align:left;">
+                    <div class="screen-only" style="position:absolute; {{ item.pickerVert }} left:50%; transform:translateX(-50%); z-index:30; width:210px; max-height:300px; background:#fff; border:1px solid #e6e8ec; border-radius:10px; box-shadow:0 14px 34px rgba(20,22,28,.24); padding:7px; display:flex; flex-direction:column; gap:2px; text-align:left; overflow:hidden;">
                       <sc-if value="{{ item.pickerStepCat }}" hint-placeholder-val="{{ true }}">
                         <div style="display:flex; align-items:center; justify-content:space-between; padding:3px 6px 5px;">
                           <span style="font-family:'Pretendard','Inter',sans-serif; font-size:8.5px; letter-spacing:.5px; color:#9aa0a7;">{{ t.step1 }}</span>
                           <button type="button" onClick="{{ item.onClose }}" style="cursor:pointer; font-family:'Pretendard','Inter',sans-serif; font-size:12px; line-height:1; color:#6b6f76; background:none; border:none;">×</button>
                         </div>
+                        <div style="overflow-y:auto; max-height:250px; display:flex; flex-direction:column; gap:2px;">
                         <sc-for list="{{ item.catList }}" as="c" hint-placeholder-count="3">
                           <button type="button" onClick="{{ c.onPick }}" style="cursor:pointer; display:flex; align-items:center; gap:8px; padding:7px 8px; border:none; background:transparent; border-radius:6px; text-align:left;" style-hover="background:{{ pg.soft }};">
                             <span style="width:6px; height:6px; border-radius:2px; background:{{ pg.accent }}; flex-shrink:0;"></span>
@@ -1063,6 +1064,7 @@
                             <span style="margin-left:auto; font-family:'Pretendard','Inter',sans-serif; font-size:8.5px; color:#b4b9c0;">{{ c.count }}</span>
                           </button>
                         </sc-for>
+                        </div>
                       </sc-if>
                       <sc-if value="{{ item.pickerStepProd }}" hint-placeholder-val="{{ false }}">
                         <div style="display:flex; align-items:center; gap:6px; padding:3px 5px 5px;">
@@ -1070,6 +1072,7 @@
                           <span style="font-family:'Pretendard','Inter',sans-serif; font-size:9px; font-weight:600; color:#6b6f76;">{{ t.step2 }} · {{ item.pickerCatLabel }}</span>
                           <button type="button" onClick="{{ item.onClose }}" style="margin-left:auto; cursor:pointer; font-family:'Pretendard','Inter',sans-serif; font-size:12px; line-height:1; color:#6b6f76; background:none; border:none;">×</button>
                         </div>
+                        <div style="overflow-y:auto; max-height:250px; display:flex; flex-direction:column; gap:2px;">
                         <sc-for list="{{ item.prodList }}" as="p" hint-placeholder-count="2">
                           <button type="button" onClick="{{ p.onPick }}" style="cursor:pointer; display:flex; align-items:center; gap:8px; padding:6px 7px; border:none; background:transparent; border-radius:6px; text-align:left;" style-hover="background:{{ pg.soft }};">
                             <span style="width:28px; height:28px; border-radius:5px; border:1px solid #e6e8ec; background:#fff; overflow:hidden; display:flex; align-items:center; justify-content:center; flex-shrink:0;">
@@ -1082,6 +1085,7 @@
                         <sc-if value="{{ item.noProdInCat }}" hint-placeholder-val="{{ false }}">
                           <span style="font-size:9px; color:#b08a2a; font-style:italic; padding:6px 8px; line-height:1.4;">{{ t.noProdInCat }}</span>
                         </sc-if>
+                        </div>
                       </sc-if>
                     </div>
                   </sc-if>
@@ -2642,6 +2646,8 @@ class Component extends DCLogic {
       );
       descs.forEach((c, ci) => {
         const id = code + '-' + String(ci + 1).padStart(2, '0');
+        // Combos in the lower half open their picker upward so it is not clipped at the bottom of the page.
+        const pickerUp = ci >= Math.ceil(descs.length / 2);
         const accNodes = [];
         for (let ai = 0; ai < (c.n || 0); ai++) {
           const key = c.uid + ':' + ai;
@@ -2678,6 +2684,7 @@ class Component extends DCLogic {
             noName:      isAcc && !nm,
             hasImg:      !!n._img,
             pickerOpen:  pickerOpen,
+            pickerVert:  pickerUp ? 'bottom:82px;' : 'top:82px;',
             pickerStepCat:  pickerOpen && !pc,
             pickerStepProd: showProducts,
             pickerCatLabel: pc ? (labelOfCat[pc] || pc) : '',
