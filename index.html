@@ -368,14 +368,14 @@
             <span></span>
           </div>
           <sc-for list="{{ workPageItems }}" as="w" hint-placeholder-count="6">
-            <div style="display:grid; grid-template-columns:44px 1.5fr 0.9fr 1fr 1.3fr 1fr 84px; gap:10px; align-items:center; padding:12px 18px; border-bottom:1px solid #f0f2f4;">
+            <div style="display:grid; grid-template-columns:44px 1.5fr 0.9fr 1fr 1.3fr 1fr 84px; gap:10px; align-items:center; padding:12px 18px; border-bottom:1px solid #f0f2f4; background:{{ w.rowBg }};" style-hover="background:#f2f6fb;">
               <span style="font-size:11px; color:#b4b9c0;">{{ w.num }}</span>
-              <span style="font-size:12.5px; font-weight:700; color:#9E1B32;">{{ w.model }}</span>
+              <button type="button" onClick="{{ w.onOpen }}" title="{{ home.wlOpen }}" style="justify-self:start; text-align:left; cursor:pointer; font-family:'Pretendard','Inter',sans-serif; font-size:12.5px; font-weight:700; color:#9E1B32; background:transparent; border:none; padding:0; word-break:break-all;" style-hover="text-decoration:underline;">{{ w.model }}</button>
               <span style="font-size:11.5px; color:#6b6f76;">{{ w.type }}</span>
               <span style="font-size:11.5px; color:#6b6f76;">{{ w.accCount }}</span>
               <span style="font-size:11.5px; font-weight:600; color:{{ w.statusColor }};">{{ w.statusText }}</span>
               <span style="font-size:11.5px; color:#6b6f76;">{{ w.savedByText }}</span>
-              <button type="button" onClick="{{ w.onOpen }}" style="cursor:pointer; justify-self:end; font-family:'Pretendard','Inter',sans-serif; font-size:11px; font-weight:700; color:#9E1B32; background:transparent; border:none;">{{ home.wlOpen }} →</button>
+              <button type="button" onClick="{{ w.onOpen }}" style="cursor:pointer; justify-self:end; font-family:'Pretendard','Inter',sans-serif; font-size:11px; font-weight:700; color:#fff; background:#9E1B32; border:none; padding:7px 12px; border-radius:6px;">{{ home.wlOpen }} →</button>
             </div>
           </sc-for>
           <sc-if value="{{ noWork }}" hint-placeholder-val="{{ false }}">
@@ -2182,6 +2182,16 @@ class Component extends DCLogic {
     try { localStorage.setItem('avycon_disabled_locs', JSON.stringify(disabledLocs)); } catch (e) {}
     this.setState({ settings, accNames, layout, uidSeq: uid, disabledLocs, view: 'main', drawerOpen: false, currentProfile: null, camImage: null });
   };
+  // Open a work-list row into the guide: continue the saved guide if one exists, else start
+  // a fresh guide from the roster. Always navigates to the guide view (loadProfile alone does not).
+  openWorkItem = (model) => {
+    if ((this.state.profiles || {})[model]) {
+      this.loadProfile(model);
+      this.setState({ view: 'main', drawerOpen: false, sysMenuOpen: false, historyOpen: false });
+    } else {
+      this.openProduct(model);
+    }
+  };
   setDbDraft = (cat, val) => this.setState(s => ({ dbDraft: { ...s.dbDraft, [cat]: val } }));
   setDbDraftImage = (cat, e) => {
     const f = e.target && e.target.files && e.target.files[0]; if (!f) return;
@@ -2847,11 +2857,12 @@ class Component extends DCLogic {
     const _wPages = Math.max(1, Math.ceil(_wCount / _wSize));
     const _wPage = Math.min(Math.max(0, this.state.workPage || 0), _wPages - 1);
     const _wSlice = _wItems.slice(_wPage * _wSize, _wPage * _wSize + _wSize).map((r, i) => ({
-      num: _wPage * _wSize + i + 1, model: r.model, type: r.type, accCount: r.accCount,
+      key: r.key, num: _wPage * _wSize + i + 1, model: r.model, type: r.type, accCount: r.accCount,
       statusText: r.saved ? (_wHome.wlSaved + ' · ' + _wfmt(r.updatedAt)) : _wHome.wlNotStarted,
       statusColor: r.saved ? '#2f8f6b' : '#b4b9c0',
       savedByText: r.saved ? (r.savedBy || _wHome.wlAnon) : '—',
-      onOpen: r.saved ? (() => this.loadProfile(r.key)) : (() => this.openProduct(r.key)),
+      rowBg: i % 2 ? '#fbfcfd' : '#ffffff',
+      onOpen: (() => this.openWorkItem(r.key)),
     }));
 
     const IN = this.state.importNotice;
