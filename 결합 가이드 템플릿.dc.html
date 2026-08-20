@@ -249,6 +249,139 @@
   </div>
   </sc-if>
 
+  <!-- HOME DASHBOARD (default entry point, screen only) -->
+  <sc-if value="{{ isHome }}" hint-placeholder-val="{{ true }}">
+  <div style="width:100%; max-width:1200px; background:#ffffff; box-shadow:0 6px 28px rgba(20,22,28,.18); display:flex; flex-direction:column; color:#1c1d1f; overflow:hidden;">
+
+    <div style="background:#8E1626; padding:13px 26px; display:flex; align-items:center; gap:15px;">
+      <span style="font-size:16px; font-weight:800; letter-spacing:3.5px; color:#ffffff;">AVYCON<span style="color:#E8637A;">.</span></span>
+      <span style="width:1px; height:16px; background:rgba(255,255,255,.32);"></span>
+      <span style="font-size:14.5px; font-weight:600; letter-spacing:.2px; color:#ffffff;">{{ t.appTitle }}</span>
+      <div style="margin-left:auto; display:flex; align-items:center; gap:9px;">
+        <select value="{{ lang }}" onChange="{{ onLangChange }}" style="cursor:pointer; font-family:'Pretendard','Inter',sans-serif; font-size:11.5px; font-weight:700; padding:7px 12px; border-radius:6px; border:1px solid rgba(255,255,255,.34); background:rgba(0,0,0,.16); color:#ffffff; outline:none;">
+          <sc-for list="{{ langOptions }}" as="lo" hint-placeholder-count="4">
+            <option value="{{ lo.value }}" style="color:#1c1d1f;">{{ lo.label }}</option>
+          </sc-for>
+        </select>
+        <button type="button" onClick="{{ gotoDb }}" style="cursor:pointer; display:flex; align-items:center; gap:6px; font-family:'Pretendard','Inter',sans-serif; font-size:11.5px; font-weight:700; padding:7px 12px; border-radius:6px; border:1px solid {{ dbBtnBorder }}; background:{{ dbBtnBg }}; color:#ffffff;"><span style="font-size:12px; line-height:1;">▤</span> {{ t.stepDbNav }}</button>
+        <button type="button" onClick="{{ saveSnapshot }}" title="{{ hist.save }}" style="cursor:pointer; display:flex; align-items:center; gap:6px; font-family:'Pretendard','Inter',sans-serif; font-size:11.5px; font-weight:700; padding:7px 12px; border-radius:6px; border:1px solid rgba(255,255,255,.34); background:{{ saveBtnBg }}; color:#ffffff;"><span style="font-size:12px; line-height:1;">💾</span> {{ saveBtnLabel }}</button>
+        <button type="button" onClick="{{ openHistory }}" title="{{ hist.title }}" style="cursor:pointer; display:flex; align-items:center; gap:6px; font-family:'Pretendard','Inter',sans-serif; font-size:11.5px; font-weight:700; padding:7px 12px; border-radius:6px; border:1px solid rgba(255,255,255,.34); background:rgba(0,0,0,.16); color:#ffffff;"><span style="font-size:12px; line-height:1;">🕘</span> {{ hist.history }}</button>
+        <button type="button" onClick="{{ toggleSysMenu }}" style="cursor:pointer; display:flex; align-items:center; gap:6px; font-family:'Pretendard','Inter',sans-serif; font-size:11.5px; font-weight:700; padding:7px 12px; border-radius:6px; border:1px solid rgba(255,255,255,.34); background:rgba(0,0,0,.16); color:#ffffff;"><span style="font-size:12px; line-height:1;">⚙</span> {{ sys.btn }}</button>
+      </div>
+    </div>
+
+    <div style="display:flex; align-items:stretch; border-bottom:1px solid #e6e8ec; background:#ffffff;">
+      <div style="display:flex; align-items:center; gap:8px; padding:13px 20px; border-right:1px solid #eef0f3; border-bottom:3px solid #9E1B32; background:#ffffff;">
+        <span style="display:flex; align-items:center; justify-content:center; width:23px; height:23px; border-radius:50%; background:#9E1B32; color:#fff; font-size:12px; line-height:1;">⌂</span>
+        <span style="font-size:12.5px; font-weight:700; color:#1c1d1f;">{{ hist.home }}</span>
+      </div>
+      <button type="button" onClick="{{ gotoTable }}" style="cursor:pointer; display:flex; align-items:center; gap:10px; padding:14px 22px; border:none; background:transparent;">
+        <span style="width:24px; height:24px; border-radius:50%; background:#e6e8ec; color:#8a8f96; font-size:11px; font-weight:700; display:flex; align-items:center; justify-content:center;">1</span>
+        <span style="display:flex; flex-direction:column; gap:1px; text-align:left;">
+          <span style="font-size:12.5px; font-weight:600; color:#8a8f96;">{{ tbl.nav }}</span>
+          <span style="font-size:9.5px; color:#b4b9c0;">{{ tbl.navSub }}</span>
+        </span>
+      </button>
+      <button type="button" onClick="{{ gotoMain }}" style="cursor:pointer; display:flex; align-items:center; gap:10px; padding:14px 22px; border:none; background:transparent;">
+        <span style="width:24px; height:24px; border-radius:50%; background:#e6e8ec; color:#8a8f96; font-size:11px; font-weight:700; display:flex; align-items:center; justify-content:center;">2</span>
+        <span style="display:flex; flex-direction:column; gap:1px; text-align:left;">
+          <span style="font-size:12.5px; font-weight:600; color:#8a8f96;">{{ t.stepGuide }}</span>
+          <span style="font-size:9.5px; color:#b4b9c0;">{{ t.stepGuideSub }}</span>
+        </span>
+      </button>
+      <button type="button" onClick="{{ gotoCover }}" style="cursor:pointer; display:flex; align-items:center; gap:10px; padding:14px 22px; border:none; background:transparent;">
+        <span style="width:24px; height:24px; border-radius:50%; background:#e6e8ec; color:#8a8f96; font-size:11px; font-weight:700; display:flex; align-items:center; justify-content:center;">3</span>
+        <span style="display:flex; flex-direction:column; gap:1px; text-align:left;">
+          <span style="font-size:12.5px; font-weight:600; color:#8a8f96;">{{ t.stepCoverNav }}</span>
+          <span style="font-size:9.5px; color:#b4b9c0;">{{ t.stepCoverSub }}</span>
+        </span>
+      </button>
+      <button type="button" onClick="{{ gotoFinal }}" style="cursor:pointer; display:flex; align-items:center; gap:10px; padding:14px 22px; border:none; background:transparent;">
+        <span style="width:24px; height:24px; border-radius:50%; background:#e6e8ec; color:#8a8f96; font-size:11px; font-weight:700; display:flex; align-items:center; justify-content:center;">4</span>
+        <span style="display:flex; flex-direction:column; gap:1px; text-align:left;">
+          <span style="font-size:12.5px; font-weight:600; color:#8a8f96;">{{ fin.nav }}</span>
+          <span style="font-size:9.5px; color:#b4b9c0;">{{ fin.navSub }}</span>
+        </span>
+      </button>
+      <button type="button" onClick="{{ openHelp }}" title="{{ helpUi.title }}" style="margin-left:auto; margin-right:18px; align-self:center; cursor:pointer; display:flex; align-items:center; gap:7px; font-family:'Pretendard','Inter',sans-serif; font-size:11.5px; font-weight:600; color:#6b6f76; background:#f4f5f7; border:1px solid #e0e3e7; padding:7px 13px; border-radius:20px;"><span style="display:flex; align-items:center; justify-content:center; width:16px; height:16px; border-radius:50%; background:#8E1626; color:#fff; font-size:10px; font-weight:800;">?</span> {{ helpUi.btn }}</button>
+    </div>
+
+    <!-- dashboard body -->
+    <div style="padding:34px 44px 46px; display:flex; flex-direction:column; gap:30px; background:#f7f8fa;">
+
+      <div style="display:flex; flex-direction:column; gap:7px; max-width:640px;">
+        <span style="font-size:24px; font-weight:800; letter-spacing:-.3px; color:#1c1d1f;">{{ home.title }}</span>
+        <span style="font-size:13px; color:#6b6f76; line-height:1.6;">{{ home.desc }}</span>
+        <div style="margin-top:13px; display:flex; gap:10px; flex-wrap:wrap;">
+          <button type="button" onClick="{{ gotoTable }}" style="cursor:pointer; font-family:'Pretendard','Inter',sans-serif; font-size:12.5px; font-weight:700; color:#fff; background:#9E1B32; border:none; padding:11px 18px; border-radius:8px;">{{ home.openData }} →</button>
+          <button type="button" onClick="{{ gotoMain }}" style="cursor:pointer; font-family:'Pretendard','Inter',sans-serif; font-size:12.5px; font-weight:600; color:#1c1d1f; background:#fff; border:1px solid #d4d7db; padding:11px 18px; border-radius:8px;">{{ home.build }}</button>
+        </div>
+      </div>
+
+      <div style="display:grid; grid-template-columns:repeat(3, 1fr); gap:14px;">
+        <div style="background:#fff; border:1px solid #e6e8ec; border-radius:11px; padding:18px 20px; display:flex; flex-direction:column; gap:5px;">
+          <span style="font-size:30px; font-weight:800; color:#9E1B32; line-height:1;">{{ statProducts }}</span>
+          <span style="font-size:11.5px; font-weight:600; color:#6b6f76;">{{ home.sProducts }}</span>
+        </div>
+        <div style="background:#fff; border:1px solid #e6e8ec; border-radius:11px; padding:18px 20px; display:flex; flex-direction:column; gap:5px;">
+          <span style="font-size:30px; font-weight:800; color:#1c1d1f; line-height:1;">{{ statGuides }}</span>
+          <span style="font-size:11.5px; font-weight:600; color:#6b6f76;">{{ home.sGuides }}</span>
+        </div>
+        <div style="background:#fff; border:1px solid #e6e8ec; border-radius:11px; padding:18px 20px; display:flex; flex-direction:column; gap:5px;">
+          <span style="font-size:30px; font-weight:800; color:#1c1d1f; line-height:1;">{{ statVersions }}</span>
+          <span style="font-size:11.5px; font-weight:600; color:#6b6f76;">{{ home.sVersions }}</span>
+        </div>
+      </div>
+
+      <div style="display:flex; flex-direction:column; gap:12px;">
+        <span style="font-size:10px; font-weight:700; letter-spacing:1.2px; color:#9aa0a7;">{{ home.quick }}</span>
+        <div style="display:grid; grid-template-columns:repeat(5, 1fr); gap:12px;">
+          <button type="button" onClick="{{ gotoTable }}" style="cursor:pointer; text-align:left; display:flex; flex-direction:column; gap:6px; background:#fff; border:1px solid #e6e8ec; border-radius:10px; padding:15px 16px;"><span style="font-size:18px; line-height:1;">▤</span><span style="font-size:12.5px; font-weight:700; color:#1c1d1f;">{{ home.aData }}</span><span style="font-size:10px; color:#9aa0a7; line-height:1.4;">{{ home.aDataSub }}</span></button>
+          <button type="button" onClick="{{ gotoMain }}" style="cursor:pointer; text-align:left; display:flex; flex-direction:column; gap:6px; background:#fff; border:1px solid #e6e8ec; border-radius:10px; padding:15px 16px;"><span style="font-size:18px; line-height:1;">▦</span><span style="font-size:12.5px; font-weight:700; color:#1c1d1f;">{{ home.aGuide }}</span><span style="font-size:10px; color:#9aa0a7; line-height:1.4;">{{ home.aGuideSub }}</span></button>
+          <button type="button" onClick="{{ gotoCover }}" style="cursor:pointer; text-align:left; display:flex; flex-direction:column; gap:6px; background:#fff; border:1px solid #e6e8ec; border-radius:10px; padding:15px 16px;"><span style="font-size:18px; line-height:1;">▧</span><span style="font-size:12.5px; font-weight:700; color:#1c1d1f;">{{ home.aCover }}</span><span style="font-size:10px; color:#9aa0a7; line-height:1.4;">{{ home.aCoverSub }}</span></button>
+          <button type="button" onClick="{{ gotoFinal }}" style="cursor:pointer; text-align:left; display:flex; flex-direction:column; gap:6px; background:#fff; border:1px solid #e6e8ec; border-radius:10px; padding:15px 16px;"><span style="font-size:18px; line-height:1;">▨</span><span style="font-size:12.5px; font-weight:700; color:#1c1d1f;">{{ home.aFinal }}</span><span style="font-size:10px; color:#9aa0a7; line-height:1.4;">{{ home.aFinalSub }}</span></button>
+          <button type="button" onClick="{{ gotoDb }}" style="cursor:pointer; text-align:left; display:flex; flex-direction:column; gap:6px; background:#fff; border:1px solid #e6e8ec; border-radius:10px; padding:15px 16px;"><span style="font-size:18px; line-height:1;">▩</span><span style="font-size:12.5px; font-weight:700; color:#1c1d1f;">{{ home.aDb }}</span><span style="font-size:10px; color:#9aa0a7; line-height:1.4;">{{ home.aDbSub }}</span></button>
+        </div>
+      </div>
+
+      <div style="display:flex; flex-direction:column; gap:12px;">
+        <div style="display:flex; align-items:center; justify-content:space-between;">
+          <span style="font-size:10px; font-weight:700; letter-spacing:1.2px; color:#9aa0a7;">{{ home.recent }}</span>
+          <button type="button" onClick="{{ openHistory }}" style="cursor:pointer; font-family:'Pretendard','Inter',sans-serif; font-size:11px; font-weight:700; color:#9E1B32; background:transparent; border:none;">{{ hist.history }} →</button>
+        </div>
+        <sc-if value="{{ hasHistory }}" hint-placeholder-val="{{ true }}">
+          <div style="display:flex; flex-direction:column; gap:8px;">
+            <sc-for list="{{ recentVersions }}" as="hs" hint-placeholder-count="2">
+              <div style="display:flex; align-items:center; justify-content:space-between; gap:12px; background:#fff; border:1px solid #e6e8ec; border-radius:9px; padding:12px 16px;">
+                <div style="display:flex; flex-direction:column; gap:2px;">
+                  <span style="font-size:12.5px; font-weight:700; color:#1c1d1f;">{{ hs.when }}</span>
+                  <span style="font-size:11px; color:#6b6f76;">{{ hs.summary }}</span>
+                </div>
+                <button type="button" onClick="{{ hs.onRestore }}" style="cursor:pointer; flex-shrink:0; font-family:'Pretendard','Inter',sans-serif; font-size:11px; font-weight:700; color:#fff; background:#9E1B32; border:none; padding:8px 14px; border-radius:6px;">{{ home.restore }}</button>
+              </div>
+            </sc-for>
+          </div>
+        </sc-if>
+        <sc-if value="{{ noHistory }}" hint-placeholder-val="{{ false }}">
+          <div style="background:#fff; border:1px dashed #d4d7db; border-radius:9px; padding:26px 18px; text-align:center; font-size:12px; color:#9aa0a7; line-height:1.7;">{{ home.recentEmpty }}</div>
+        </sc-if>
+      </div>
+
+      <sc-if value="{{ hasProfiles }}" hint-placeholder-val="{{ false }}">
+      <div style="display:flex; flex-direction:column; gap:12px;">
+        <span style="font-size:10px; font-weight:700; letter-spacing:1.2px; color:#9aa0a7;">{{ home.savedProducts }}</span>
+        <div style="display:flex; flex-wrap:wrap; gap:8px;">
+          <sc-for list="{{ homeProfiles }}" as="pf" hint-placeholder-count="0">
+            <button type="button" onClick="{{ pf.onOpen }}" style="cursor:pointer; display:flex; align-items:center; gap:8px; font-family:'Pretendard','Inter',sans-serif; font-size:12px; font-weight:600; color:#1c1d1f; background:#fff; border:1px solid #d4d7db; padding:9px 14px; border-radius:8px;">{{ pf.name }} <span style="font-size:10px; color:#9E1B32;">{{ home.open }} →</span></button>
+          </sc-for>
+        </div>
+      </div>
+      </sc-if>
+
+    </div>
+  </div>
+  </sc-if>
+
   <!-- PRODUCT DATA GRID (entry point, screen only) -->
   <sc-if value="{{ isTable }}" hint-placeholder-val="{{ true }}">
   <div style="width:100%; max-width:1440px; background:#ffffff; box-shadow:0 6px 28px rgba(20,22,28,.18); display:flex; flex-direction:column; color:#1c1d1f; overflow:hidden;">
@@ -1062,7 +1195,7 @@
   &quot;showNotes&quot;: { &quot;editor&quot;: null, &quot;default&quot;: true, &quot;tsType&quot;: &quot;boolean&quot; }
 }">
 class Component extends DCLogic {
-  state = { camImage: null, accNames: {}, imgByName: {}, drawerOpen: true, view: 'table', tableQuery: '', roster: {}, rosterDraft: { model:'', category:'Turret', accCat:'MNT_WALL', accName:'', accs:[] }, dropActive: false, openLoc: null, settings: {}, profiles: {}, layout: {}, uidSeq: 1, addMenuLoc: null, productDb: {}, dbDraft: {}, dbDraftImg: {}, dbSaved: false, pickerKey: null, pickerCat: null, noteText: '', disabledLocs: {}, currentProfile: null, history: [], historyOpen: false, savedFlash: false };
+  state = { camImage: null, accNames: {}, imgByName: {}, drawerOpen: true, view: 'home', tableQuery: '', roster: {}, rosterDraft: { model:'', category:'Turret', accCat:'MNT_WALL', accName:'', accs:[] }, dropActive: false, openLoc: null, settings: {}, profiles: {}, layout: {}, uidSeq: 1, addMenuLoc: null, productDb: {}, dbDraft: {}, dbDraftImg: {}, dbSaved: false, pickerKey: null, pickerCat: null, noteText: '', disabledLocs: {}, currentProfile: null, history: [], historyOpen: false, savedFlash: false };
 
   LOCS = ['Wall', 'Ceiling', 'Pole', 'Corner', 'Parapet'];
   CODES = { Wall:'WL', Ceiling:'CL', Pole:'PO', Corner:'CR', Parapet:'PA' };
@@ -1131,6 +1264,12 @@ class Component extends DCLogic {
     ko: { home:'홈', save:'저장', saved:'저장됨', history:'히스토리', title:'버전 히스토리', sub:'저장된 복원 지점 · 모두와 공유', restore:'복원', del:'삭제', empty:'저장된 버전이 없습니다. 저장을 누르면 모두가 볼 수 있는 복원 지점이 만들어집니다.', restoreConfirm:'이 버전으로 복원할까요? 현재 저장하지 않은 작업은 대체됩니다.', products:'제품', guides:'가이드' },
     ja: { home:'ホーム', save:'保存', saved:'保存済み', history:'履歴', title:'バージョン履歴', sub:'保存した復元ポイント · 全員と共有', restore:'復元', del:'削除', empty:'保存されたバージョンがありません。保存を押すと全員が見える復元ポイントが作成されます。', restoreConfirm:'このバージョンに復元しますか？現在の未保存の作業は置き換えられます。', products:'製品', guides:'ガイド' },
     es: { home:'Inicio', save:'Guardar', saved:'Guardado', history:'Historial', title:'Historial de versiones', sub:'Puntos de restauración guardados · compartidos con todos', restore:'Restaurar', del:'Eliminar', empty:'Aún no hay versiones guardadas. Pulse Guardar para crear un punto de restauración visible para todos.', restoreConfirm:'¿Restaurar esta versión? Su trabajo actual sin guardar se reemplazará.', products:'productos', guides:'guías' },
+  };
+  HOME = {
+    en: { title:'Dashboard', desc:'Overview of your product catalog and recent work. Continue where you left off, or jump straight into a step.', openData:'Open product data', build:'Build combination guide', quick:'QUICK ACTIONS', recent:'RECENT VERSIONS', recentEmpty:'No saved versions yet. Click Save in the top bar to store a restore point everyone can see.', sProducts:'Products', sGuides:'Saved guides', sVersions:'Saved versions', aData:'Product Data', aDataSub:'Camera · accessory matrix', aGuide:'Combination Guide', aGuideSub:'Build install-location combos', aCover:'Cover', aCoverSub:'Document cover', aFinal:'Final review', aFinalSub:'Preview & PDF', aDb:'Accessory DB', aDbSub:'Model & photo library', restore:'Restore', savedProducts:'SAVED PRODUCTS', open:'Open' },
+    ko: { title:'대시보드', desc:'제품 카탈로그와 최근 작업 개요입니다. 이어서 작업하거나 원하는 단계로 바로 이동하세요.', openData:'제품 데이터 열기', build:'결합 가이드 만들기', quick:'빠른 작업', recent:'최근 버전', recentEmpty:'저장된 버전이 없습니다. 상단 바의 저장을 누르면 모두가 볼 수 있는 복원 지점이 만들어집니다.', sProducts:'제품', sGuides:'저장된 가이드', sVersions:'저장된 버전', aData:'제품 데이터', aDataSub:'카메라 · 악세서리 매트릭스', aGuide:'결합 가이드', aGuideSub:'설치 위치별 조합 구성', aCover:'커버', aCoverSub:'문서 커버', aFinal:'최종 검토', aFinalSub:'미리보기 · PDF', aDb:'악세서리 DB', aDbSub:'모델 · 사진 라이브러리', restore:'복원', savedProducts:'저장된 제품', open:'열기' },
+    ja: { title:'ダッシュボード', desc:'製品カタログと最近の作業の概要です。続きから作業するか、各ステップへ移動できます。', openData:'製品データを開く', build:'組合せガイドを作成', quick:'クイック操作', recent:'最近のバージョン', recentEmpty:'保存されたバージョンがありません。上部バーの保存を押すと全員が見える復元ポイントが作成されます。', sProducts:'製品', sGuides:'保存済みガイド', sVersions:'保存済みバージョン', aData:'製品データ', aDataSub:'カメラ · アクセサリ表', aGuide:'組合せガイド', aGuideSub:'設置場所別の組合せ', aCover:'カバー', aCoverSub:'文書カバー', aFinal:'最終確認', aFinalSub:'プレビュー · PDF', aDb:'アクセサリDB', aDbSub:'モデル · 写真ライブラリ', restore:'復元', savedProducts:'保存済み製品', open:'開く' },
+    es: { title:'Panel', desc:'Resumen de su catálogo de productos y trabajo reciente. Continúe donde lo dejó o vaya directo a un paso.', openData:'Abrir datos de productos', build:'Crear guía de combinación', quick:'ACCIONES RÁPIDAS', recent:'VERSIONES RECIENTES', recentEmpty:'Aún no hay versiones guardadas. Pulse Guardar en la barra superior para crear un punto de restauración visible para todos.', sProducts:'Productos', sGuides:'Guías guardadas', sVersions:'Versiones guardadas', aData:'Datos de productos', aDataSub:'Matriz cámara · accesorio', aGuide:'Guía de combinación', aGuideSub:'Combos por ubicación', aCover:'Portada', aCoverSub:'Portada del documento', aFinal:'Revisión final', aFinalSub:'Vista previa y PDF', aDb:'BD de accesorios', aDbSub:'Biblioteca de modelos y fotos', restore:'Restaurar', savedProducts:'PRODUCTOS GUARDADOS', open:'Abrir' },
   };
   HELP_UI = {
     en: { btn:'Help', title:'Help & documentation', sub:'Feature reference and step-by-step guide', catF:'FEATURES', catU:'HOW TO USE', pdf:'Save full help as PDF', close:'Close' },
@@ -1596,6 +1735,7 @@ class Component extends DCLogic {
   gotoCover = () => this.setState({ view: 'cover', drawerOpen: false, addMenuLoc: null });
   gotoSetup = () => this.setState({ view: 'setup', drawerOpen: false, addMenuLoc: null, pickerKey: null });
   gotoTable = () => this.setState({ view: 'table', drawerOpen: false, addMenuLoc: null, pickerKey: null });
+  goHome = () => this.setState({ view: 'home', drawerOpen: false, addMenuLoc: null, pickerKey: null, sysMenuOpen: false, historyOpen: false });
   setTableQuery = (e) => this.setState({ tableQuery: e.target.value });
   gotoFinal = () => this.setState({ view: 'final', drawerOpen: false, addMenuLoc: null, pickerKey: null, sysMenuOpen: false });
   savePdf = () => { try { window.print(); } catch (e) {} };
@@ -2610,7 +2750,7 @@ class Component extends DCLogic {
     }).filter(r => !q || r._hay.indexOf(q) !== -1).map((r, i) => ({ ...r, num: i + 1 }));
 
     const IN = this.state.importNotice;
-    const sidebarOn = this.state.drawerOpen && view !== 'setup' && view !== 'table' && view !== 'final';
+    const sidebarOn = this.state.drawerOpen && view !== 'setup' && view !== 'table' && view !== 'final' && view !== 'home';
     return {
       importNotice: !!IN,
       importNoticeText: IN ? IN.text : '',
@@ -2636,6 +2776,18 @@ class Component extends DCLogic {
       isCover: view === 'cover',
       isSetup: view === 'setup',
       isTable: view === 'table',
+      isHome: view === 'home',
+      home: this.HOME[lang] || this.HOME.en,
+      statProducts: Object.keys(this.state.roster || {}).length,
+      statGuides: Object.keys(this.state.profiles || {}).length,
+      statVersions: (this.state.history || []).length,
+      homeProfiles: Object.keys(this.state.profiles || {}).slice(0, 8).map((m) => ({ name: m, onOpen: () => this.loadProfile(m) })),
+      recentVersions: (this.state.history || []).slice(0, 6).map((sn) => {
+        let when = sn.ts; try { when = new Date(sn.ts).toLocaleString(); } catch (e) {}
+        const hh = this.HOME[lang] || this.HOME.en; const hp = this.HIST[lang] || this.HIST.en;
+        const summary = (sn.nProducts || 0) + ' ' + hp.products + (sn.nGuides ? (' · ' + sn.nGuides + ' ' + hp.guides) : '');
+        return { id: sn.id, when: when, summary: summary, onRestore: () => this.restoreSnapshot(sn.id) };
+      }),
       notDb: view !== 'db',
       gotoTable: this.gotoTable,
       tableQuery: this.state.tableQuery || '',
@@ -2679,7 +2831,7 @@ class Component extends DCLogic {
       closeSysMenu: this.closeSysMenu,
       clearAllData: this.clearAllData,
       hist: this.HIST[lang] || this.HIST.en,
-      goHome: this.gotoTable,
+      goHome: this.goHome,
       saveSnapshot: this.saveSnapshot,
       openHistory: this.openHistory,
       closeHistory: this.closeHistory,
