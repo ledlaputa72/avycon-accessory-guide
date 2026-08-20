@@ -42,6 +42,38 @@
 </helmet>
 <div class="shell {{ finalClass }}" style="display:flex; flex-direction:column; align-items:safe center; gap:28px; padding:0 0 28px; padding-right:{{ shellPad }}; min-width:{{ shellMinW }}; transition:padding-left .18s ease; font-family:'Pretendard','Inter',system-ui,sans-serif;">
 
+  <!-- VERSION HISTORY (screen only) -->
+  <sc-if value="{{ historyOpen }}" hint-placeholder-val="{{ false }}">
+    <div class="screen-only" onClick="{{ closeHistory }}" style="position:fixed; inset:0; z-index:80; background:rgba(20,22,28,.42); display:flex; justify-content:flex-end;">
+      <div onClick="{{ stopEvt }}" style="height:100vh; width:420px; max-width:92vw; background:#ffffff; box-shadow:-8px 0 30px rgba(20,22,28,.24); display:flex; flex-direction:column;">
+        <div style="flex-shrink:0; background:#8E1626; padding:15px 20px; display:flex; align-items:center; justify-content:space-between;">
+          <div style="display:flex; flex-direction:column; gap:2px;">
+            <span style="font-size:14px; font-weight:700; color:#ffffff;">🕘 {{ hist.title }}</span>
+            <span style="font-size:10px; color:rgba(255,255,255,.7);">{{ hist.sub }}</span>
+          </div>
+          <button type="button" onClick="{{ closeHistory }}" style="cursor:pointer; font-size:17px; line-height:1; color:#fff; background:rgba(0,0,0,.18); border:1px solid rgba(255,255,255,.3); width:30px; height:30px; border-radius:7px;">×</button>
+        </div>
+        <div style="flex:1; overflow-y:auto; padding:16px 18px; display:flex; flex-direction:column; gap:10px;">
+          <sc-if value="{{ hasHistory }}" hint-placeholder-val="{{ true }}">
+            <sc-for list="{{ historyList }}" as="hs" hint-placeholder-count="2">
+              <div style="border:1px solid #e6e8ec; border-radius:9px; padding:12px 14px; display:flex; flex-direction:column; gap:9px; background:#fafbfc;">
+                <span style="font-size:12.5px; font-weight:700; color:#1c1d1f;">{{ hs.when }}</span>
+                <span style="font-size:11px; color:#6b6f76;">{{ hs.summary }}</span>
+                <div style="display:flex; gap:8px;">
+                  <button type="button" onClick="{{ hs.onRestore }}" style="cursor:pointer; flex:1; font-family:'Pretendard','Inter',sans-serif; font-size:11px; font-weight:700; color:#fff; background:#9E1B32; border:none; padding:8px; border-radius:6px;">{{ hist.restore }}</button>
+                  <button type="button" onClick="{{ hs.onDelete }}" style="cursor:pointer; font-family:'Pretendard','Inter',sans-serif; font-size:11px; font-weight:600; color:#6b6f76; background:#f1f2f4; border:1px solid #e6e8ec; padding:8px 13px; border-radius:6px;">{{ hist.del }}</button>
+                </div>
+              </div>
+            </sc-for>
+          </sc-if>
+          <sc-if value="{{ noHistory }}" hint-placeholder-val="{{ false }}">
+            <div style="padding:36px 14px; text-align:center; font-size:12px; color:#9aa0a7; line-height:1.7;">{{ hist.empty }}</div>
+          </sc-if>
+        </div>
+      </div>
+    </div>
+  </sc-if>
+
   <!-- HELP WIKI (screen only) -->
   <sc-if value="{{ helpOpen }}" hint-placeholder-val="{{ false }}">
     <div class="screen-only" onClick="{{ closeHelp }}" style="position:fixed; inset:0; z-index:80; background:rgba(0,0,0,.5); display:flex; align-items:center; justify-content:center; padding:5vh 5vw;">
@@ -174,10 +206,16 @@
           </sc-for>
         </select>
         <button type="button" onClick="{{ gotoDb }}" style="cursor:pointer; display:flex; align-items:center; gap:6px; font-family:'Pretendard','Inter',sans-serif; font-size:11.5px; font-weight:700; padding:7px 12px; border-radius:6px; border:1px solid {{ dbBtnBorder }}; background:{{ dbBtnBg }}; color:#ffffff;"><span style="font-size:12px; line-height:1;">▤</span> {{ t.stepDbNav }}</button>
+        <button type="button" onClick="{{ saveSnapshot }}" title="{{ hist.save }}" style="cursor:pointer; display:flex; align-items:center; gap:6px; font-family:'Pretendard','Inter',sans-serif; font-size:11.5px; font-weight:700; padding:7px 12px; border-radius:6px; border:1px solid rgba(255,255,255,.34); background:{{ saveBtnBg }}; color:#ffffff;"><span style="font-size:12px; line-height:1;">💾</span> {{ saveBtnLabel }}</button>
+        <button type="button" onClick="{{ openHistory }}" title="{{ hist.title }}" style="cursor:pointer; display:flex; align-items:center; gap:6px; font-family:'Pretendard','Inter',sans-serif; font-size:11.5px; font-weight:700; padding:7px 12px; border-radius:6px; border:1px solid rgba(255,255,255,.34); background:rgba(0,0,0,.16); color:#ffffff;"><span style="font-size:12px; line-height:1;">🕘</span> {{ hist.history }}</button>
         <button type="button" onClick="{{ toggleSysMenu }}" style="cursor:pointer; display:flex; align-items:center; gap:6px; font-family:'Pretendard','Inter',sans-serif; font-size:11.5px; font-weight:700; padding:7px 12px; border-radius:6px; border:1px solid rgba(255,255,255,.34); background:rgba(0,0,0,.16); color:#ffffff;"><span style="font-size:12px; line-height:1;">⚙</span> {{ sys.btn }}</button>
       </div>
     </div>
     <div style="display:flex; align-items:stretch; border-bottom:1px solid #e6e8ec; background:#ffffff;">
+      <button type="button" onClick="{{ goHome }}" title="{{ hist.home }}" style="cursor:pointer; display:flex; align-items:center; gap:8px; padding:13px 20px; border:none; border-right:1px solid #eef0f3; background:transparent;">
+        <span style="display:flex; align-items:center; justify-content:center; width:23px; height:23px; border-radius:50%; border:1.5px solid #d4d7db; color:#8a8f96; font-size:12px; line-height:1;">⌂</span>
+        <span style="font-size:12.5px; font-weight:600; color:#6b6f76;">{{ hist.home }}</span>
+      </button>
       <button type="button" onClick="{{ gotoTable }}" style="cursor:pointer; display:flex; align-items:center; gap:10px; padding:13px 22px; border:none; background:transparent;">
         <span style="width:23px; height:23px; border-radius:50%; background:#e6e8ec; color:#8a8f96; font-size:11px; font-weight:700; display:flex; align-items:center; justify-content:center;">1</span>
         <span style="display:flex; flex-direction:column; gap:1px; text-align:left;">
@@ -226,11 +264,17 @@
           </sc-for>
         </select>
         <button type="button" onClick="{{ gotoDb }}" style="cursor:pointer; display:flex; align-items:center; gap:6px; font-family:'Pretendard','Inter',sans-serif; font-size:11.5px; font-weight:700; padding:7px 12px; border-radius:6px; border:1px solid {{ dbBtnBorder }}; background:{{ dbBtnBg }}; color:#ffffff;"><span style="font-size:12px; line-height:1;">▤</span> {{ t.stepDbNav }}</button>
+        <button type="button" onClick="{{ saveSnapshot }}" title="{{ hist.save }}" style="cursor:pointer; display:flex; align-items:center; gap:6px; font-family:'Pretendard','Inter',sans-serif; font-size:11.5px; font-weight:700; padding:7px 12px; border-radius:6px; border:1px solid rgba(255,255,255,.34); background:{{ saveBtnBg }}; color:#ffffff;"><span style="font-size:12px; line-height:1;">💾</span> {{ saveBtnLabel }}</button>
+        <button type="button" onClick="{{ openHistory }}" title="{{ hist.title }}" style="cursor:pointer; display:flex; align-items:center; gap:6px; font-family:'Pretendard','Inter',sans-serif; font-size:11.5px; font-weight:700; padding:7px 12px; border-radius:6px; border:1px solid rgba(255,255,255,.34); background:rgba(0,0,0,.16); color:#ffffff;"><span style="font-size:12px; line-height:1;">🕘</span> {{ hist.history }}</button>
         <button type="button" onClick="{{ toggleSysMenu }}" style="cursor:pointer; display:flex; align-items:center; gap:6px; font-family:'Pretendard','Inter',sans-serif; font-size:11.5px; font-weight:700; padding:7px 12px; border-radius:6px; border:1px solid rgba(255,255,255,.34); background:rgba(0,0,0,.16); color:#ffffff;"><span style="font-size:12px; line-height:1;">⚙</span> {{ sys.btn }}</button>
       </div>
     </div>
 
     <div style="display:flex; align-items:stretch; border-bottom:1px solid #e6e8ec; background:#ffffff;">
+      <button type="button" onClick="{{ goHome }}" title="{{ hist.home }}" style="cursor:pointer; display:flex; align-items:center; gap:8px; padding:13px 20px; border:none; border-right:1px solid #eef0f3; background:transparent;">
+        <span style="display:flex; align-items:center; justify-content:center; width:23px; height:23px; border-radius:50%; border:1.5px solid #d4d7db; color:#8a8f96; font-size:12px; line-height:1;">⌂</span>
+        <span style="font-size:12.5px; font-weight:600; color:#6b6f76;">{{ hist.home }}</span>
+      </button>
       <div style="display:flex; align-items:center; gap:10px; padding:14px 22px; border-bottom:3px solid #9E1B32; background:#ffffff;">
         <span style="width:24px; height:24px; border-radius:50%; background:#9E1B32; color:#fff; font-size:11px; font-weight:700; display:flex; align-items:center; justify-content:center;">1</span>
         <span style="display:flex; flex-direction:column; gap:1px;">
@@ -340,12 +384,18 @@
           </sc-for>
         </select>
         <button type="button" onClick="{{ gotoDb }}" style="cursor:pointer; display:flex; align-items:center; gap:6px; font-family:'Pretendard','Inter',sans-serif; font-size:11.5px; font-weight:700; padding:7px 12px; border-radius:6px; border:1px solid {{ dbBtnBorder }}; background:{{ dbBtnBg }}; color:#ffffff;"><span style="font-size:12px; line-height:1;">▤</span> {{ t.stepDbNav }}</button>
+        <button type="button" onClick="{{ saveSnapshot }}" title="{{ hist.save }}" style="cursor:pointer; display:flex; align-items:center; gap:6px; font-family:'Pretendard','Inter',sans-serif; font-size:11.5px; font-weight:700; padding:7px 12px; border-radius:6px; border:1px solid rgba(255,255,255,.34); background:{{ saveBtnBg }}; color:#ffffff;"><span style="font-size:12px; line-height:1;">💾</span> {{ saveBtnLabel }}</button>
+        <button type="button" onClick="{{ openHistory }}" title="{{ hist.title }}" style="cursor:pointer; display:flex; align-items:center; gap:6px; font-family:'Pretendard','Inter',sans-serif; font-size:11.5px; font-weight:700; padding:7px 12px; border-radius:6px; border:1px solid rgba(255,255,255,.34); background:rgba(0,0,0,.16); color:#ffffff;"><span style="font-size:12px; line-height:1;">🕘</span> {{ hist.history }}</button>
         <button type="button" onClick="{{ toggleSysMenu }}" style="cursor:pointer; display:flex; align-items:center; gap:6px; font-family:'Pretendard','Inter',sans-serif; font-size:11.5px; font-weight:700; padding:7px 12px; border-radius:6px; border:1px solid rgba(255,255,255,.34); background:rgba(0,0,0,.16); color:#ffffff;"><span style="font-size:12px; line-height:1;">⚙</span> {{ sys.btn }}</button>
       </div>
     </div>
 
     <!-- step nav -->
     <div style="display:flex; align-items:stretch; border-bottom:1px solid #e6e8ec; background:#ffffff;">
+      <button type="button" onClick="{{ goHome }}" title="{{ hist.home }}" style="cursor:pointer; display:flex; align-items:center; gap:8px; padding:13px 20px; border:none; border-right:1px solid #eef0f3; background:transparent;">
+        <span style="display:flex; align-items:center; justify-content:center; width:23px; height:23px; border-radius:50%; border:1.5px solid #d4d7db; color:#8a8f96; font-size:12px; line-height:1;">⌂</span>
+        <span style="font-size:12.5px; font-weight:600; color:#6b6f76;">{{ hist.home }}</span>
+      </button>
       <button type="button" onClick="{{ gotoTable }}" style="cursor:pointer; display:flex; align-items:center; gap:10px; padding:14px 22px; border:none; background:transparent;">
         <span style="width:24px; height:24px; border-radius:50%; background:#e6e8ec; color:#8a8f96; font-size:11px; font-weight:700; display:flex; align-items:center; justify-content:center;">←</span>
         <span style="display:flex; flex-direction:column; gap:1px; text-align:left;">
@@ -1012,7 +1062,7 @@
   &quot;showNotes&quot;: { &quot;editor&quot;: null, &quot;default&quot;: true, &quot;tsType&quot;: &quot;boolean&quot; }
 }">
 class Component extends DCLogic {
-  state = { camImage: null, accNames: {}, imgByName: {}, drawerOpen: true, view: 'table', tableQuery: '', roster: {}, rosterDraft: { model:'', category:'Turret', accCat:'MNT_WALL', accName:'', accs:[] }, dropActive: false, openLoc: null, settings: {}, profiles: {}, layout: {}, uidSeq: 1, addMenuLoc: null, productDb: {}, dbDraft: {}, dbDraftImg: {}, dbSaved: false, pickerKey: null, pickerCat: null, noteText: '', disabledLocs: {}, currentProfile: null };
+  state = { camImage: null, accNames: {}, imgByName: {}, drawerOpen: true, view: 'table', tableQuery: '', roster: {}, rosterDraft: { model:'', category:'Turret', accCat:'MNT_WALL', accName:'', accs:[] }, dropActive: false, openLoc: null, settings: {}, profiles: {}, layout: {}, uidSeq: 1, addMenuLoc: null, productDb: {}, dbDraft: {}, dbDraftImg: {}, dbSaved: false, pickerKey: null, pickerCat: null, noteText: '', disabledLocs: {}, currentProfile: null, history: [], historyOpen: false, savedFlash: false };
 
   LOCS = ['Wall', 'Ceiling', 'Pole', 'Corner', 'Parapet'];
   CODES = { Wall:'WL', Ceiling:'CL', Pole:'PO', Corner:'CR', Parapet:'PA' };
@@ -1075,6 +1125,12 @@ class Component extends DCLogic {
     ko: { btn:'설정', title:'시스템 설정', sub:'앱 전체에 적용됩니다', lang:'언어', data:'데이터', exportAll:'전체 제품 내보내기 (CSV + 이미지)', importAll:'제품 CSV 가져오기', dbLink:'악세서리 제품 데이터베이스', danger:'초기화', clearAll:'로컬 데이터 전체 삭제', clearHint:'이 브라우저에 저장된 제품 · 악세서리 · 문서 설정이 모두 삭제됩니다.', confirm:'로컬에 저장된 데이터를 모두 삭제할까요? 되돌릴 수 없습니다.', storage:'이 브라우저에 저장됨 · localStorage', close:'닫기' },
     ja: { btn:'設定', title:'システム設定', sub:'アプリ全体に適用されます', lang:'言語', data:'データ', exportAll:'全製品エクスポート (CSV + 画像)', importAll:'製品CSVを取り込む', dbLink:'アクセサリ製品データベース', danger:'初期化', clearAll:'ローカルデータをすべて削除', clearHint:'このブラウザに保存された製品・アクセサリ・文書設定がすべて削除されます。', confirm:'ローカル保存データをすべて削除しますか？元に戻せません。', storage:'このブラウザに保存 · localStorage', close:'閉じる' },
     es: { btn:'Ajustes', title:'Ajustes del sistema', sub:'Se aplica a toda la aplicación', lang:'Idioma', data:'Datos', exportAll:'Exportar todos los productos (CSV + imágenes)', importAll:'Importar CSV de productos', dbLink:'Base de datos de accesorios', danger:'Restablecer', clearAll:'Borrar todos los datos locales', clearHint:'Elimina todos los productos, accesorios y ajustes guardados en este navegador.', confirm:'¿Borrar todos los datos locales? No se puede deshacer.', storage:'Guardado en este navegador · localStorage', close:'Cerrar' },
+  };
+  HIST = {
+    en: { home:'Home', save:'Save', saved:'Saved', history:'History', title:'Version history', sub:'Saved restore points · shared with everyone', restore:'Restore', del:'Delete', empty:'No saved versions yet. Click Save to store a restore point everyone can see.', restoreConfirm:'Restore this version? Your current unsaved work will be replaced.', products:'products', guides:'guides' },
+    ko: { home:'홈', save:'저장', saved:'저장됨', history:'히스토리', title:'버전 히스토리', sub:'저장된 복원 지점 · 모두와 공유', restore:'복원', del:'삭제', empty:'저장된 버전이 없습니다. 저장을 누르면 모두가 볼 수 있는 복원 지점이 만들어집니다.', restoreConfirm:'이 버전으로 복원할까요? 현재 저장하지 않은 작업은 대체됩니다.', products:'제품', guides:'가이드' },
+    ja: { home:'ホーム', save:'保存', saved:'保存済み', history:'履歴', title:'バージョン履歴', sub:'保存した復元ポイント · 全員と共有', restore:'復元', del:'削除', empty:'保存されたバージョンがありません。保存を押すと全員が見える復元ポイントが作成されます。', restoreConfirm:'このバージョンに復元しますか？現在の未保存の作業は置き換えられます。', products:'製品', guides:'ガイド' },
+    es: { home:'Inicio', save:'Guardar', saved:'Guardado', history:'Historial', title:'Historial de versiones', sub:'Puntos de restauración guardados · compartidos con todos', restore:'Restaurar', del:'Eliminar', empty:'Aún no hay versiones guardadas. Pulse Guardar para crear un punto de restauración visible para todos.', restoreConfirm:'¿Restaurar esta versión? Su trabajo actual sin guardar se reemplazará.', products:'productos', guides:'guías' },
   };
   HELP_UI = {
     en: { btn:'Help', title:'Help & documentation', sub:'Feature reference and step-by-step guide', catF:'FEATURES', catU:'HOW TO USE', pdf:'Save full help as PDF', close:'Close' },
@@ -1333,6 +1389,7 @@ class Component extends DCLogic {
       if (rs) this.setState({ roster: JSON.parse(rs) || {} });
     } catch (e) {}
     this._loadDefaultRoster();
+    this._loadHistory();
   }
 
   // Auto-load the bundled product dataset (CSV committed at the repo root) when the
@@ -1544,6 +1601,84 @@ class Component extends DCLogic {
   savePdf = () => { try { window.print(); } catch (e) {} };
   openHelp = () => this.setState({ helpOpen: true, sysMenuOpen: false });
   closeHelp = () => this.setState({ helpOpen: false });
+
+  // ---- Version history (Save / History) — shared via /api/history (Vercel Blob), localStorage as cache/fallback ----
+  _hist = () => { const lang = (this.state.settings || {}).lang || 'en'; return this.HIST[lang] || this.HIST.en; };
+  _persistHistoryLocal = (h) => { try { localStorage.setItem('avycon_history', JSON.stringify(h || [])); } catch (e) {} };
+  _loadHistory = () => {
+    try { const c = localStorage.getItem('avycon_history'); if (c) { const a = JSON.parse(c); if (Array.isArray(a)) this.setState({ history: a }); } } catch (e) {}
+    try {
+      fetch('/api/history', { cache: 'no-store' })
+        .then((r) => r.ok ? r.json() : null)
+        .then((d) => { if (d && Array.isArray(d.snapshots)) { this._persistHistoryLocal(d.snapshots); this.setState({ history: d.snapshots }); } })
+        .catch(() => {});
+    } catch (e) {}
+  };
+  // Write the shared history to the cloud (best-effort) and cache locally.
+  _pushHistory = (history) => {
+    this._persistHistoryLocal(history);
+    try { fetch('/api/history', { method: 'POST', headers: { 'Content-Type': 'application/json' }, body: JSON.stringify({ snapshots: history }) }).catch(() => {}); } catch (e) {}
+  };
+  _snapshotData = () => ({
+    settings: this.state.settings || {}, accNames: this.state.accNames || {}, imgByName: this.state.imgByName || {},
+    layout: this.state.layout || {}, productDb: this.state.productDb || {}, profiles: this.state.profiles || {},
+    roster: this.state.roster || {}, noteText: this.state.noteText || '', disabledLocs: this.state.disabledLocs || {},
+    camImage: this.state.camImage || null, currentProfile: this.state.currentProfile || null,
+  });
+  saveSnapshot = () => {
+    const data = this._snapshotData();
+    const snap = {
+      id: 's' + Date.now() + '_' + Math.floor(Math.random() * 1e4), ts: new Date().toISOString(),
+      nProducts: Object.keys(data.roster || {}).length, nGuides: Object.keys(data.profiles || {}).length, data,
+    };
+    // Read-modify-write against the shared store so a save does not clobber someone else's recent version.
+    const apply = (base) => {
+      const history = [snap].concat(Array.isArray(base) ? base : []).slice(0, 20);
+      this.setState({ history, savedFlash: true });
+      this._pushHistory(history);
+      try { if (this._flashT) clearTimeout(this._flashT); this._flashT = setTimeout(() => this.setState({ savedFlash: false }), 1600); } catch (e) {}
+    };
+    try {
+      fetch('/api/history', { cache: 'no-store' })
+        .then((r) => r.ok ? r.json() : null)
+        .then((d) => apply(d && Array.isArray(d.snapshots) ? d.snapshots : (this.state.history || [])))
+        .catch(() => apply(this.state.history || []));
+    } catch (e) { apply(this.state.history || []); }
+  };
+  openHistory = () => { this.setState({ historyOpen: true, sysMenuOpen: false, drawerOpen: false }); this._loadHistory(); };
+  closeHistory = () => this.setState({ historyOpen: false });
+  stopHistory = (e) => { try { e.stopPropagation(); } catch (err) {} };
+  restoreSnapshot = (id) => {
+    const snap = (this.state.history || []).find((x) => x.id === id);
+    if (!snap || !snap.data) return;
+    try { if (!window.confirm(this._hist().restoreConfirm)) return; } catch (e) {}
+    const d = snap.data;
+    try {
+      localStorage.setItem('avycon_doc_settings', JSON.stringify(d.settings || {}));
+      localStorage.setItem('avycon_acc_names', JSON.stringify(d.accNames || {}));
+      localStorage.setItem('avycon_img_by_name', JSON.stringify(d.imgByName || {}));
+      localStorage.setItem('avycon_layout', JSON.stringify(d.layout || {}));
+      localStorage.setItem('avycon_product_db', JSON.stringify(d.productDb || {}));
+      localStorage.setItem('avycon_profiles', JSON.stringify(d.profiles || {}));
+      localStorage.setItem('avycon_roster', JSON.stringify(d.roster || {}));
+      localStorage.setItem('avycon_note', d.noteText || '');
+      localStorage.setItem('avycon_disabled_locs', JSON.stringify(d.disabledLocs || {}));
+      if (d.camImage) localStorage.setItem('avycon_cam_image', d.camImage); else localStorage.removeItem('avycon_cam_image');
+      if (d.currentProfile) localStorage.setItem('avycon_current_profile', d.currentProfile); else localStorage.removeItem('avycon_current_profile');
+    } catch (e) {}
+    this.setState({
+      settings: d.settings || {}, accNames: d.accNames || {}, imgByName: d.imgByName || {},
+      layout: d.layout || {}, productDb: d.productDb || {}, profiles: d.profiles || {},
+      roster: d.roster || {}, noteText: d.noteText || '', disabledLocs: d.disabledLocs || {},
+      camImage: d.camImage || null, currentProfile: d.currentProfile || null,
+      uidSeq: this._maxUid(d.layout || {}) + 1, historyOpen: false, view: 'table', drawerOpen: false,
+    }, () => { try { this._sizeNote(); } catch (e) {} });
+  };
+  deleteSnapshot = (id) => {
+    const history = (this.state.history || []).filter((x) => x.id !== id);
+    this.setState({ history });
+    this._pushHistory(history);
+  };
   setHelpSection = (id) => this.setState({ helpSection: id });
   _helpSet = () => this.HELP[(this.state.settings || {}).lang === 'ko' ? 'ko' : 'en'];
   // Renders the whole wiki off-screen and downloads it as a real .pdf file (no print dialog).
@@ -2543,6 +2678,23 @@ class Component extends DCLogic {
       toggleSysMenu: this.toggleSysMenu,
       closeSysMenu: this.closeSysMenu,
       clearAllData: this.clearAllData,
+      hist: this.HIST[lang] || this.HIST.en,
+      goHome: this.gotoTable,
+      saveSnapshot: this.saveSnapshot,
+      openHistory: this.openHistory,
+      closeHistory: this.closeHistory,
+      stopHistory: this.stopHistory,
+      historyOpen: !!this.state.historyOpen,
+      saveBtnLabel: this.state.savedFlash ? (this.HIST[lang] || this.HIST.en).saved : (this.HIST[lang] || this.HIST.en).save,
+      saveBtnBg: this.state.savedFlash ? '#2f8f6b' : 'rgba(0,0,0,.16)',
+      hasHistory: (this.state.history || []).length > 0,
+      noHistory: (this.state.history || []).length === 0,
+      historyList: (this.state.history || []).map((sn) => {
+        let when = sn.ts; try { when = new Date(sn.ts).toLocaleString(); } catch (e) {}
+        const hh = this.HIST[lang] || this.HIST.en;
+        const summary = (sn.nProducts || 0) + ' ' + hh.products + (sn.nGuides ? (' · ' + sn.nGuides + ' ' + hh.guides) : '');
+        return { id: sn.id, when: when, summary: summary, onRestore: () => this.restoreSnapshot(sn.id), onDelete: () => this.deleteSnapshot(sn.id) };
+      }),
       tableCountText: ((this.TBL[lang] || this.TBL.en).count).replace('{n}', tableRows.length).split('{ns}').join(tableRows.length === 1 ? '' : 's'),
       tableCols, tableRows, tableCount: tableRows.length,
       tableEmpty: tableRows.length === 0,
