@@ -333,14 +333,63 @@
         </div>
       </div>
 
-      <div style="display:flex; flex-direction:column; gap:12px;">
-        <span style="font-size:10px; font-weight:700; letter-spacing:1.2px; color:#9aa0a7;">{{ home.quick }}</span>
-        <div style="display:grid; grid-template-columns:repeat(5, 1fr); gap:12px;">
-          <button type="button" onClick="{{ gotoTable }}" style="cursor:pointer; text-align:left; display:flex; flex-direction:column; gap:6px; background:#fff; border:1px solid #e6e8ec; border-radius:10px; padding:15px 16px;"><span style="font-size:18px; line-height:1;">▤</span><span style="font-size:12.5px; font-weight:700; color:#1c1d1f;">{{ home.aData }}</span><span style="font-size:10px; color:#9aa0a7; line-height:1.4;">{{ home.aDataSub }}</span></button>
-          <button type="button" onClick="{{ gotoMain }}" style="cursor:pointer; text-align:left; display:flex; flex-direction:column; gap:6px; background:#fff; border:1px solid #e6e8ec; border-radius:10px; padding:15px 16px;"><span style="font-size:18px; line-height:1;">▦</span><span style="font-size:12.5px; font-weight:700; color:#1c1d1f;">{{ home.aGuide }}</span><span style="font-size:10px; color:#9aa0a7; line-height:1.4;">{{ home.aGuideSub }}</span></button>
-          <button type="button" onClick="{{ gotoCover }}" style="cursor:pointer; text-align:left; display:flex; flex-direction:column; gap:6px; background:#fff; border:1px solid #e6e8ec; border-radius:10px; padding:15px 16px;"><span style="font-size:18px; line-height:1;">▧</span><span style="font-size:12.5px; font-weight:700; color:#1c1d1f;">{{ home.aCover }}</span><span style="font-size:10px; color:#9aa0a7; line-height:1.4;">{{ home.aCoverSub }}</span></button>
-          <button type="button" onClick="{{ gotoFinal }}" style="cursor:pointer; text-align:left; display:flex; flex-direction:column; gap:6px; background:#fff; border:1px solid #e6e8ec; border-radius:10px; padding:15px 16px;"><span style="font-size:18px; line-height:1;">▨</span><span style="font-size:12.5px; font-weight:700; color:#1c1d1f;">{{ home.aFinal }}</span><span style="font-size:10px; color:#9aa0a7; line-height:1.4;">{{ home.aFinalSub }}</span></button>
-          <button type="button" onClick="{{ gotoDb }}" style="cursor:pointer; text-align:left; display:flex; flex-direction:column; gap:6px; background:#fff; border:1px solid #e6e8ec; border-radius:10px; padding:15px 16px;"><span style="font-size:18px; line-height:1;">▩</span><span style="font-size:12.5px; font-weight:700; color:#1c1d1f;">{{ home.aDb }}</span><span style="font-size:10px; color:#9aa0a7; line-height:1.4;">{{ home.aDbSub }}</span></button>
+      <!-- WORK LIST (main) -->
+      <div style="display:flex; flex-direction:column; gap:13px;">
+        <div style="display:flex; align-items:flex-end; justify-content:space-between; gap:16px; flex-wrap:wrap;">
+          <div style="display:flex; flex-direction:column; gap:3px;">
+            <span style="font-size:16px; font-weight:800; color:#1c1d1f;">{{ home.wlTitle }}</span>
+            <span style="font-size:11.5px; color:#8a8f96;">{{ home.wlSub }}</span>
+          </div>
+          <div style="display:flex; align-items:center; gap:9px; flex-wrap:wrap;">
+            <input type="text" value="{{ workQuery }}" onChange="{{ onWorkSearch }}" placeholder="{{ home.wlSearch }}" style="font-family:'Pretendard','Inter',sans-serif; font-size:12px; padding:9px 12px; border:1px solid #d4d7db; border-radius:7px; background:#fff; color:#1c1d1f; outline:none; width:180px;">
+            <select value="{{ workSort }}" onChange="{{ onWorkSort }}" style="cursor:pointer; font-family:'Pretendard','Inter',sans-serif; font-size:12px; padding:9px 10px; border:1px solid #d4d7db; border-radius:7px; background:#fff; color:#1c1d1f; outline:none;">
+              <sc-for list="{{ workSortOptions }}" as="so" hint-placeholder-count="3"><option value="{{ so.value }}">{{ so.label }}</option></sc-for>
+            </select>
+            <select value="{{ workPageSize }}" onChange="{{ onWorkPageSize }}" style="cursor:pointer; font-family:'Pretendard','Inter',sans-serif; font-size:12px; padding:9px 10px; border:1px solid #d4d7db; border-radius:7px; background:#fff; color:#1c1d1f; outline:none;">
+              <sc-for list="{{ workPageSizeOptions }}" as="ps" hint-placeholder-count="3"><option value="{{ ps.value }}">{{ ps.label }}</option></sc-for>
+            </select>
+            <span style="font-size:11px; font-weight:700; color:#9E1B32; background:#fdf1f3; border:1px solid #f0c9d1; padding:7px 12px; border-radius:20px; white-space:nowrap;">{{ workCount }} {{ home.wlProducts }}</span>
+          </div>
+        </div>
+
+        <div style="display:flex; align-items:center; gap:8px;">
+          <span style="font-size:10.5px; color:#9aa0a7;">{{ home.wlWorkingAs }}</span>
+          <input type="text" value="{{ userName }}" onChange="{{ onUserNameChange }}" placeholder="{{ home.wlAnon }}" style="font-family:'Pretendard','Inter',sans-serif; font-size:12px; font-weight:600; padding:6px 10px; border:1px solid #e0e3e7; border-radius:6px; background:#fff; color:#1c1d1f; outline:none; width:150px;">
+        </div>
+
+        <div style="border:1px solid #e6e8ec; border-radius:11px; overflow:hidden; background:#fff;">
+          <div style="display:grid; grid-template-columns:44px 1.5fr 0.9fr 1fr 1.3fr 1fr 84px; gap:10px; padding:12px 18px; background:#f7f8fa; border-bottom:1px solid #e6e8ec;">
+            <span style="font-size:9.5px; font-weight:700; letter-spacing:.6px; color:#9aa0a7;">#</span>
+            <span style="font-size:9.5px; font-weight:700; letter-spacing:.6px; color:#9aa0a7;">{{ home.colModel }}</span>
+            <span style="font-size:9.5px; font-weight:700; letter-spacing:.6px; color:#9aa0a7;">{{ home.colType }}</span>
+            <span style="font-size:9.5px; font-weight:700; letter-spacing:.6px; color:#9aa0a7;">{{ home.colAcc }}</span>
+            <span style="font-size:9.5px; font-weight:700; letter-spacing:.6px; color:#9aa0a7;">{{ home.colStatus }}</span>
+            <span style="font-size:9.5px; font-weight:700; letter-spacing:.6px; color:#9aa0a7;">{{ home.colBy }}</span>
+            <span></span>
+          </div>
+          <sc-for list="{{ workPageItems }}" as="w" hint-placeholder-count="6">
+            <div style="display:grid; grid-template-columns:44px 1.5fr 0.9fr 1fr 1.3fr 1fr 84px; gap:10px; align-items:center; padding:12px 18px; border-bottom:1px solid #f0f2f4;">
+              <span style="font-size:11px; color:#b4b9c0;">{{ w.num }}</span>
+              <span style="font-size:12.5px; font-weight:700; color:#9E1B32;">{{ w.model }}</span>
+              <span style="font-size:11.5px; color:#6b6f76;">{{ w.type }}</span>
+              <span style="font-size:11.5px; color:#6b6f76;">{{ w.accCount }}</span>
+              <span style="font-size:11.5px; font-weight:600; color:{{ w.statusColor }};">{{ w.statusText }}</span>
+              <span style="font-size:11.5px; color:#6b6f76;">{{ w.savedByText }}</span>
+              <button type="button" onClick="{{ w.onOpen }}" style="cursor:pointer; justify-self:end; font-family:'Pretendard','Inter',sans-serif; font-size:11px; font-weight:700; color:#9E1B32; background:transparent; border:none;">{{ home.wlOpen }} →</button>
+            </div>
+          </sc-for>
+          <sc-if value="{{ noWork }}" hint-placeholder-val="{{ false }}">
+            <div style="padding:30px; text-align:center; font-size:12px; color:#9aa0a7;">{{ home.wlEmpty }}</div>
+          </sc-if>
+        </div>
+
+        <div style="display:flex; align-items:center; justify-content:space-between; gap:12px;">
+          <span style="font-size:11px; color:#9aa0a7;">{{ workShownFrom }}–{{ workShownTo }} / {{ workCount }}</span>
+          <div style="display:flex; align-items:center; gap:8px;">
+            <button type="button" onClick="{{ workPrev }}" style="cursor:pointer; font-family:'Pretendard','Inter',sans-serif; font-size:11.5px; font-weight:600; color:#1c1d1f; background:#fff; border:1px solid #d4d7db; padding:7px 14px; border-radius:6px;">← {{ home.wlPrev }}</button>
+            <span style="font-size:11.5px; font-weight:700; color:#1c1d1f; min-width:52px; text-align:center;">{{ workPageLabel }}</span>
+            <button type="button" onClick="{{ workNext }}" style="cursor:pointer; font-family:'Pretendard','Inter',sans-serif; font-size:11.5px; font-weight:600; color:#1c1d1f; background:#fff; border:1px solid #d4d7db; padding:7px 14px; border-radius:6px;">{{ home.wlNext }} →</button>
+          </div>
         </div>
       </div>
 
@@ -366,17 +415,6 @@
           <div style="background:#fff; border:1px dashed #d4d7db; border-radius:9px; padding:26px 18px; text-align:center; font-size:12px; color:#9aa0a7; line-height:1.7;">{{ home.recentEmpty }}</div>
         </sc-if>
       </div>
-
-      <sc-if value="{{ hasProfiles }}" hint-placeholder-val="{{ false }}">
-      <div style="display:flex; flex-direction:column; gap:12px;">
-        <span style="font-size:10px; font-weight:700; letter-spacing:1.2px; color:#9aa0a7;">{{ home.savedProducts }}</span>
-        <div style="display:flex; flex-wrap:wrap; gap:8px;">
-          <sc-for list="{{ homeProfiles }}" as="pf" hint-placeholder-count="0">
-            <button type="button" onClick="{{ pf.onOpen }}" style="cursor:pointer; display:flex; align-items:center; gap:8px; font-family:'Pretendard','Inter',sans-serif; font-size:12px; font-weight:600; color:#1c1d1f; background:#fff; border:1px solid #d4d7db; padding:9px 14px; border-radius:8px;">{{ pf.name }} <span style="font-size:10px; color:#9E1B32;">{{ home.open }} →</span></button>
-          </sc-for>
-        </div>
-      </div>
-      </sc-if>
 
     </div>
   </div>
@@ -1195,7 +1233,7 @@
   &quot;showNotes&quot;: { &quot;editor&quot;: null, &quot;default&quot;: true, &quot;tsType&quot;: &quot;boolean&quot; }
 }">
 class Component extends DCLogic {
-  state = { camImage: null, accNames: {}, imgByName: {}, drawerOpen: true, view: 'home', tableQuery: '', roster: {}, rosterDraft: { model:'', category:'Turret', accCat:'MNT_WALL', accName:'', accs:[] }, dropActive: false, openLoc: null, settings: {}, profiles: {}, layout: {}, uidSeq: 1, addMenuLoc: null, productDb: {}, dbDraft: {}, dbDraftImg: {}, dbSaved: false, pickerKey: null, pickerCat: null, noteText: '', disabledLocs: {}, currentProfile: null, history: [], historyOpen: false, savedFlash: false };
+  state = { camImage: null, accNames: {}, imgByName: {}, drawerOpen: true, view: 'home', tableQuery: '', roster: {}, rosterDraft: { model:'', category:'Turret', accCat:'MNT_WALL', accName:'', accs:[] }, dropActive: false, openLoc: null, settings: {}, profiles: {}, layout: {}, uidSeq: 1, addMenuLoc: null, productDb: {}, dbDraft: {}, dbDraftImg: {}, dbSaved: false, pickerKey: null, pickerCat: null, noteText: '', disabledLocs: {}, currentProfile: null, history: [], historyOpen: false, savedFlash: false, workQuery: '', workSort: 'recent', workPage: 0, workPageSize: 20, userName: '' };
 
   LOCS = ['Wall', 'Ceiling', 'Pole', 'Corner', 'Parapet'];
   CODES = { Wall:'WL', Ceiling:'CL', Pole:'PO', Corner:'CR', Parapet:'PA' };
@@ -1266,10 +1304,10 @@ class Component extends DCLogic {
     es: { home:'Inicio', save:'Guardar', saved:'Guardado', history:'Historial', title:'Historial de versiones', sub:'Puntos de restauración guardados · compartidos con todos', restore:'Restaurar', del:'Eliminar', empty:'Aún no hay versiones guardadas. Pulse Guardar para crear un punto de restauración visible para todos.', restoreConfirm:'¿Restaurar esta versión? Su trabajo actual sin guardar se reemplazará.', products:'productos', guides:'guías' },
   };
   HOME = {
-    en: { title:'Dashboard', desc:'Overview of your product catalog and recent work. Continue where you left off, or jump straight into a step.', openData:'Open product data', build:'Build combination guide', quick:'QUICK ACTIONS', recent:'RECENT VERSIONS', recentEmpty:'No saved versions yet. Click Save in the top bar to store a restore point everyone can see.', sProducts:'Products', sGuides:'Saved guides', sVersions:'Saved versions', aData:'Product Data', aDataSub:'Camera · accessory matrix', aGuide:'Combination Guide', aGuideSub:'Build install-location combos', aCover:'Cover', aCoverSub:'Document cover', aFinal:'Final review', aFinalSub:'Preview & PDF', aDb:'Accessory DB', aDbSub:'Model & photo library', restore:'Restore', savedProducts:'SAVED PRODUCTS', open:'Open' },
-    ko: { title:'대시보드', desc:'제품 카탈로그와 최근 작업 개요입니다. 이어서 작업하거나 원하는 단계로 바로 이동하세요.', openData:'제품 데이터 열기', build:'결합 가이드 만들기', quick:'빠른 작업', recent:'최근 버전', recentEmpty:'저장된 버전이 없습니다. 상단 바의 저장을 누르면 모두가 볼 수 있는 복원 지점이 만들어집니다.', sProducts:'제품', sGuides:'저장된 가이드', sVersions:'저장된 버전', aData:'제품 데이터', aDataSub:'카메라 · 악세서리 매트릭스', aGuide:'결합 가이드', aGuideSub:'설치 위치별 조합 구성', aCover:'커버', aCoverSub:'문서 커버', aFinal:'최종 검토', aFinalSub:'미리보기 · PDF', aDb:'악세서리 DB', aDbSub:'모델 · 사진 라이브러리', restore:'복원', savedProducts:'저장된 제품', open:'열기' },
-    ja: { title:'ダッシュボード', desc:'製品カタログと最近の作業の概要です。続きから作業するか、各ステップへ移動できます。', openData:'製品データを開く', build:'組合せガイドを作成', quick:'クイック操作', recent:'最近のバージョン', recentEmpty:'保存されたバージョンがありません。上部バーの保存を押すと全員が見える復元ポイントが作成されます。', sProducts:'製品', sGuides:'保存済みガイド', sVersions:'保存済みバージョン', aData:'製品データ', aDataSub:'カメラ · アクセサリ表', aGuide:'組合せガイド', aGuideSub:'設置場所別の組合せ', aCover:'カバー', aCoverSub:'文書カバー', aFinal:'最終確認', aFinalSub:'プレビュー · PDF', aDb:'アクセサリDB', aDbSub:'モデル · 写真ライブラリ', restore:'復元', savedProducts:'保存済み製品', open:'開く' },
-    es: { title:'Panel', desc:'Resumen de su catálogo de productos y trabajo reciente. Continúe donde lo dejó o vaya directo a un paso.', openData:'Abrir datos de productos', build:'Crear guía de combinación', quick:'ACCIONES RÁPIDAS', recent:'VERSIONES RECIENTES', recentEmpty:'Aún no hay versiones guardadas. Pulse Guardar en la barra superior para crear un punto de restauración visible para todos.', sProducts:'Productos', sGuides:'Guías guardadas', sVersions:'Versiones guardadas', aData:'Datos de productos', aDataSub:'Matriz cámara · accesorio', aGuide:'Guía de combinación', aGuideSub:'Combos por ubicación', aCover:'Portada', aCoverSub:'Portada del documento', aFinal:'Revisión final', aFinalSub:'Vista previa y PDF', aDb:'BD de accesorios', aDbSub:'Biblioteca de modelos y fotos', restore:'Restaurar', savedProducts:'PRODUCTOS GUARDADOS', open:'Abrir' },
+    en: { title:'Dashboard', desc:'Overview of your product catalog and recent work. Continue where you left off, or jump straight into a step.', openData:'Open product data', build:'Build combination guide', quick:'QUICK ACTIONS', recent:'RECENT VERSIONS', recentEmpty:'No saved versions yet. Click Save in the top bar to store a restore point everyone can see.', sProducts:'Products', sGuides:'Saved guides', sVersions:'Saved versions', aData:'Product Data', aDataSub:'Camera · accessory matrix', aGuide:'Combination Guide', aGuideSub:'Build install-location combos', aCover:'Cover', aCoverSub:'Document cover', aFinal:'Final review', aFinalSub:'Preview & PDF', aDb:'Accessory DB', aDbSub:'Model & photo library', restore:'Restore', savedProducts:'SAVED PRODUCTS', open:'Open', wlTitle:'Product work list', wlSub:'Products loaded or worked on so far. Open a row to continue.', wlSearch:'Search model', wlRecent:'Recent', wlNameSort:'Model name', wlStatusSort:'Status', wlProducts:'products', wlWorkingAs:'Working as', wlAnon:'anonymous', colModel:'MODEL', colType:'TYPE', colAcc:'ACCESSORIES', colStatus:'STATUS', colBy:'SAVED BY', colAction:'', wlSaved:'Saved', wlNotStarted:'Not started', wlOpen:'Open', wlEmpty:'No products match.', wlPrev:'Prev', wlNext:'Next' },
+    ko: { title:'대시보드', desc:'제품 카탈로그와 최근 작업 개요입니다. 이어서 작업하거나 원하는 단계로 바로 이동하세요.', openData:'제품 데이터 열기', build:'결합 가이드 만들기', quick:'빠른 작업', recent:'최근 버전', recentEmpty:'저장된 버전이 없습니다. 상단 바의 저장을 누르면 모두가 볼 수 있는 복원 지점이 만들어집니다.', sProducts:'제품', sGuides:'저장된 가이드', sVersions:'저장된 버전', aData:'제품 데이터', aDataSub:'카메라 · 악세서리 매트릭스', aGuide:'결합 가이드', aGuideSub:'설치 위치별 조합 구성', aCover:'커버', aCoverSub:'문서 커버', aFinal:'최종 검토', aFinalSub:'미리보기 · PDF', aDb:'악세서리 DB', aDbSub:'모델 · 사진 라이브러리', restore:'복원', savedProducts:'저장된 제품', open:'열기', wlTitle:'제품 작업 리스트', wlSub:'지금까지 불러오거나 작업한 제품입니다. 행을 열어 이어서 작업하세요.', wlSearch:'모델 검색', wlRecent:'최근순', wlNameSort:'모델명순', wlStatusSort:'상태순', wlProducts:'제품', wlWorkingAs:'작업자', wlAnon:'익명', colModel:'모델', colType:'타입', colAcc:'악세서리', colStatus:'상태', colBy:'저장자', colAction:'', wlSaved:'저장됨', wlNotStarted:'시작 안 함', wlOpen:'열기', wlEmpty:'일치하는 제품이 없습니다.', wlPrev:'이전', wlNext:'다음' },
+    ja: { title:'ダッシュボード', desc:'製品カタログと最近の作業の概要です。続きから作業するか、各ステップへ移動できます。', openData:'製品データを開く', build:'組合せガイドを作成', quick:'クイック操作', recent:'最近のバージョン', recentEmpty:'保存されたバージョンがありません。上部バーの保存を押すと全員が見える復元ポイントが作成されます。', sProducts:'製品', sGuides:'保存済みガイド', sVersions:'保存済みバージョン', aData:'製品データ', aDataSub:'カメラ · アクセサリ表', aGuide:'組合せガイド', aGuideSub:'設置場所別の組合せ', aCover:'カバー', aCoverSub:'文書カバー', aFinal:'最終確認', aFinalSub:'プレビュー · PDF', aDb:'アクセサリDB', aDbSub:'モデル · 写真ライブラリ', restore:'復元', savedProducts:'保存済み製品', open:'開く', wlTitle:'製品作業リスト', wlSub:'これまでに読み込み・作業した製品です。行を開いて続けてください。', wlSearch:'モデル検索', wlRecent:'最近順', wlNameSort:'モデル名順', wlStatusSort:'状態順', wlProducts:'製品', wlWorkingAs:'作業者', wlAnon:'匿名', colModel:'モデル', colType:'タイプ', colAcc:'アクセサリ', colStatus:'状態', colBy:'保存者', colAction:'', wlSaved:'保存済み', wlNotStarted:'未着手', wlOpen:'開く', wlEmpty:'一致する製品がありません。', wlPrev:'前へ', wlNext:'次へ' },
+    es: { title:'Panel', desc:'Resumen de su catálogo de productos y trabajo reciente. Continúe donde lo dejó o vaya directo a un paso.', openData:'Abrir datos de productos', build:'Crear guía de combinación', quick:'ACCIONES RÁPIDAS', recent:'VERSIONES RECIENTES', recentEmpty:'Aún no hay versiones guardadas. Pulse Guardar en la barra superior para crear un punto de restauración visible para todos.', sProducts:'Productos', sGuides:'Guías guardadas', sVersions:'Versiones guardadas', aData:'Datos de productos', aDataSub:'Matriz cámara · accesorio', aGuide:'Guía de combinación', aGuideSub:'Combos por ubicación', aCover:'Portada', aCoverSub:'Portada del documento', aFinal:'Revisión final', aFinalSub:'Vista previa y PDF', aDb:'BD de accesorios', aDbSub:'Biblioteca de modelos y fotos', restore:'Restaurar', savedProducts:'PRODUCTOS GUARDADOS', open:'Abrir', wlTitle:'Lista de trabajo de productos', wlSub:'Productos cargados o trabajados hasta ahora. Abra una fila para continuar.', wlSearch:'Buscar modelo', wlRecent:'Recientes', wlNameSort:'Nombre de modelo', wlStatusSort:'Estado', wlProducts:'productos', wlWorkingAs:'Trabajando como', wlAnon:'anónimo', colModel:'MODELO', colType:'TIPO', colAcc:'ACCESORIOS', colStatus:'ESTADO', colBy:'GUARDADO POR', colAction:'', wlSaved:'Guardado', wlNotStarted:'No iniciado', wlOpen:'Abrir', wlEmpty:'No hay productos que coincidan.', wlPrev:'Ant.', wlNext:'Sig.' },
   };
   HELP_UI = {
     en: { btn:'Help', title:'Help & documentation', sub:'Feature reference and step-by-step guide', catF:'FEATURES', catU:'HOW TO USE', pdf:'Save full help as PDF', close:'Close' },
@@ -1529,6 +1567,8 @@ class Component extends DCLogic {
     } catch (e) {}
     this._loadDefaultRoster();
     this._loadHistory();
+    this._loadSharedProfiles();
+    try { const un = localStorage.getItem('avycon_username'); if (un != null) this.setState({ userName: un }); } catch (e) {}
   }
 
   // Auto-load the bundled product dataset (CSV committed at the repo root) when the
@@ -2270,6 +2310,41 @@ class Component extends DCLogic {
   };
 
   _persistProfiles = (p) => { try { localStorage.setItem('avycon_profiles', JSON.stringify(p)); } catch (e) {} };
+
+  // ---- Shared work list: saved guides synced via /api/products (Vercel Blob) so everyone sees the same list ----
+  _mergeProfiles = (a, b) => {
+    const out = { ...(a || {}) };
+    Object.keys(b || {}).forEach((k) => {
+      const cur = out[k]; const inc = b[k];
+      if (!cur || String((inc && inc.updatedAt) || '') >= String((cur && cur.updatedAt) || '')) out[k] = inc;
+    });
+    return out;
+  };
+  _loadSharedProfiles = () => {
+    try {
+      fetch('/api/products', { cache: 'no-store' })
+        .then((r) => r.ok ? r.json() : null)
+        .then((d) => { if (d && d.profiles) this.setState((s) => { const merged = this._mergeProfiles(s.profiles, d.profiles); this._persistProfiles(merged); return { profiles: merged }; }); })
+        .catch(() => {});
+    } catch (e) {}
+  };
+  // Read-modify-write the shared store so one save does not clobber another person's saved guides.
+  _pushSharedProfiles = () => {
+    const mine = this.state.profiles || {};
+    const post = (profiles) => { try { fetch('/api/products', { method: 'POST', headers: { 'Content-Type': 'application/json' }, body: JSON.stringify({ profiles }) }).catch(() => {}); } catch (e) {} };
+    try {
+      fetch('/api/products', { cache: 'no-store' })
+        .then((r) => r.ok ? r.json() : null)
+        .then((d) => { const merged = this._mergeProfiles((d && d.profiles) || {}, mine); this._persistProfiles(merged); this.setState({ profiles: merged }); post(merged); })
+        .catch(() => post(mine));
+    } catch (e) { post(mine); }
+  };
+  setUserName = (e) => { const v = e.target.value; this.setState({ userName: v }); try { localStorage.setItem('avycon_username', v || ''); } catch (err) {} };
+  setWorkQuery = (e) => this.setState({ workQuery: e.target.value, workPage: 0 });
+  setWorkSort = (e) => this.setState({ workSort: e.target.value, workPage: 0 });
+  setWorkPageSize = (e) => this.setState({ workPageSize: parseInt(e.target.value, 10) || 20, workPage: 0 });
+  workPrev = () => this.setState((s) => ({ workPage: Math.max(0, (s.workPage || 0) - 1) }));
+  workNext = () => this.setState((s) => ({ workPage: (s.workPage || 0) + 1 }));
   saveProfile = () => {
     const S = this.state.settings || {};
     const model = ((S.cameraModel ?? this.props.cameraModel) ?? '').trim();
@@ -2288,13 +2363,14 @@ class Component extends DCLogic {
       layout: JSON.parse(JSON.stringify(this.state.layout || {})),
       accessories: this._flattenAccessories(accNames, imgByName),
       updatedAt: new Date().toISOString(),
+      savedBy: ((this.state.userName || '').trim() || 'anonymous'),
     };
     this.setState(s => {
       const profiles = { ...s.profiles, [model]: profile };
       this._persistProfiles(profiles);
       try { localStorage.setItem('avycon_current_profile', model); } catch (e) {}
       return { profiles, currentProfile: model };
-    });
+    }, () => this._pushSharedProfiles());
   };
   loadProfile = (model) => {
     const p = (this.state.profiles || {})[model];
@@ -2749,6 +2825,35 @@ class Component extends DCLogic {
       };
     }).filter(r => !q || r._hay.indexOf(q) !== -1).map((r, i) => ({ ...r, num: i + 1 }));
 
+    // --- Shared work list: all roster products + saved-guide status ---
+    const _wProfiles = this.state.profiles || {};
+    const _wRoster = this.state.roster || {};
+    const _wHome = this.HOME[lang] || this.HOME.en;
+    const _wq = String(this.state.workQuery || '').trim().toLowerCase();
+    const _wsort = this.state.workSort || 'recent';
+    const _wfmt = (iso) => { try { const d = new Date(iso); return d.toLocaleDateString() + ' ' + d.toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' }); } catch (e) { return String(iso || ''); } };
+    let _wItems = Object.keys(_wRoster).map((k) => {
+      const e = _wRoster[k] || {}; const p = _wProfiles[k];
+      return { key: k, model: e.model || k, type: e.category || '—', accCount: (e.accs || []).length,
+        saved: !!p, updatedAt: p ? (p.updatedAt || '') : '', savedBy: p ? (p.savedBy || _wHome.wlAnon) : '',
+        _hay: (k + ' ' + (e.category || '')).toLowerCase() };
+    });
+    if (_wq) _wItems = _wItems.filter((r) => r._hay.indexOf(_wq) !== -1);
+    if (_wsort === 'name') _wItems.sort((a, b) => a.model.localeCompare(b.model));
+    else if (_wsort === 'status') _wItems.sort((a, b) => (Number(b.saved) - Number(a.saved)) || a.model.localeCompare(b.model));
+    else _wItems.sort((a, b) => (Number(b.saved) - Number(a.saved)) || String(b.updatedAt).localeCompare(String(a.updatedAt)) || a.model.localeCompare(b.model));
+    const _wCount = _wItems.length;
+    const _wSize = this.state.workPageSize || 20;
+    const _wPages = Math.max(1, Math.ceil(_wCount / _wSize));
+    const _wPage = Math.min(Math.max(0, this.state.workPage || 0), _wPages - 1);
+    const _wSlice = _wItems.slice(_wPage * _wSize, _wPage * _wSize + _wSize).map((r, i) => ({
+      num: _wPage * _wSize + i + 1, model: r.model, type: r.type, accCount: r.accCount,
+      statusText: r.saved ? (_wHome.wlSaved + ' · ' + _wfmt(r.updatedAt)) : _wHome.wlNotStarted,
+      statusColor: r.saved ? '#2f8f6b' : '#b4b9c0',
+      savedByText: r.saved ? (r.savedBy || _wHome.wlAnon) : '—',
+      onOpen: r.saved ? (() => this.loadProfile(r.key)) : (() => this.openProduct(r.key)),
+    }));
+
     const IN = this.state.importNotice;
     const sidebarOn = this.state.drawerOpen && view !== 'setup' && view !== 'table' && view !== 'final' && view !== 'home';
     return {
@@ -2788,6 +2893,24 @@ class Component extends DCLogic {
         const summary = (sn.nProducts || 0) + ' ' + hp.products + (sn.nGuides ? (' · ' + sn.nGuides + ' ' + hp.guides) : '');
         return { id: sn.id, when: when, summary: summary, onRestore: () => this.restoreSnapshot(sn.id) };
       }),
+      workPageItems: _wSlice,
+      workCount: _wCount,
+      workShownFrom: _wCount ? (_wPage * _wSize + 1) : 0,
+      workShownTo: Math.min(_wCount, _wPage * _wSize + _wSize),
+      workPageLabel: (_wPage + 1) + ' / ' + _wPages,
+      noWork: _wCount === 0,
+      workQuery: this.state.workQuery || '',
+      onWorkSearch: this.setWorkQuery,
+      workSort: _wsort,
+      onWorkSort: this.setWorkSort,
+      workSortOptions: [{ value: 'recent', label: _wHome.wlRecent }, { value: 'name', label: _wHome.wlNameSort }, { value: 'status', label: _wHome.wlStatusSort }],
+      workPageSize: String(_wSize),
+      onWorkPageSize: this.setWorkPageSize,
+      workPageSizeOptions: [{ value: '10', label: '10 / page' }, { value: '20', label: '20 / page' }, { value: '50', label: '50 / page' }],
+      workPrev: this.workPrev,
+      workNext: this.workNext,
+      userName: this.state.userName || '',
+      onUserNameChange: this.setUserName,
       notDb: view !== 'db',
       gotoTable: this.gotoTable,
       tableQuery: this.state.tableQuery || '',
