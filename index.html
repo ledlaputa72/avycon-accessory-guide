@@ -1188,6 +1188,7 @@
       <span style="font-family:'Pretendard','Inter',sans-serif; font-size:9px; letter-spacing:1px; color:#9aa0a7; margin-right:2px;">{{ t.data }}</span>
       <button type="button" onClick="{{ exportProductCsv }}" style="cursor:pointer; font-family:'Pretendard','Inter',sans-serif; font-size:10.5px; font-weight:600; color:#1c1d1f; background:#fff; border:1px solid #d4d7db; padding:8px 13px; border-radius:6px;">{{ t.csvExport }} ↓</button>
       <label style="cursor:pointer; font-family:'Pretendard','Inter',sans-serif; font-size:10.5px; font-weight:600; color:#fff; background:#1c1d1f; padding:8px 13px; border-radius:6px;">{{ t.csvImport }} ↑<input type="file" accept=".csv,text/csv" onChange="{{ importProductCsv }}" style="display:none;"></label>
+      <label style="cursor:pointer; font-family:'Pretendard','Inter',sans-serif; font-size:10.5px; font-weight:600; color:#fff; background:#2f6b4f; padding:8px 13px; border-radius:6px;">⬆ {{ combo.dbXlsxBtn }}<input type="file" accept=".xlsx,application/vnd.openxmlformats-officedocument.spreadsheetml.sheet" onChange="{{ importProductXlsx }}" style="display:none;"></label>
       <sc-if value="{{ hasLocalImages }}" hint-placeholder-val="{{ false }}">
         <button type="button" onClick="{{ migrateImages }}" title="{{ t.syncImages }}" style="cursor:pointer; font-family:'Pretendard','Inter',sans-serif; font-size:10.5px; font-weight:600; color:#fff; background:#b07d2f; border:none; padding:8px 13px; border-radius:6px;">{{ migrateLabel }}</button>
       </sc-if>
@@ -1276,7 +1277,7 @@ class Component extends DCLogic {
   TPL_ORDER = ['single','box','adp','ext'];
   // Accessory product database categories (independent of install location)
   // 9 accessory categories: 6 location mounts + junction box, dual junction box, adaptor & others
-  DB_CAT_KEYS = ['MNT_WALL','MNT_CEIL','MNT_INCEIL','MNT_POLE','MNT_CORN','MNT_PARA','BOX','BOX_DUAL','ADP'];
+  DB_CAT_KEYS = ['MNT_WALL','MNT_CEIL','MNT_INCEIL','MNT_POLE','MNT_CORN','MNT_PARA','BOX','BOX_DUAL','ADP','ADDON'];
   // labels come from CAT_I18N so every screen names a category the same way
   get DB_CATS() {
     return this.DB_CAT_KEYS.map(key => {
@@ -1311,6 +1312,7 @@ class Component extends DCLogic {
     BOX:     { en:'Junction Box',   ko:'정션 박스',   ja:'ジャンクションボックス', es:'Caja de conexiones' },
     BOX_DUAL:{ en:'Dual Junction Box', ko:'듀얼 정션 박스', ja:'デュアルジャンクションボックス', es:'Caja de conexiones doble' },
     ADP:     { en:'Adapter & others', ko:'어댑터 · 기타', ja:'アダプター・その他', es:'Adaptador y otros' },
+    ADDON:   { en:'Additional Add-on', ko:'추가 애드온', ja:'追加アドオン', es:'Complemento adicional' },
     HOUSING: { en:'Housing',        ko:'하우징',     ja:'ハウジング',           es:'Carcasa' },
   };
   T = {
@@ -1339,10 +1341,10 @@ class Component extends DCLogic {
     es: { title:'Panel', desc:'Resumen de su catálogo de productos y trabajo reciente. Continúe donde lo dejó o vaya directo a un paso.', openData:'Abrir datos de productos', build:'Crear guía de combinación', quick:'ACCIONES RÁPIDAS', recent:'VERSIONES RECIENTES', recentEmpty:'Aún no hay versiones guardadas. Pulse Guardar en la barra superior para crear un punto de restauración visible para todos.', sProducts:'Productos', sGuides:'Guías guardadas', sVersions:'Versiones guardadas', aData:'Datos de productos', aDataSub:'Matriz cámara · accesorio', aGuide:'Guía de combinación', aGuideSub:'Combos por ubicación', aCover:'Portada', aCoverSub:'Portada del documento', aFinal:'Revisión final', aFinalSub:'Vista previa y PDF', aDb:'BD de accesorios', aDbSub:'Biblioteca de modelos y fotos', restore:'Restaurar', savedProducts:'PRODUCTOS GUARDADOS', open:'Abrir', wlTitle:'Lista de trabajo de productos', wlSub:'Productos cargados o trabajados hasta ahora. Abra una fila para continuar.', wlSearch:'Buscar modelo', wlRecent:'Recientes', wlNameSort:'Nombre de modelo', wlStatusSort:'Estado', wlProducts:'productos', wlWorkingAs:'Trabajando como', wlAnon:'anónimo', colModel:'MODELO', colType:'TIPO', colAcc:'ACCESORIOS', colStatus:'ESTADO', colBy:'GUARDADO POR', colAction:'', wlSaved:'Guardado', wlNotStarted:'No iniciado', wlOpen:'Abrir', wlEmpty:'No hay productos que coincidan.', wlPrev:'Ant.', wlNext:'Sig.' },
   };
   COMBO = {
-    en: { title:'Combination data', desc:'Upload the per-camera Excel of combination cases. Reference (hidden) columns are ignored. Review and edit here — the combination guide is generated from this.', upload:'Upload Excel (.xlsx)', reupload:'Replace Excel', clear:'Clear', busy:'Reading Excel…', empty:'No combination data yet. Upload the camera Excel (.xlsx) to organize its cases here.', cam:'Camera', type:'Type', cases:'cases', caseId:'CASE', accessories:'ACCESSORIES (in order)', count:'ACC', remarks:'REMARKS', remarksPh:'—', next:'Confirm · Next (Combination Guide)', clearConfirm:'Clear the uploaded combination data?', parseEmpty:'No combination rows found. Check the Excel format.', parseFail:'Failed to read the Excel:', loaderFail:'Could not load the Excel reader (check your connection).' },
-    ko: { title:'결합 데이터', desc:'카메라별 결합 케이스 엑셀을 업로드하세요. 참조(숨김) 열은 무시됩니다. 여기서 확인·수정하며, 이 데이터로 결합 가이드가 생성됩니다.', upload:'엑셀 업로드 (.xlsx)', reupload:'엑셀 교체', clear:'비우기', busy:'엑셀 읽는 중…', empty:'결합 데이터가 없습니다. 카메라 엑셀(.xlsx)을 업로드하면 케이스가 여기 정리됩니다.', cam:'카메라', type:'유형', cases:'케이스', caseId:'케이스', accessories:'악세서리 (순서대로)', count:'개수', remarks:'비고', remarksPh:'—', next:'확인 · 다음 단계 (결합 가이드)', clearConfirm:'업로드한 결합 데이터를 비울까요?', parseEmpty:'결합 행을 찾지 못했습니다. 엑셀 형식을 확인하세요.', parseFail:'엑셀을 읽지 못했습니다:', loaderFail:'엑셀 리더를 불러오지 못했습니다(연결 확인).' },
-    ja: { title:'組合せデータ', desc:'カメラ別の組合せケースExcelをアップロードしてください。参照(非表示)列は無視されます。ここで確認・編集でき、このデータから組合せガイドが生成されます。', upload:'Excelをアップロード (.xlsx)', reupload:'Excelを差し替え', clear:'クリア', busy:'Excelを読み込み中…', empty:'組合せデータがありません。カメラのExcel(.xlsx)をアップロードするとケースが整理されます。', cam:'カメラ', type:'タイプ', cases:'ケース', caseId:'ケース', accessories:'アクセサリ（順番）', count:'数', remarks:'備考', remarksPh:'—', next:'確認 · 次へ (組合せガイド)', clearConfirm:'アップロードした組合せデータをクリアしますか？', parseEmpty:'組合せ行が見つかりません。Excel形式を確認してください。', parseFail:'Excelを読み込めませんでした:', loaderFail:'Excelリーダーを読み込めませんでした（接続を確認）。' },
-    es: { title:'Datos de combinación', desc:'Suba el Excel de casos de combinación por cámara. Las columnas de referencia (ocultas) se ignoran. Revise y edite aquí; la guía de combinación se genera a partir de esto.', upload:'Subir Excel (.xlsx)', reupload:'Reemplazar Excel', clear:'Vaciar', busy:'Leyendo Excel…', empty:'Aún no hay datos de combinación. Suba el Excel de la cámara (.xlsx) para organizar sus casos aquí.', cam:'Cámara', type:'Tipo', cases:'casos', caseId:'CASO', accessories:'ACCESORIOS (en orden)', count:'ACC', remarks:'NOTAS', remarksPh:'—', next:'Confirmar · Siguiente (Guía de combinación)', clearConfirm:'¿Vaciar los datos de combinación subidos?', parseEmpty:'No se encontraron filas de combinación. Revise el formato del Excel.', parseFail:'No se pudo leer el Excel:', loaderFail:'No se pudo cargar el lector de Excel (revise su conexión).' },
+    en: { title:'Combination data', desc:'Upload the per-camera Excel of combination cases. Reference (hidden) columns are ignored. Review and edit here — the combination guide is generated from this.', upload:'Upload Excel (.xlsx)', reupload:'Replace Excel', clear:'Clear', busy:'Reading Excel…', empty:'No combination data yet. Upload the camera Excel (.xlsx) to organize its cases here.', cam:'Camera', type:'Type', cases:'cases', caseId:'CASE', accessories:'ACCESSORIES (in order)', count:'ACC', remarks:'REMARKS', remarksPh:'—', next:'Confirm · Next (Combination Guide)', clearConfirm:'Clear the uploaded combination data?', parseEmpty:'No combination rows found. Check the Excel format.', parseFail:'Failed to read the Excel:', loaderFail:'Could not load the Excel reader (check your connection).', dbXlsxBtn:'Import Excel', xlsxImported:'Import done — {added} new, {updated} existing updated, {img} image links set.' },
+    ko: { title:'결합 데이터', desc:'카메라별 결합 케이스 엑셀을 업로드하세요. 참조(숨김) 열은 무시됩니다. 여기서 확인·수정하며, 이 데이터로 결합 가이드가 생성됩니다.', upload:'엑셀 업로드 (.xlsx)', reupload:'엑셀 교체', clear:'비우기', busy:'엑셀 읽는 중…', empty:'결합 데이터가 없습니다. 카메라 엑셀(.xlsx)을 업로드하면 케이스가 여기 정리됩니다.', cam:'카메라', type:'유형', cases:'케이스', caseId:'케이스', accessories:'악세서리 (순서대로)', count:'개수', remarks:'비고', remarksPh:'—', next:'확인 · 다음 단계 (결합 가이드)', clearConfirm:'업로드한 결합 데이터를 비울까요?', parseEmpty:'결합 행을 찾지 못했습니다. 엑셀 형식을 확인하세요.', parseFail:'엑셀을 읽지 못했습니다:', loaderFail:'엑셀 리더를 불러오지 못했습니다(연결 확인).', dbXlsxBtn:'엑셀 가져오기', xlsxImported:'가져오기 완료 — 신규 {added}개, 기존 {updated}개 갱신, 이미지 {img}개 적용.' },
+    ja: { title:'組合せデータ', desc:'カメラ別の組合せケースExcelをアップロードしてください。参照(非表示)列は無視されます。ここで確認・編集でき、このデータから組合せガイドが生成されます。', upload:'Excelをアップロード (.xlsx)', reupload:'Excelを差し替え', clear:'クリア', busy:'Excelを読み込み中…', empty:'組合せデータがありません。カメラのExcel(.xlsx)をアップロードするとケースが整理されます。', cam:'カメラ', type:'タイプ', cases:'ケース', caseId:'ケース', accessories:'アクセサリ（順番）', count:'数', remarks:'備考', remarksPh:'—', next:'確認 · 次へ (組合せガイド)', clearConfirm:'アップロードした組合せデータをクリアしますか？', parseEmpty:'組合せ行が見つかりません。Excel形式を確認してください。', parseFail:'Excelを読み込めませんでした:', loaderFail:'Excelリーダーを読み込めませんでした（接続を確認）。', dbXlsxBtn:'Excel取込', xlsxImported:'取込完了 — 新規{added}件、既存{updated}件更新、画像{img}件設定。' },
+    es: { title:'Datos de combinación', desc:'Suba el Excel de casos de combinación por cámara. Las columnas de referencia (ocultas) se ignoran. Revise y edite aquí; la guía de combinación se genera a partir de esto.', upload:'Subir Excel (.xlsx)', reupload:'Reemplazar Excel', clear:'Vaciar', busy:'Leyendo Excel…', empty:'Aún no hay datos de combinación. Suba el Excel de la cámara (.xlsx) para organizar sus casos aquí.', cam:'Cámara', type:'Tipo', cases:'casos', caseId:'CASO', accessories:'ACCESORIOS (en orden)', count:'ACC', remarks:'NOTAS', remarksPh:'—', next:'Confirmar · Siguiente (Guía de combinación)', clearConfirm:'¿Vaciar los datos de combinación subidos?', parseEmpty:'No se encontraron filas de combinación. Revise el formato del Excel.', parseFail:'No se pudo leer el Excel:', loaderFail:'No se pudo cargar el lector de Excel (revise su conexión).', dbXlsxBtn:'Importar Excel', xlsxImported:'Importación lista — {added} nuevos, {updated} actualizados, {img} imágenes.' },
   };
   HELP_UI = {
     en: { btn:'Help', title:'Help & documentation', sub:'Feature reference and step-by-step guide', catF:'FEATURES', catU:'HOW TO USE', pdf:'Save full help as PDF', close:'Close' },
@@ -2427,6 +2429,65 @@ class Component extends DCLogic {
     };
     reader.readAsText(f);
   };
+  // Import the accessory-definition Excel (모델 / 카테고리 / 이미지 Link) into the product database.
+  // Adds new accessories and UPDATES existing ones (fills/replaces the image link).
+  importProductXlsx = (e) => {
+    const f = e.target && e.target.files && e.target.files[0]; if (!f) return;
+    e.target.value = '';
+    const reader = new FileReader();
+    reader.onload = () => {
+      this._ensureXLSX().then((XLSX) => {
+        try {
+          const wb = XLSX.read(new Uint8Array(reader.result), { type: 'array' });
+          // Prefer the sheet whose header has 모델 + 카테고리 (the accessory definition); else the first sheet.
+          let ws = null;
+          for (let si = 0; si < wb.SheetNames.length; si++) {
+            const s = wb.Sheets[wb.SheetNames[si]];
+            const r0 = (XLSX.utils.sheet_to_json(s, { header: 1, defval: '' })[0] || []).map(x => String(x || '').trim());
+            const has = (n) => r0.some(h => h.toLowerCase() === n);
+            if ((has('모델') || has('model')) && (has('카테고리') || has('category'))) { ws = s; break; }
+          }
+          if (!ws) ws = wb.Sheets[wb.SheetNames[0]];
+          const rows = XLSX.utils.sheet_to_json(ws, { header: 1, defval: '' });
+          if (rows.length < 2) { try { alert(this._t().importNothing); } catch (e2) {} return; }
+          const header = (rows[0] || []).map(x => String(x || '').trim());
+          const findCol = (names) => {
+            for (let k = 0; k < names.length; k++) { const i = header.findIndex(h => h.toLowerCase() === names[k]); if (i !== -1) return i; }
+            for (let k = 0; k < names.length; k++) { const i = header.findIndex(h => h.toLowerCase().indexOf(names[k]) !== -1); if (i !== -1) return i; }
+            return -1;
+          };
+          const iModel = findCol(['모델', 'model', '모델명', 'name']);
+          const iCat = findCol(['카테고리', 'category', '분류']);
+          const iImg = findCol(['이미지', 'image', 'link', 'url', '사진']);
+          if (iModel === -1 || iCat === -1) { try { alert(this._t().importNothing); } catch (e2) {} return; }
+          let added = 0, updated = 0, imgSet = 0;
+          this.setState(s => {
+            const productDb = { ...s.productDb };
+            const imgByName = { ...s.imgByName };
+            for (let r = 1; r < rows.length; r++) {
+              const row = rows[r] || [];
+              const model = String(row[iModel] != null ? row[iModel] : '').trim();
+              const catRaw = String(row[iCat] != null ? row[iCat] : '').trim();
+              if (!model || !catRaw) continue;
+              const key = this._catKeyFrom(catRaw);
+              if (!key) continue;
+              const list = (productDb[key] || []);
+              if (list.indexOf(model) === -1) { productDb[key] = list.concat([model]); added++; } else { updated++; }
+              if (iImg !== -1) {
+                const url = String(row[iImg] != null ? row[iImg] : '').trim();
+                if (/^https?:\/\//i.test(url)) { imgByName[model] = url; imgSet++; }
+              }
+            }
+            this._persistDb(productDb);
+            this._persistImgs(imgByName);
+            return { productDb, imgByName };
+          });
+          try { if (!added && !updated && !imgSet) alert(this._t().importNothing); else alert(this._combo().xlsxImported.replace('{added}', added).replace('{updated}', updated).replace('{img}', imgSet)); } catch (e2) {}
+        } catch (err) { try { alert(this._combo().parseFail + ' ' + err); } catch (e2) {} }
+      }).catch(() => { try { alert(this._combo().loaderFail); } catch (e2) {} });
+    };
+    reader.readAsArrayBuffer(f);
+  };
 
   _persistProfiles = (p) => { try { localStorage.setItem('avycon_profiles', JSON.stringify(p)); } catch (e) {} };
 
@@ -3183,6 +3244,7 @@ class Component extends DCLogic {
       exportProductCsv: this.exportProductCsv,
       exportProductJson: this.exportProductJson,
       importProductCsv: this.importProductCsv,
+      importProductXlsx: this.importProductXlsx,
       migrateImages: this.migrateImages,
       hasLocalImages: Object.values(this.state.imgByName || {}).some(v => /^data:/i.test(String(v || ''))),
       migrateLabel: this.state.imgMigrating ? t.syncing : (t.syncImages + ' (' + Object.values(this.state.imgByName || {}).filter(v => /^data:/i.test(String(v || ''))).length + ')'),
