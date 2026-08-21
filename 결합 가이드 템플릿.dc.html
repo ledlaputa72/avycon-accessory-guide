@@ -17,6 +17,9 @@
   body { margin:0; background:#d7d8db; -webkit-font-smoothing:antialiased; font-family:'Pretendard','Inter',system-ui,sans-serif; }
   * { box-sizing:border-box; }
   .combo-row { break-inside:avoid; }
+  /* "+ Add combination" — thin/faint affordance on the last case, fully revealed on hover or when its menu is open */
+  .combo-add { opacity:.3; transition:opacity .14s ease; }
+  .combo-row:hover .combo-add, .combo-add:hover, .combo-add.is-open { opacity:1; }
   .print-only { display:none; }
   .pg-hidden { display:none !important; }
   .pg-off { display:none !important; }
@@ -1008,6 +1011,24 @@
             <button type="button" class="screen-only" onClick="{{ combo.onRemove }}" title="{{ t.deleteBanner }}" style="position:absolute; top:8px; right:8px; z-index:2; cursor:pointer; width:23px; height:23px; border-radius:6px; border:1px solid #e6c4c4; background:#fbeeee; color:#b04f4f; font-family:'Pretendard','Inter',sans-serif; font-size:15px; font-weight:600; line-height:1; display:flex; align-items:center; justify-content:center;">−</button>
           </sc-if>
 
+          <!-- ADD COMBINATION — edit-only, anchored to the last case, faint until hover; absolute so it never shifts the PDF layout -->
+          <sc-if value="{{ combo.addHere }}" hint-placeholder-val="{{ false }}">
+            <div class="combo-add screen-only {{ combo.addOpenClass }}" style="position:absolute; left:0; right:0; bottom:-11px; z-index:6; display:flex; justify-content:center;">
+              <button type="button" onClick="{{ combo.onToggleAdd }}" title="{{ t.addCombination }}" style="cursor:pointer; display:flex; align-items:center; gap:5px; height:20px; padding:0 12px; border-radius:20px; border:1px dashed {{ pg.accent }}; background:#ffffff; color:{{ pg.accent }}; font-family:'Pretendard','Inter',sans-serif; font-size:9.5px; font-weight:700; letter-spacing:.3px; white-space:nowrap; box-shadow:0 2px 7px rgba(20,22,28,.12);"><span style="font-size:13px; line-height:1;">+</span> {{ t.addCombination }}</button>
+              <sc-if value="{{ combo.addMenuOpen }}" hint-placeholder-val="{{ false }}">
+                <div style="position:absolute; left:50%; transform:translateX(-50%); bottom:calc(100% + 7px); z-index:7; width:220px; background:#fff; border:1px solid #e6e8ec; border-radius:8px; box-shadow:0 10px 28px rgba(20,22,28,.18); padding:6px; display:flex; flex-direction:column; gap:2px;">
+                  <span style="font-family:'Pretendard','Inter',sans-serif; font-size:9px; letter-spacing:1px; color:#9aa0a7; padding:5px 9px 3px;">{{ t.selectCount }}</span>
+                  <sc-for list="{{ combo.addOptions }}" as="opt" hint-placeholder-count="4">
+                    <button type="button" onClick="{{ opt.onAdd }}" style="cursor:pointer; display:flex; align-items:center; gap:10px; padding:9px 11px; border:none; background:transparent; border-radius:6px; text-align:left;" style-hover="background:{{ pg.soft }};">
+                      <span style="width:7px; height:7px; border-radius:2px; background:{{ pg.accent }}; flex-shrink:0;"></span>
+                      <span style="font-size:12px; font-weight:600; color:#1c1d1f;">{{ opt.label }}</span>
+                    </button>
+                  </sc-for>
+                </div>
+              </sc-if>
+            </div>
+          </sc-if>
+
           <!-- left rail -->
           <div style="width:84px; flex-shrink:0; padding:13px 11px; background:{{ pg.soft }}; border-right:1px solid #eef0f3; border-radius:8px 0 0 8px; display:flex; flex-direction:column; gap:6px; justify-content:center;">
             <span style="align-self:flex-start; font-family:'Pretendard','Inter',sans-serif; font-size:10.5px; font-weight:600; letter-spacing:.5px; color:#ffffff; background:{{ pg.accent }}; padding:2px 7px; border-radius:4px;">{{ combo.id }}</span>
@@ -1183,24 +1204,6 @@
     </div>
 
   </div>
-
-  <!-- ADD COMBINATION — edit-only affordance, kept OUTSIDE the PDF page so it never alters the printed layout -->
-  <sc-if value="{{ pg.showAddBar }}" hint-placeholder-val="{{ false }}">
-    <div class="screen-only" style="width:816px; margin:9px auto 0; position:relative;">
-      <button type="button" onClick="{{ pg.onToggleAdd }}" style="width:100%; cursor:pointer; display:flex; align-items:center; justify-content:center; gap:8px; padding:9px; border:1.5px dashed {{ pg.accent }}; border-radius:8px; background:#ffffff; color:{{ pg.accent }}; font-family:'Pretendard','Inter',sans-serif; font-size:11px; font-weight:600; letter-spacing:.5px;"><span style="font-size:16px; line-height:1;">+</span> {{ t.addCombination }}</button>
-      <sc-if value="{{ pg.addMenuOpen }}" hint-placeholder-val="{{ false }}">
-        <div style="position:absolute; left:0; right:0; bottom:calc(100% + 6px); z-index:5; background:#fff; border:1px solid #e6e8ec; border-radius:8px; box-shadow:0 10px 28px rgba(20,22,28,.18); padding:6px; display:flex; flex-direction:column; gap:2px;">
-          <span style="font-family:'Pretendard','Inter',sans-serif; font-size:9px; letter-spacing:1px; color:#9aa0a7; padding:5px 9px 3px;">{{ t.selectCount }}</span>
-          <sc-for list="{{ pg.addOptions }}" as="opt" hint-placeholder-count="4">
-            <button type="button" onClick="{{ opt.onAdd }}" style="cursor:pointer; display:flex; align-items:center; gap:10px; padding:9px 11px; border:none; background:transparent; border-radius:6px; text-align:left;" style-hover="background:{{ pg.soft }};">
-              <span style="width:7px; height:7px; border-radius:2px; background:{{ pg.accent }}; flex-shrink:0;"></span>
-              <span style="font-size:12px; font-weight:600; color:#1c1d1f;">{{ opt.label }}</span>
-            </button>
-          </sc-for>
-        </div>
-      </sc-if>
-    </div>
-  </sc-if>
   </sc-for>
   </sc-if>
 
@@ -3007,6 +3010,15 @@ class Component extends DCLogic {
       const totalParts = chunks.length;
       chunks.forEach((chunk, ci) => {
         const isLastPart = ci === totalParts - 1;
+        // The edit-only "+ Add combination" attaches to the LAST case on the active page's last part.
+        if (isActive && view === 'main' && isLastPart && chunk.length) {
+          const lastC = chunk[chunk.length - 1];
+          lastC.addHere = true;
+          lastC.addOptions = mkAddOptions(L);
+          lastC.addMenuOpen = this.state.addMenuLoc === L;
+          lastC.addOpenClass = this.state.addMenuLoc === L ? 'is-open' : '';
+          lastC.onToggleAdd = () => this.toggleAddMenu(L);
+        }
         let pageNo;
         if (!isDisabled) { enabledSeq++; pageNo = String(enabledSeq).padStart(2, '0'); } else pageNo = '\u2014';
         const printShow = !isDisabled;
