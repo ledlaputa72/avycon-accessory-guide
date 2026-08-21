@@ -993,6 +993,9 @@
     <!-- SECTION LABEL -->
     <div style="margin-top:16px; display:flex; align-items:center; gap:12px;">
       <span style="font-family:'Pretendard','Inter',sans-serif; font-size:10px; letter-spacing:2px; color:#8a8f96;">{{ t.combinations }}</span>
+      <sc-if value="{{ pg.isMultiPart }}" hint-placeholder-val="{{ false }}">
+        <span style="font-family:'Pretendard','Inter',sans-serif; font-size:9px; font-weight:700; letter-spacing:.5px; color:#ffffff; background:{{ pg.accent }}; padding:2px 8px; border-radius:20px;">{{ pg.partLabel }}</span>
+      </sc-if>
       <span style="flex:1; height:1px; background:#e6e8ec;"></span>
     </div>
 
@@ -1145,10 +1148,10 @@
       </sc-for>
 
       <!-- OPTIONAL ACCESSORIES (shown once per location; cases that allow them are tagged ＋OPTIONAL) -->
-      <sc-if value="{{ hasOptionalSummary }}" hint-placeholder-val="{{ false }}">
+      <sc-if value="{{ pg.hasOptionalSummary }}" hint-placeholder-val="{{ false }}">
         <div style="display:flex; align-items:center; gap:12px; flex-wrap:wrap; padding:5px 12px; border:1px dashed {{ pg.accent }}; border-radius:7px; background:{{ pg.soft }};">
           <span style="flex-shrink:0; font-family:'Pretendard','Inter',sans-serif; font-size:8.5px; font-weight:700; letter-spacing:.5px; color:#ffffff; background:{{ pg.accent }}; padding:2px 8px; border-radius:4px; white-space:nowrap;">＋ {{ t.optionTag }}</span>
-          <sc-for list="{{ optionalSummary }}" as="opt" hint-placeholder-count="1">
+          <sc-for list="{{ pg.optionalSummary }}" as="opt" hint-placeholder-count="1">
             <div style="display:flex; align-items:center; gap:8px;">
               <span style="width:34px; height:34px; border-radius:6px; border:1px solid #e6e8ec; background:#fff; overflow:hidden; display:flex; align-items:center; justify-content:center; flex-shrink:0;">
                 {{ opt.imgEl }}
@@ -2964,36 +2967,75 @@ class Component extends DCLogic {
     // all of them (plus the cover) are included in PDF/PPTX export.
     const pageLocs = LOCS;
     const disabledLocs = this.state.disabledLocs || {};
+    // --- Auto-pagination: a location whose cases exceed one printed page spills onto extra pages ---
+    // (e.g. a Wall page with many mounts becomes Wall page 1 + page 2). Calibrated to the fixed
+    // 816x1056 sheet: ~690px of vertical room for combos AFTER the header (masthead/title/context
+    // band), the note box and the footer \u2014 which are repeated in full on every page and never shrunk.
+    const PAGE_COMBO_AVAIL = 690, COMBO_GAP = 8, OPT_CARD_H = 46, CHIPS_PER_ROW = 5;
+    const estComboH = (c) => {
+      const n = ((c && c.items) || []).length;              // camera + accessories + placement chips
+      const rows = Math.max(1, Math.ceil(n / CHIPS_PER_ROW));
+      return 117 + (rows - 1) * 85;                          // measured: 1 chip-row \u2248117px, 2 rows \u2248202px
+    };
+    const paginateCombos = (combos, hasOpt) => {
+      if (!combos.length) return [[]];
+      const chunks = []; let cur = []; let used = 0;
+      combos.forEach((c) => {
+        const h = estComboH(c) + (cur.length ? COMBO_GAP : 0);
+        if (cur.length && used + h > PAGE_COMBO_AVAIL) { chunks.push(cur); cur = [c]; used = estComboH(c); }
+        else { cur.push(c); used += h; }
+      });
+      if (cur.length) chunks.push(cur);
+      // keep the once-per-location option card on the last page; if it would overflow, bump the last combo down
+      if (hasOpt) {
+        const last = chunks[chunks.length - 1];
+        const lu = last.reduce((s, c, i) => s + estComboH(c) + (i ? COMBO_GAP : 0), 0);
+        if (last.length > 1 && lu + COMBO_GAP + OPT_CARD_H > PAGE_COMBO_AVAIL) { chunks.push([last.pop()]); }
+      }
+      return chunks;
+    };
     let enabledSeq = 0;
-    const pages = pageLocs.map((L, idx) => {
+    const locMeta = [];
+    const pages = [];
+    pageLocs.forEach((L) => {
       const built = buildCombos(L);
       const mm = map[L];
       const isActive = L === loc;
       const isDisabled = !!disabledLocs[L];
-      const isEmpty = (this.state.layout[L] || []).length === 0;
-      if (!isDisabled) enabledSeq++;
-      const pageNo = isDisabled ? '\u2014' : String(enabledSeq).padStart(2, '0');
-      const printShow = !isDisabled;
-      // final review shows every page that will print, not just the page being edited
-      const screenShow = (view === 'final') ? printShow : (isActive && view === 'main');
-      let hideClass;
-      if (screenShow && printShow) hideClass = '';
-      else if (screenShow && !printShow) hideClass = 'print-hide';
-      else if (!screenShow && printShow) hideClass = 'pg-hidden';
-      else hideClass = 'pg-off';
-      return {
-        loc: L, locLabel: L.toUpperCase(), locName: locName(L), accent: mm.accent, soft: mm.soft,
-        combos: built.combos, comboCount: built.combos.length,
-        pageNo: pageNo,
-        isActive, hideClass: hideClass,
-        isDisabled, enabled: !isDisabled,
-        canToggle: true,
-        showAddBar: isActive && view === 'main',
-        onToggleEnabled: () => this.toggleLocEnabled(L),
-        addOptions: mkAddOptions(L),
-        addMenuOpen: this.state.addMenuLoc === L,
-        onToggleAdd: () => this.toggleAddMenu(L),
-      };
+      locMeta.push({ loc: L, name: locName(L), active: isActive, disabled: isDisabled, count: built.combos.length, accent: mm.accent, soft: mm.soft });
+      const chunks = paginateCombos(built.combos, built.hasOptionalSummary);
+      const totalParts = chunks.length;
+      chunks.forEach((chunk, ci) => {
+        const isLastPart = ci === totalParts - 1;
+        let pageNo;
+        if (!isDisabled) { enabledSeq++; pageNo = String(enabledSeq).padStart(2, '0'); } else pageNo = '\u2014';
+        const printShow = !isDisabled;
+        // final review shows every page that will print, not just the page being edited
+        const screenShow = (view === 'final') ? printShow : (isActive && view === 'main');
+        let hideClass;
+        if (screenShow && printShow) hideClass = '';
+        else if (screenShow && !printShow) hideClass = 'print-hide';
+        else if (!screenShow && printShow) hideClass = 'pg-hidden';
+        else hideClass = 'pg-off';
+        pages.push({
+          loc: L, locLabel: L.toUpperCase(), locName: locName(L), accent: mm.accent, soft: mm.soft,
+          combos: chunk, comboCount: built.combos.length,
+          optionalSummary: built.optionalSummary,
+          hasOptionalSummary: built.hasOptionalSummary && isLastPart,
+          partLabel: totalParts > 1 ? ((ci + 1) + ' / ' + totalParts) : '',
+          isMultiPart: totalParts > 1,
+          firstOfLoc: ci === 0,
+          pageNo: pageNo,
+          isActive, hideClass: hideClass,
+          isDisabled, enabled: !isDisabled,
+          canToggle: true,
+          showAddBar: isActive && view === 'main' && isLastPart,
+          onToggleEnabled: () => this.toggleLocEnabled(L),
+          addOptions: mkAddOptions(L),
+          addMenuOpen: this.state.addMenuLoc === L,
+          onToggleAdd: () => this.toggleAddMenu(L),
+        });
+      });
     });
     const cover = {
       hideClass: (view === 'cover' || view === 'final') ? '' : 'pg-hidden',
@@ -3001,7 +3043,7 @@ class Component extends DCLogic {
       title: t.titleMain, sub: t.titleSub, rev: revVal,
       camModel: camName, camType: camType, camImgEl: mkImg(camImg), noCamImg: !camImg,
       subjectLabel: t.subjectCamera, locationsLabel: t.combinations, casesLabel: t.cases,
-      locList: pages.filter(p => !p.isDisabled).map(p => ({ name: p.locName, code: p.locLabel, count: p.comboCount, accent: p.accent, soft: p.soft, pageNo: p.pageNo })),
+      locList: pages.filter(p => !p.isDisabled && p.firstOfLoc).map(p => ({ name: p.locName, code: p.locLabel, count: p.comboCount, accent: p.accent, soft: p.soft, pageNo: p.pageNo })),
     };
 
     const openLoc = this.state.openLoc || loc;
@@ -3351,10 +3393,10 @@ class Component extends DCLogic {
       optionalSummary: pageBuilt.optionalSummary,
       hasOptionalSummary: pageBuilt.hasOptionalSummary,
       pages: (view === 'db') ? [] : pages,
-      locTabs: pages.map(p => {
-        const active = p.isActive, disabled = p.isDisabled;
+      locTabs: locMeta.map(p => {
+        const active = p.active, disabled = p.disabled;
         return {
-          loc:p.loc, name:p.locName, active, disabled, enabled: !disabled, count:p.comboCount,
+          loc:p.loc, name:p.name, active, disabled, enabled: !disabled, count:p.count,
           tabBorder: active ? p.accent : (disabled ? '#eceef1' : '#e0e3e7'),
           tabBg: active ? p.accent : (disabled ? '#f7f8f9' : '#ffffff'),
           tabFg: active ? '#ffffff' : (disabled ? '#aeb3ba' : '#1c1d1f'),
