@@ -899,11 +899,16 @@
       <div style="margin-top:96px; display:flex; align-items:center; gap:44px;">
         <div style="flex:1; min-width:0;">
           <div style="font-family:'Pretendard','Inter',sans-serif; font-size:11px; letter-spacing:3px; color:rgba(255,255,255,.7);">{{ cover.eyebrow }}</div>
-          <div style="margin-top:18px; font-size:50px; font-weight:700; letter-spacing:-1px; line-height:1.04; max-width:560px; color:#ffffff; text-wrap:pretty;">{{ cover.title }}</div>
-          <div style="margin-top:10px; font-family:'Pretendard','Inter',sans-serif; font-size:38px; font-weight:700; letter-spacing:-.5px; color:#ffffff;">{{ cover.camModel }}</div>
-          <div style="margin-top:26px; width:54px; height:3px; background:#ffffff; opacity:.55;"></div>
-          <div style="margin-top:18px; font-size:15px; color:rgba(255,255,255,.85); max-width:480px; line-height:1.5;">{{ cover.sub }}</div>
-          <div style="margin-top:4px; font-size:12px; color:rgba(255,255,255,.6);">{{ cover.subjectLabel }} · {{ cover.camType }}</div>
+          <!-- document title: descriptive, lighter weight so it doesn't compete with the model -->
+          <div style="margin-top:16px; font-size:32px; font-weight:500; letter-spacing:-.2px; line-height:1.16; max-width:440px; color:rgba(255,255,255,.88); text-wrap:pretty;">{{ cover.title }}</div>
+          <!-- subject model: the hero — larger, heaviest weight, its own eyebrow + type -->
+          <div style="margin-top:24px; display:flex; flex-direction:column; gap:6px;">
+            <span style="font-family:'Pretendard','Inter',sans-serif; font-size:10px; font-weight:700; letter-spacing:2.5px; color:rgba(255,255,255,.6);">{{ cover.subjectLabel }}</span>
+            <span style="font-family:'Pretendard','Inter',sans-serif; font-size:52px; font-weight:800; letter-spacing:-.5px; line-height:1; color:#ffffff;">{{ cover.camModel }}</span>
+            <span style="font-size:13px; color:rgba(255,255,255,.7);">{{ cover.camType }}</span>
+          </div>
+          <div style="margin-top:24px; width:54px; height:3px; background:#ffffff; opacity:.55;"></div>
+          <div style="margin-top:16px; font-size:14px; color:rgba(255,255,255,.85); max-width:440px; line-height:1.5;">{{ cover.sub }}</div>
         </div>
         <sc-if value="{{ cover.hasCamImg }}" hint-placeholder-val="{{ false }}">
           <div style="flex-shrink:0; width:250px; height:250px; border-radius:16px; background:#ffffff; border:1px solid rgba(255,255,255,.3); box-shadow:0 14px 38px rgba(0,0,0,.24); overflow:hidden; display:flex; align-items:center; justify-content:center; padding:20px;">
