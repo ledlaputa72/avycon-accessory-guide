@@ -477,65 +477,86 @@
       <button type="button" onClick="{{ openHelp }}" title="{{ helpUi.title }}" style="margin-left:auto; margin-right:18px; align-self:center; cursor:pointer; display:flex; align-items:center; gap:7px; font-family:'Pretendard','Inter',sans-serif; font-size:11.5px; font-weight:600; color:#6b6f76; background:#f4f5f7; border:1px solid #e0e3e7; padding:7px 13px; border-radius:20px;"><span style="display:flex; align-items:center; justify-content:center; width:16px; height:16px; border-radius:50%; background:#8E1626; color:#fff; font-size:10px; font-weight:800;">?</span> {{ helpUi.btn }}</button>
     </div>
 
-    <!-- toolbar -->
-    <div style="padding:22px 30px 16px; display:flex; flex-direction:column; gap:14px;">
+    <!-- COMBINATION DATA (Excel upload + editable table) -->
+    <div style="padding:22px 30px 14px; display:flex; flex-direction:column; gap:14px;">
       <div style="display:flex; align-items:flex-end; gap:20px; flex-wrap:wrap;">
         <div style="display:flex; flex-direction:column; gap:5px; flex:1; min-width:280px;">
-          <span style="font-size:17px; font-weight:700; color:#1c1d1f;">{{ tbl.title }}</span>
-          <span style="max-width:720px; font-size:11.5px; line-height:1.6; color:#8a8f96; text-wrap:pretty;">{{ tbl.desc }}</span>
+          <div style="display:flex; align-items:center; gap:10px; flex-wrap:wrap;">
+            <span style="font-size:17px; font-weight:700; color:#1c1d1f;">{{ combo.title }}</span>
+            <sc-if value="{{ comboHasModel }}" hint-placeholder-val="{{ false }}">
+              <span style="font-size:12px; font-weight:800; color:#fff; background:#9E1B32; padding:3px 11px; border-radius:20px;">{{ comboCurrentModel }}</span>
+            </sc-if>
+          </div>
+          <span style="max-width:760px; font-size:11.5px; line-height:1.6; color:#8a8f96; text-wrap:pretty;">{{ combo.desc }}</span>
         </div>
         <div style="display:flex; align-items:center; gap:9px;">
-          <input value="{{ tableQuery }}" onChange="{{ setTableQuery }}" placeholder="{{ tbl.search }}" style="font-family:'Pretendard','Inter',sans-serif; font-size:12px; padding:9px 13px; width:230px; border:1px solid #d4d7db; border-radius:7px; background:#fff; color:#1c1d1f; outline:none;">
-          <label style="cursor:pointer; display:flex; align-items:center; font-size:12px; font-weight:700; color:#fff; background:#9E1B32; padding:10px 16px; border-radius:7px;">{{ tbl.importBtn }}
-            <input type="file" accept=".csv,text/csv" onChange="{{ onRosterFile }}" style="display:none;"></label>
-          <button type="button" onClick="{{ gotoSetup }}" style="cursor:pointer; font-family:'Pretendard','Inter',sans-serif; font-size:12px; font-weight:600; color:#1c1d1f; background:#fff; border:1px solid #d4d7db; padding:10px 16px; border-radius:7px;">{{ tbl.manageBtn }}</button>
+          <label style="cursor:pointer; display:flex; align-items:center; gap:7px; font-family:'Pretendard','Inter',sans-serif; font-size:12px; font-weight:700; color:#fff; background:#9E1B32; padding:10px 16px; border-radius:7px;"><span style="font-size:13px; line-height:1;">⬆</span> {{ comboUploadLabel }}
+            <input type="file" accept=".xlsx,application/vnd.openxmlformats-officedocument.spreadsheetml.sheet" onChange="{{ onComboExcel }}" style="display:none;"></label>
+          <sc-if value="{{ hasCombo }}" hint-placeholder-val="{{ false }}">
+            <button type="button" onClick="{{ clearCombo }}" style="cursor:pointer; font-family:'Pretendard','Inter',sans-serif; font-size:12px; font-weight:600; color:#6b6f76; background:#fff; border:1px solid #d4d7db; padding:10px 14px; border-radius:7px;">{{ combo.clear }}</button>
+          </sc-if>
         </div>
       </div>
-      <sc-if value="{{ importNotice }}" hint-placeholder-val="{{ false }}">
-        <div style="display:flex; align-items:flex-start; gap:12px; padding:12px 14px; border:1px solid {{ importNoticeBorder }}; background:{{ importNoticeBg }}; border-radius:8px;">
-          <span style="flex:1; font-size:12px; line-height:1.55; font-weight:600; color:{{ importNoticeColor }}; text-wrap:pretty;">{{ importNoticeText }}</span>
-          <button type="button" onClick="{{ dismissImportNotice }}" style="flex-shrink:0; cursor:pointer; font-family:'Pretendard','Inter',sans-serif; font-size:10.5px; font-weight:600; color:#6b6f76; background:#fff; border:1px solid #d4d7db; padding:5px 10px; border-radius:5px;">{{ importNoticeDismiss }}</button>
+
+      <sc-if value="{{ hasCombo }}" hint-placeholder-val="{{ false }}">
+        <div style="display:flex; align-items:center; gap:12px; flex-wrap:wrap; padding:11px 15px; background:#fafbfc; border:1px solid #e6e8ec; border-radius:9px;">
+          <span style="font-size:13px; font-weight:800; color:#9E1B32;">{{ comboCamera }}</span>
+          <span style="font-size:11px; color:#6b6f76;">{{ comboType }}</span>
+          <span style="width:1px; height:12px; background:#d4d7db;"></span>
+          <span style="font-size:11px; font-weight:700; color:#1c1d1f;">{{ comboCaseCount }} {{ combo.cases }}</span>
+          <span style="margin-left:auto; font-size:10px; color:#b4b9c0;">{{ comboFileName }}</span>
         </div>
       </sc-if>
-      <div style="display:flex; align-items:center; gap:10px;">
-        <span style="font-size:10px; font-weight:700; letter-spacing:1.4px; color:#9E1B32;">{{ tableCountText }}</span>
-        <span style="flex:1; height:1px; background:#e6e8ec;"></span>
-      </div>
     </div>
 
-    <!-- grid -->
-    <div style="margin:0 30px 30px; border:1px solid #e6e8ec; border-radius:8px; overflow:auto; max-height:70vh;">
-      <div style="min-width:100%; display:flex; flex-direction:column;">
-        <div style="display:flex; align-items:stretch; position:sticky; top:0; z-index:3; background:#f4f5f7; border-bottom:1px solid #dfe2e6;">
-          <span style="flex:0 0 44px; padding:11px 8px; font-size:9.5px; font-weight:700; letter-spacing:.6px; color:#9aa0a7; text-align:center;">#</span>
-          <span style="flex:0 0 170px; padding:11px 12px; font-size:9.5px; font-weight:700; letter-spacing:.9px; color:#4a4e54; border-left:1px solid #e6e8ec;">{{ tbl.model }}</span>
-          <span style="flex:0 0 130px; padding:11px 12px; font-size:9.5px; font-weight:700; letter-spacing:.9px; color:#4a4e54; border-left:1px solid #e6e8ec;">{{ tbl.cat }}</span>
-          <sc-for list="{{ tableCols }}" as="col" hint-placeholder-count="5">
-            <span style="flex:1 0 160px; padding:11px 12px; font-size:9.5px; font-weight:700; letter-spacing:.9px; color:#4a4e54; border-left:1px solid #e6e8ec;">{{ col.label }}</span>
-          </sc-for>
-          <span style="flex:0 0 108px; border-left:1px solid #e6e8ec;"></span>
-        </div>
-        <sc-for list="{{ tableRows }}" as="row" hint-placeholder-count="6">
-          <div style="display:flex; align-items:stretch; border-bottom:1px solid #eef0f3; background:{{ row.rowBg }};" style-hover="background:#f2f6fb;">
-            <span style="flex:0 0 44px; padding:12px 8px; font-size:10.5px; color:#b4b9c0; text-align:center;">{{ row.num }}</span>
-            <button type="button" onClick="{{ row.onOpen }}" title="{{ tbl.open }}" style="flex:0 0 170px; text-align:left; cursor:pointer; padding:12px; font-family:'Pretendard','Inter',sans-serif; font-size:12px; font-weight:700; color:#9E1B32; background:transparent; border:none; border-left:1px solid #eef0f3; word-break:break-all;" style-hover="text-decoration:underline;">{{ row.model }}</button>
-            <span style="flex:0 0 130px; padding:12px; font-size:11px; color:#6b6f76; border-left:1px solid #eef0f3;">{{ row.category }}</span>
-            <sc-for list="{{ row.cells }}" as="cell" hint-placeholder-count="5">
-              <span style="flex:1 0 160px; padding:12px; font-size:11px; line-height:1.5; color:{{ cell.color }}; border-left:1px solid #eef0f3; word-break:break-word;">{{ cell.text }}</span>
+    <sc-if value="{{ comboBusy }}" hint-placeholder-val="{{ false }}">
+      <div style="margin:0 30px 20px; padding:16px; text-align:center; font-size:12px; color:#9aa0a7;">{{ combo.busy }}</div>
+    </sc-if>
+
+    <sc-if value="{{ noCombo }}" hint-placeholder-val="{{ true }}">
+      <div style="margin:0 30px 34px;">
+        <label style="cursor:pointer; display:flex; flex-direction:column; align-items:center; justify-content:center; gap:12px; padding:56px 24px; border:2px dashed #d4d7db; border-radius:12px; background:#fafbfc; text-align:center;">
+          <span style="width:52px; height:52px; border-radius:12px; background:#fdf1f3; color:#9E1B32; display:flex; align-items:center; justify-content:center; font-size:24px;">⬆</span>
+          <span style="font-size:13px; font-weight:700; color:#1c1d1f;">{{ combo.upload }}</span>
+          <span style="max-width:460px; font-size:11.5px; color:#9aa0a7; line-height:1.6;">{{ combo.empty }}</span>
+          <input type="file" accept=".xlsx,application/vnd.openxmlformats-officedocument.spreadsheetml.sheet" onChange="{{ onComboExcel }}" style="display:none;">
+        </label>
+      </div>
+    </sc-if>
+
+    <sc-if value="{{ hasCombo }}" hint-placeholder-val="{{ false }}">
+      <div style="margin:0 30px 30px; display:flex; flex-direction:column; gap:20px;">
+        <sc-for list="{{ comboGroups }}" as="g" hint-placeholder-count="4">
+          <div style="border:1px solid #e6e8ec; border-radius:10px; overflow:hidden;">
+            <div style="display:flex; align-items:center; gap:10px; padding:11px 16px; background:#f4f5f7; border-bottom:1px solid #e6e8ec;">
+              <span style="font-size:12px; font-weight:800; letter-spacing:.5px; color:#1c1d1f;">{{ g.location }}</span>
+              <span style="font-size:10px; font-weight:700; color:#9E1B32; background:#fdf1f3; border:1px solid #f0c9d1; padding:2px 8px; border-radius:20px;">{{ g.count }}</span>
+            </div>
+            <div style="display:grid; grid-template-columns:78px 1fr 52px 1.05fr; gap:12px; padding:9px 16px; background:#fbfcfd; border-bottom:1px solid #eef0f3;">
+              <span style="font-size:9px; font-weight:700; letter-spacing:.6px; color:#9aa0a7;">{{ combo.caseId }}</span>
+              <span style="font-size:9px; font-weight:700; letter-spacing:.6px; color:#9aa0a7;">{{ combo.accessories }}</span>
+              <span style="font-size:9px; font-weight:700; letter-spacing:.6px; color:#9aa0a7; text-align:center;">{{ combo.count }}</span>
+              <span style="font-size:9px; font-weight:700; letter-spacing:.6px; color:#9aa0a7;">{{ combo.remarks }}</span>
+            </div>
+            <sc-for list="{{ g.cases }}" as="cs" hint-placeholder-count="4">
+              <div style="display:grid; grid-template-columns:78px 1fr 52px 1.05fr; gap:12px; align-items:start; padding:12px 16px; border-bottom:1px solid #f2f4f6;">
+                <span style="font-size:12px; font-weight:800; color:#9E1B32; padding-top:4px;">{{ cs.caseId }}</span>
+                <div style="display:flex; flex-direction:column; gap:6px;">
+                  <sc-for list="{{ cs.accs }}" as="a" hint-placeholder-count="2">
+                    <div style="display:flex; align-items:center; gap:8px;">
+                      <span style="flex:0 0 128px; font-size:9.5px; font-weight:600; color:#6b6f76; background:#f1f2f4; border:1px solid #e6e8ec; padding:5px 7px; border-radius:5px; text-align:center; line-height:1.2;">{{ a.cat }}</span>
+                      <input type="text" value="{{ a.model }}" onChange="{{ a.onModel }}" style="flex:1; min-width:0; font-family:'Pretendard','Inter',sans-serif; font-size:11.5px; font-weight:600; color:#1c1d1f; background:#fff; border:1px solid #e0e3e7; border-radius:5px; padding:5px 8px; outline:none;">
+                    </div>
+                  </sc-for>
+                </div>
+                <span style="font-size:12px; font-weight:700; color:#1c1d1f; text-align:center; padding-top:4px;">{{ cs.count }}</span>
+                <input type="text" value="{{ cs.remarks }}" onChange="{{ cs.onRemarks }}" placeholder="{{ combo.remarksPh }}" style="font-family:'Pretendard','Inter',sans-serif; font-size:11px; color:#6b6f76; background:#fff; border:1px solid #eef0f3; border-radius:5px; padding:6px 8px; outline:none; align-self:start;">
+              </div>
             </sc-for>
-            <span style="flex:0 0 108px; padding:9px 10px; border-left:1px solid #eef0f3; display:flex; align-items:center; gap:6px;">
-              <button type="button" onClick="{{ row.onOpen }}" style="cursor:pointer; font-family:'Pretendard','Inter',sans-serif; font-size:10.5px; font-weight:700; color:#fff; background:#9E1B32; border:none; padding:7px 10px; border-radius:5px;">{{ tbl.open }}</button>
-              <button type="button" onClick="{{ row.onRemove }}" title="{{ tbl.del }}" style="cursor:pointer; font-size:11px; line-height:1; color:#b4b9c0; background:#fff; border:1px solid #e6e8ec; width:24px; height:24px; border-radius:5px;">×</button>
-            </span>
           </div>
         </sc-for>
-        <sc-if value="{{ tableEmpty }}" hint-placeholder-val="{{ false }}">
-          <div style="padding:54px 20px; display:flex; flex-direction:column; align-items:center; gap:6px;">
-            <span style="font-size:12.5px; font-weight:600; color:#8a8f96;">{{ tableEmptyText }}</span>
-          </div>
-        </sc-if>
       </div>
-    </div>
+    </sc-if>
   </div>
   </sc-if>
 
@@ -1237,7 +1258,7 @@
   &quot;showNotes&quot;: { &quot;editor&quot;: null, &quot;default&quot;: true, &quot;tsType&quot;: &quot;boolean&quot; }
 }">
 class Component extends DCLogic {
-  state = { camImage: null, accNames: {}, imgByName: {}, drawerOpen: true, view: 'home', tableQuery: '', roster: {}, rosterDraft: { model:'', category:'Turret', accCat:'MNT_WALL', accName:'', accs:[] }, dropActive: false, openLoc: null, settings: {}, profiles: {}, layout: {}, uidSeq: 1, addMenuLoc: null, productDb: {}, dbDraft: {}, dbDraftImg: {}, dbSaved: false, pickerKey: null, pickerCat: null, noteText: '', disabledLocs: {}, currentProfile: null, history: [], historyOpen: false, savedFlash: false, workQuery: '', workSort: 'recent', workPage: 0, workPageSize: 20, userName: '' };
+  state = { camImage: null, accNames: {}, imgByName: {}, drawerOpen: true, view: 'home', tableQuery: '', roster: {}, rosterDraft: { model:'', category:'Turret', accCat:'MNT_WALL', accName:'', accs:[] }, dropActive: false, openLoc: null, settings: {}, profiles: {}, layout: {}, uidSeq: 1, addMenuLoc: null, productDb: {}, dbDraft: {}, dbDraftImg: {}, dbSaved: false, pickerKey: null, pickerCat: null, noteText: '', disabledLocs: {}, currentProfile: null, history: [], historyOpen: false, savedFlash: false, workQuery: '', workSort: 'recent', workPage: 0, workPageSize: 20, userName: '', comboByModel: {}, comboBusy: false };
 
   LOCS = ['Wall', 'Ceiling', 'Pole', 'Corner', 'Parapet'];
   CODES = { Wall:'WL', Ceiling:'CL', Pole:'PO', Corner:'CR', Parapet:'PA' };
@@ -1312,6 +1333,12 @@ class Component extends DCLogic {
     ko: { title:'대시보드', desc:'제품 카탈로그와 최근 작업 개요입니다. 이어서 작업하거나 원하는 단계로 바로 이동하세요.', openData:'제품 데이터 열기', build:'결합 가이드 만들기', quick:'빠른 작업', recent:'최근 버전', recentEmpty:'저장된 버전이 없습니다. 상단 바의 저장을 누르면 모두가 볼 수 있는 복원 지점이 만들어집니다.', sProducts:'제품', sGuides:'저장된 가이드', sVersions:'저장된 버전', aData:'제품 데이터', aDataSub:'카메라 · 악세서리 매트릭스', aGuide:'결합 가이드', aGuideSub:'설치 위치별 조합 구성', aCover:'커버', aCoverSub:'문서 커버', aFinal:'최종 검토', aFinalSub:'미리보기 · PDF', aDb:'악세서리 DB', aDbSub:'모델 · 사진 라이브러리', restore:'복원', savedProducts:'저장된 제품', open:'열기', wlTitle:'제품 작업 리스트', wlSub:'지금까지 불러오거나 작업한 제품입니다. 행을 열어 이어서 작업하세요.', wlSearch:'모델 검색', wlRecent:'최근순', wlNameSort:'모델명순', wlStatusSort:'상태순', wlProducts:'제품', wlWorkingAs:'작업자', wlAnon:'익명', colModel:'모델', colType:'타입', colAcc:'악세서리', colStatus:'상태', colBy:'저장자', colAction:'', wlSaved:'저장됨', wlNotStarted:'시작 안 함', wlOpen:'열기', wlEmpty:'일치하는 제품이 없습니다.', wlPrev:'이전', wlNext:'다음' },
     ja: { title:'ダッシュボード', desc:'製品カタログと最近の作業の概要です。続きから作業するか、各ステップへ移動できます。', openData:'製品データを開く', build:'組合せガイドを作成', quick:'クイック操作', recent:'最近のバージョン', recentEmpty:'保存されたバージョンがありません。上部バーの保存を押すと全員が見える復元ポイントが作成されます。', sProducts:'製品', sGuides:'保存済みガイド', sVersions:'保存済みバージョン', aData:'製品データ', aDataSub:'カメラ · アクセサリ表', aGuide:'組合せガイド', aGuideSub:'設置場所別の組合せ', aCover:'カバー', aCoverSub:'文書カバー', aFinal:'最終確認', aFinalSub:'プレビュー · PDF', aDb:'アクセサリDB', aDbSub:'モデル · 写真ライブラリ', restore:'復元', savedProducts:'保存済み製品', open:'開く', wlTitle:'製品作業リスト', wlSub:'これまでに読み込み・作業した製品です。行を開いて続けてください。', wlSearch:'モデル検索', wlRecent:'最近順', wlNameSort:'モデル名順', wlStatusSort:'状態順', wlProducts:'製品', wlWorkingAs:'作業者', wlAnon:'匿名', colModel:'モデル', colType:'タイプ', colAcc:'アクセサリ', colStatus:'状態', colBy:'保存者', colAction:'', wlSaved:'保存済み', wlNotStarted:'未着手', wlOpen:'開く', wlEmpty:'一致する製品がありません。', wlPrev:'前へ', wlNext:'次へ' },
     es: { title:'Panel', desc:'Resumen de su catálogo de productos y trabajo reciente. Continúe donde lo dejó o vaya directo a un paso.', openData:'Abrir datos de productos', build:'Crear guía de combinación', quick:'ACCIONES RÁPIDAS', recent:'VERSIONES RECIENTES', recentEmpty:'Aún no hay versiones guardadas. Pulse Guardar en la barra superior para crear un punto de restauración visible para todos.', sProducts:'Productos', sGuides:'Guías guardadas', sVersions:'Versiones guardadas', aData:'Datos de productos', aDataSub:'Matriz cámara · accesorio', aGuide:'Guía de combinación', aGuideSub:'Combos por ubicación', aCover:'Portada', aCoverSub:'Portada del documento', aFinal:'Revisión final', aFinalSub:'Vista previa y PDF', aDb:'BD de accesorios', aDbSub:'Biblioteca de modelos y fotos', restore:'Restaurar', savedProducts:'PRODUCTOS GUARDADOS', open:'Abrir', wlTitle:'Lista de trabajo de productos', wlSub:'Productos cargados o trabajados hasta ahora. Abra una fila para continuar.', wlSearch:'Buscar modelo', wlRecent:'Recientes', wlNameSort:'Nombre de modelo', wlStatusSort:'Estado', wlProducts:'productos', wlWorkingAs:'Trabajando como', wlAnon:'anónimo', colModel:'MODELO', colType:'TIPO', colAcc:'ACCESORIOS', colStatus:'ESTADO', colBy:'GUARDADO POR', colAction:'', wlSaved:'Guardado', wlNotStarted:'No iniciado', wlOpen:'Abrir', wlEmpty:'No hay productos que coincidan.', wlPrev:'Ant.', wlNext:'Sig.' },
+  };
+  COMBO = {
+    en: { title:'Combination data', desc:'Upload the per-camera Excel of combination cases. Reference (hidden) columns are ignored. Review and edit here — the combination guide is generated from this.', upload:'Upload Excel (.xlsx)', reupload:'Replace Excel', clear:'Clear', busy:'Reading Excel…', empty:'No combination data yet. Upload the camera Excel (.xlsx) to organize its cases here.', cam:'Camera', type:'Type', cases:'cases', caseId:'CASE', accessories:'ACCESSORIES (in order)', count:'ACC', remarks:'REMARKS', remarksPh:'—', clearConfirm:'Clear the uploaded combination data?', parseEmpty:'No combination rows found. Check the Excel format.', parseFail:'Failed to read the Excel:', loaderFail:'Could not load the Excel reader (check your connection).' },
+    ko: { title:'결합 데이터', desc:'카메라별 결합 케이스 엑셀을 업로드하세요. 참조(숨김) 열은 무시됩니다. 여기서 확인·수정하며, 이 데이터로 결합 가이드가 생성됩니다.', upload:'엑셀 업로드 (.xlsx)', reupload:'엑셀 교체', clear:'비우기', busy:'엑셀 읽는 중…', empty:'결합 데이터가 없습니다. 카메라 엑셀(.xlsx)을 업로드하면 케이스가 여기 정리됩니다.', cam:'카메라', type:'유형', cases:'케이스', caseId:'케이스', accessories:'악세서리 (순서대로)', count:'개수', remarks:'비고', remarksPh:'—', clearConfirm:'업로드한 결합 데이터를 비울까요?', parseEmpty:'결합 행을 찾지 못했습니다. 엑셀 형식을 확인하세요.', parseFail:'엑셀을 읽지 못했습니다:', loaderFail:'엑셀 리더를 불러오지 못했습니다(연결 확인).' },
+    ja: { title:'組合せデータ', desc:'カメラ別の組合せケースExcelをアップロードしてください。参照(非表示)列は無視されます。ここで確認・編集でき、このデータから組合せガイドが生成されます。', upload:'Excelをアップロード (.xlsx)', reupload:'Excelを差し替え', clear:'クリア', busy:'Excelを読み込み中…', empty:'組合せデータがありません。カメラのExcel(.xlsx)をアップロードするとケースが整理されます。', cam:'カメラ', type:'タイプ', cases:'ケース', caseId:'ケース', accessories:'アクセサリ（順番）', count:'数', remarks:'備考', remarksPh:'—', clearConfirm:'アップロードした組合せデータをクリアしますか？', parseEmpty:'組合せ行が見つかりません。Excel形式を確認してください。', parseFail:'Excelを読み込めませんでした:', loaderFail:'Excelリーダーを読み込めませんでした（接続を確認）。' },
+    es: { title:'Datos de combinación', desc:'Suba el Excel de casos de combinación por cámara. Las columnas de referencia (ocultas) se ignoran. Revise y edite aquí; la guía de combinación se genera a partir de esto.', upload:'Subir Excel (.xlsx)', reupload:'Reemplazar Excel', clear:'Vaciar', busy:'Leyendo Excel…', empty:'Aún no hay datos de combinación. Suba el Excel de la cámara (.xlsx) para organizar sus casos aquí.', cam:'Cámara', type:'Tipo', cases:'casos', caseId:'CASO', accessories:'ACCESORIOS (en orden)', count:'ACC', remarks:'NOTAS', remarksPh:'—', clearConfirm:'¿Vaciar los datos de combinación subidos?', parseEmpty:'No se encontraron filas de combinación. Revise el formato del Excel.', parseFail:'No se pudo leer el Excel:', loaderFail:'No se pudo cargar el lector de Excel (revise su conexión).' },
   };
   HELP_UI = {
     en: { btn:'Help', title:'Help & documentation', sub:'Feature reference and step-by-step guide', catF:'FEATURES', catU:'HOW TO USE', pdf:'Save full help as PDF', close:'Close' },
@@ -1573,6 +1600,7 @@ class Component extends DCLogic {
     this._loadHistory();
     this._loadSharedProfiles();
     try { const un = localStorage.getItem('avycon_username'); if (un != null) this.setState({ userName: un }); } catch (e) {}
+    try { const cd = localStorage.getItem('avycon_combodata'); if (cd) { let m = JSON.parse(cd); if (m && m.cases) m = { [(m.camera || 'default')]: m }; if (m && typeof m === 'object') this.setState({ comboByModel: m }); } } catch (e) {}
   }
 
   // Auto-load the bundled product dataset (CSV committed at the repo root) when the
@@ -2039,6 +2067,82 @@ class Component extends DCLogic {
     const f = e.dataTransfer && e.dataTransfer.files && e.dataTransfer.files[0];
     if (f) this._readRosterFile(f);
   };
+  // ---- Product combination-case data (uploaded from the per-camera Excel) ----
+  // The Excel is a fixed template: one row per combination case (WL-01, CL-02, ...), with an ordered
+  // accessory list (Acc1..5 category+model), a count, and remarks. Hidden/reference columns
+  // (위치(KO)/케이스명/케이스설명/배치/이미지_카메라/이미지_Acc1) are ignored — we pick only the display columns by header.
+  _persistCombo = (m) => { try { localStorage.setItem('avycon_combodata', JSON.stringify(m || {})); } catch (e) {} };
+  _curModel = () => (((this.state.settings || {}).cameraModel) || '').trim();
+  // Lazy-load SheetJS only when the user actually uploads an Excel (keeps initial load light).
+  _ensureXLSX = () => new Promise((resolve, reject) => {
+    if (window.XLSX) return resolve(window.XLSX);
+    let s = document.getElementById('xlsx-cdn');
+    if (s) { s.addEventListener('load', () => resolve(window.XLSX)); s.addEventListener('error', reject); return; }
+    s = document.createElement('script');
+    s.id = 'xlsx-cdn';
+    s.src = 'https://cdn.sheetjs.com/xlsx-0.20.3/package/dist/xlsx.full.min.js';
+    s.onload = () => resolve(window.XLSX);
+    s.onerror = reject;
+    document.head.appendChild(s);
+  });
+  _parseComboXlsx = (XLSX, arrayBuffer) => {
+    const wb = XLSX.read(new Uint8Array(arrayBuffer), { type: 'array' });
+    const ws = wb.Sheets[wb.SheetNames[0]];
+    const rows = XLSX.utils.sheet_to_json(ws, { header: 1, defval: '' });
+    if (!rows.length) return null;
+    const header = (rows[0] || []).map(h => String(h == null ? '' : h).trim());
+    const idx = (name) => header.indexOf(name);
+    const iCam = idx('카메라'), iType = idx('카메라유형'), iLoc = idx('위치(EN)'), iCase = idx('케이스ID'), iCount = idx('악세서리수'), iRem = idx('비고');
+    const accIdx = [];
+    for (let n = 1; n <= 5; n++) accIdx.push({ cat: idx('Acc' + n + '_카테고리'), model: idx('Acc' + n + '_모델') });
+    const get = (row, i) => (i >= 0 && row[i] != null) ? String(row[i]).trim() : '';
+    let camera = '', type = '';
+    const cases = [];
+    for (let r = 1; r < rows.length; r++) {
+      const row = rows[r] || [];
+      const caseId = get(row, iCase); const loc = get(row, iLoc);
+      if (!caseId && !loc) continue;
+      if (!camera) camera = get(row, iCam);
+      if (!type) type = get(row, iType);
+      const accs = [];
+      accIdx.forEach(a => { const model = get(row, a.model); if (model) accs.push({ cat: get(row, a.cat), model }); });
+      cases.push({ location: loc, caseId, accs, count: get(row, iCount) || String(accs.length), remarks: get(row, iRem) });
+    }
+    return { camera, type, cases };
+  };
+  onComboExcel = (e) => {
+    const f = e.target && e.target.files && e.target.files[0]; if (!f) return;
+    e.target.value = '';
+    const fname = f.name;
+    this.setState({ comboBusy: true });
+    const reader = new FileReader();
+    reader.onload = () => {
+      this._ensureXLSX().then((XLSX) => {
+        try {
+          const data = this._parseComboXlsx(XLSX, reader.result);
+          if (data && data.cases && data.cases.length) {
+            data.fileName = fname;
+            const m = ((data.camera || this._curModel() || 'default') + '').trim();
+            this.setState(s => {
+              const comboByModel = { ...(s.comboByModel || {}), [m]: data };
+              this._persistCombo(comboByModel);
+              const settings = { ...s.settings, cameraModel: m };
+              this._persistSettings(settings);
+              return { comboByModel, settings, comboBusy: false };
+            });
+          }
+          else { this.setState({ comboBusy: false }); try { alert(this._combo().parseEmpty); } catch (e2) {} }
+        } catch (err) { this.setState({ comboBusy: false }); try { alert(this._combo().parseFail + ' ' + err); } catch (e2) {} }
+      }).catch(() => { this.setState({ comboBusy: false }); try { alert(this._combo().loaderFail); } catch (e2) {} });
+    };
+    reader.onerror = () => this.setState({ comboBusy: false });
+    reader.readAsArrayBuffer(f);
+  };
+  setComboRemarks = (i, v) => this.setState(s => { const m = this._curModel(); const cur = (s.comboByModel || {})[m]; if (!cur) return {}; const cases = (cur.cases || []).slice(); cases[i] = { ...cases[i], remarks: v }; const comboByModel = { ...s.comboByModel, [m]: { ...cur, cases } }; this._persistCombo(comboByModel); return { comboByModel }; });
+  setComboModel = (ci, ai, v) => this.setState(s => { const m = this._curModel(); const cur = (s.comboByModel || {})[m]; if (!cur) return {}; const cases = (cur.cases || []).slice(); const accs = cases[ci].accs.slice(); accs[ai] = { ...accs[ai], model: v }; cases[ci] = { ...cases[ci], accs }; const comboByModel = { ...s.comboByModel, [m]: { ...cur, cases } }; this._persistCombo(comboByModel); return { comboByModel }; });
+  clearCombo = () => { if (!window.confirm(this._combo().clearConfirm)) return; this.setState(s => { const m = this._curModel(); const comboByModel = { ...(s.comboByModel || {}) }; delete comboByModel[m]; this._persistCombo(comboByModel); return { comboByModel }; }); };
+  _combo = () => { const lang = (this.state.settings || {}).lang || 'en'; return this.COMBO[lang] || this.COMBO.en; };
+
   onRosterFile = (e) => {
     const f = e.target && e.target.files && e.target.files[0];
     e.target.value = '';
@@ -2186,15 +2290,12 @@ class Component extends DCLogic {
     try { localStorage.setItem('avycon_disabled_locs', JSON.stringify(disabledLocs)); } catch (e) {}
     this.setState({ settings, accNames, layout, uidSeq: uid, disabledLocs, view: 'main', drawerOpen: false, currentProfile: null, camImage: null });
   };
-  // Open a work-list row into the guide: continue the saved guide if one exists, else start
-  // a fresh guide from the roster. Always navigates to the guide view (loadProfile alone does not).
+  // Open a work-list row into STEP 1 (Product Data) for that product: set it as the current
+  // camera (and prime the roster-based guide), then land on the Product Data / combination-data stage.
   openWorkItem = (model) => {
-    if ((this.state.profiles || {})[model]) {
-      this.loadProfile(model);
-      this.setState({ view: 'main', drawerOpen: false, sysMenuOpen: false, historyOpen: false });
-    } else {
-      this.openProduct(model);
-    }
+    if ((this.state.profiles || {})[model]) this.loadProfile(model);
+    else this.openProduct(model);
+    this.setState(s => { const settings = { ...s.settings, cameraModel: model }; this._persistSettings(settings); return { settings, view: 'table', drawerOpen: false, sysMenuOpen: false, historyOpen: false }; });
   };
   setDbDraft = (cat, val) => this.setState(s => ({ dbDraft: { ...s.dbDraft, [cat]: val } }));
   setDbDraftImage = (cat, e) => {
@@ -2872,6 +2973,22 @@ class Component extends DCLogic {
       onOpen: (() => this.openWorkItem(r.key)),
     }));
 
+    // --- Product combination-case data (from Excel), for the current product, grouped by install location ---
+    const _cm = (((this.state.settings || {}).cameraModel) || '').trim();
+    const _cd = (this.state.comboByModel || {})[_cm] || null;
+    const _comboGroups = [];
+    if (_cd && _cd.cases && _cd.cases.length) {
+      const order = []; const byLoc = {};
+      _cd.cases.forEach((c, i) => { const L = c.location || '—'; if (!byLoc[L]) { byLoc[L] = []; order.push(L); } byLoc[L].push({ c, i }); });
+      order.forEach(L => {
+        _comboGroups.push({ location: L, count: byLoc[L].length, cases: byLoc[L].map(({ c, i }) => ({
+          caseId: c.caseId, count: c.count, remarks: c.remarks,
+          accs: (c.accs || []).map((a, ai) => ({ cat: a.cat, model: a.model, onModel: (e) => this.setComboModel(i, ai, e.target.value) })),
+          onRemarks: (e) => this.setComboRemarks(i, e.target.value),
+        })) });
+      });
+    }
+
     const IN = this.state.importNotice;
     const sidebarOn = this.state.drawerOpen && view !== 'setup' && view !== 'table' && view !== 'final' && view !== 'home';
     return {
@@ -2899,6 +3016,20 @@ class Component extends DCLogic {
       isCover: view === 'cover',
       isSetup: view === 'setup',
       isTable: view === 'table',
+      combo: this.COMBO[lang] || this.COMBO.en,
+      onComboExcel: this.onComboExcel,
+      clearCombo: this.clearCombo,
+      comboBusy: !!this.state.comboBusy,
+      hasCombo: !!(_cd && _cd.cases && _cd.cases.length),
+      noCombo: !(_cd && _cd.cases && _cd.cases.length),
+      comboCamera: _cd ? (_cd.camera || '') : '',
+      comboType: _cd ? (_cd.type || '') : '',
+      comboFileName: _cd ? (_cd.fileName || '') : '',
+      comboCaseCount: (_cd && _cd.cases) ? _cd.cases.length : 0,
+      comboUploadLabel: (_cd && _cd.cases && _cd.cases.length) ? (this.COMBO[lang] || this.COMBO.en).reupload : (this.COMBO[lang] || this.COMBO.en).upload,
+      comboCurrentModel: _cm,
+      comboHasModel: !!_cm,
+      comboGroups: _comboGroups,
       isHome: view === 'home',
       home: this.HOME[lang] || this.HOME.en,
       statProducts: Object.keys(this.state.roster || {}).length,
