@@ -149,6 +149,34 @@
     </div>
   </sc-if>
 
+  <!-- TEMPLATE MANAGER (screen only) -->
+  <sc-if value="{{ templateManagerOpen }}" hint-placeholder-val="{{ false }}">
+    <div class="screen-only" style="position:fixed; inset:0; z-index:80; background:rgba(20,22,28,.45); display:flex; align-items:center; justify-content:center; padding:24px;">
+      <div style="width:540px; max-width:100%; max-height:82vh; overflow:auto; background:#fff; border-radius:14px; box-shadow:0 18px 50px rgba(20,22,28,.35); display:flex; flex-direction:column;">
+        <div style="display:flex; align-items:center; justify-content:space-between; padding:18px 22px; border-bottom:1px solid #eef0f3; position:sticky; top:0; background:#fff;">
+          <span style="font-size:15px; font-weight:800; color:#1c1d1f;">{{ xt.tplManagerTitle }}</span>
+          <button type="button" onClick="{{ closeTemplateManager }}" title="{{ xt.close }}" style="cursor:pointer; font-size:17px; line-height:1; color:#6b6f76; background:#f1f2f4; border:1px solid #e6e8ec; width:30px; height:30px; border-radius:7px;">×</button>
+        </div>
+        <div style="padding:14px 16px; display:flex; flex-direction:column; gap:8px;">
+          <sc-for list="{{ templateRows }}" as="tr" hint-placeholder-count="2">
+            <div style="display:flex; align-items:center; gap:10px; padding:12px 14px; border:1px solid #e6e8ec; border-radius:10px; background:#fafbfc; flex-wrap:wrap;">
+              <div style="display:flex; flex-direction:column; gap:3px; flex:1; min-width:180px;">
+                <span style="font-size:13px; font-weight:700; color:#1c1d1f; word-break:break-all;">{{ tr.name }}</span>
+                <span style="font-size:10.5px; color:#9aa0a7;">{{ tr.meta }}</span>
+              </div>
+              <button type="button" onClick="{{ tr.onApply }}" style="cursor:pointer; font-family:'Pretendard','Inter',sans-serif; font-size:11px; font-weight:700; color:#9E1B32; background:#fff; border:1px solid #9E1B32; padding:7px 11px; border-radius:6px;">{{ xt.tplApplyBtn }}</button>
+              <button type="button" onClick="{{ tr.onRename }}" style="cursor:pointer; font-family:'Pretendard','Inter',sans-serif; font-size:11px; font-weight:600; color:#1c1d1f; background:#f1f2f4; border:1px solid #e0e3e7; padding:7px 11px; border-radius:6px;">{{ xt.tplRename }}</button>
+              <button type="button" onClick="{{ tr.onDelete }}" style="cursor:pointer; font-family:'Pretendard','Inter',sans-serif; font-size:11px; font-weight:700; color:#fff; background:#b04f4f; border:none; padding:7px 11px; border-radius:6px;">{{ xt.tplDelete }}</button>
+            </div>
+          </sc-for>
+          <sc-if value="{{ noTemplates }}" hint-placeholder-val="{{ false }}">
+            <div style="padding:28px 14px; text-align:center; font-size:12px; color:#9aa0a7; line-height:1.6;">{{ xt.tplManagerEmpty }}</div>
+          </sc-if>
+        </div>
+      </div>
+    </div>
+  </sc-if>
+
   <!-- SYSTEM SETTINGS (app-wide only, screen only) -->
   <sc-if value="{{ sysMenuOpen }}" hint-placeholder-val="{{ false }}">
     <div class="screen-only" onClick="{{ closeSysMenu }}" style="position:fixed; inset:0; z-index:70; background:rgba(20,22,28,.34); display:flex; align-items:flex-start; justify-content:flex-end; padding:74px 22px 22px;">
@@ -505,6 +533,7 @@
               <option value="">★ {{ xt.applyTpl }}</option>
               <sc-for list="{{ templateOptions }}" as="tp" hint-placeholder-count="0"><option value="{{ tp.value }}">{{ tp.label }}</option></sc-for>
             </select>
+            <button type="button" onClick="{{ manageTemplates }}" title="{{ xt.manageTpl }}" style="cursor:pointer; font-family:'Pretendard','Inter',sans-serif; font-size:12px; font-weight:600; color:#6b6f76; background:#fff; border:1px solid #d4d7db; padding:10px 12px; border-radius:7px;">⚙</button>
           </sc-if>
           <label style="cursor:pointer; display:flex; align-items:center; gap:7px; font-family:'Pretendard','Inter',sans-serif; font-size:12px; font-weight:700; color:#fff; background:#9E1B32; padding:10px 16px; border-radius:7px;"><span style="font-size:13px; line-height:1;">⬆</span> {{ comboUploadLabel }}
             <input type="file" accept=".xlsx,application/vnd.openxmlformats-officedocument.spreadsheetml.sheet" onChange="{{ onComboExcel }}" style="display:none;"></label>
@@ -885,6 +914,9 @@
         </div>
         <button type="button" onClick="{{ gotoMain }}" style="cursor:pointer; font-family:'Pretendard','Inter',sans-serif; font-size:11.5px; font-weight:600; color:#1c1d1f; background:#fff; border:1px solid #d4d7db; padding:11px 15px; border-radius:7px;">{{ fin.edit }}</button>
         <button type="button" onClick="{{ saveAsTemplate }}" style="cursor:pointer; font-family:'Pretendard','Inter',sans-serif; font-size:11.5px; font-weight:700; color:#9E1B32; background:#fff; border:1.5px solid #9E1B32; padding:11px 15px; border-radius:7px;">★ {{ xt.saveTpl }}</button>
+        <sc-if value="{{ hasTemplates }}" hint-placeholder-val="{{ false }}">
+          <button type="button" onClick="{{ manageTemplates }}" title="{{ xt.manageTpl }}" style="cursor:pointer; font-family:'Pretendard','Inter',sans-serif; font-size:12px; font-weight:600; color:#6b6f76; background:#fff; border:1px solid #d4d7db; padding:11px 13px; border-radius:7px;">⚙</button>
+        </sc-if>
         <button type="button" onClick="{{ savePdf }}" style="cursor:pointer; display:flex; align-items:center; gap:8px; font-family:'Pretendard','Inter',sans-serif; font-size:12px; font-weight:700; color:#fff; background:#9E1B32; border:none; padding:12px 20px; border-radius:7px;">{{ fin.pdf }} <span style="font-size:13px; line-height:1;">↓</span></button>
       </div>
     </div>
@@ -1343,7 +1375,7 @@
   &quot;showNotes&quot;: { &quot;editor&quot;: null, &quot;default&quot;: true, &quot;tsType&quot;: &quot;boolean&quot; }
 }">
 class Component extends DCLogic {
-  state = { camImage: null, accNames: {}, imgByName: {}, drawerOpen: true, view: 'home', tableQuery: '', roster: {}, rosterDraft: { model:'', category:'Turret', accCat:'MNT_WALL', accName:'', accs:[] }, dropActive: false, openLoc: null, settings: {}, profiles: {}, layout: {}, uidSeq: 1, addMenuLoc: null, productDb: {}, dbDraft: {}, dbDraftImg: {}, dbSaved: false, pickerKey: null, pickerCat: null, noteText: '', disabledLocs: {}, currentProfile: null, history: [], historyOpen: false, savedFlash: false, workQuery: '', workSort: 'recent', workPage: 0, workPageSize: 20, userName: '', comboByModel: {}, comboBusy: false, selectedWork: {}, templates: {} };
+  state = { camImage: null, accNames: {}, imgByName: {}, drawerOpen: true, view: 'home', tableQuery: '', roster: {}, rosterDraft: { model:'', category:'Turret', accCat:'MNT_WALL', accName:'', accs:[] }, dropActive: false, openLoc: null, settings: {}, profiles: {}, layout: {}, uidSeq: 1, addMenuLoc: null, productDb: {}, dbDraft: {}, dbDraftImg: {}, dbSaved: false, pickerKey: null, pickerCat: null, noteText: '', disabledLocs: {}, currentProfile: null, history: [], historyOpen: false, savedFlash: false, workQuery: '', workSort: 'recent', workPage: 0, workPageSize: 20, userName: '', comboByModel: {}, comboBusy: false, selectedWork: {}, templates: {}, templateManagerOpen: false };
 
   LOCS = ['Wall', 'Ceiling', 'Pole', 'Corner', 'Parapet'];
   CODES = { Wall:'WL', Ceiling:'CL', Pole:'PO', Corner:'CR', Parapet:'PA' };
@@ -1427,10 +1459,10 @@ class Component extends DCLogic {
     es: { title:'Datos de combinación', desc:'Suba el Excel de casos de combinación por cámara. Las columnas de referencia (ocultas) se ignoran. Revise y edite aquí; la guía de combinación se genera a partir de esto.', upload:'Subir Excel (.xlsx)', reupload:'Reemplazar Excel', clear:'Vaciar', busy:'Leyendo Excel…', empty:'Aún no hay datos de combinación. Suba el Excel de la cámara (.xlsx) para organizar sus casos aquí.', cam:'Cámara', type:'Tipo', cases:'casos', caseId:'CASO', accessories:'ACCESORIOS (en orden)', count:'ACC', remarks:'NOTAS', remarksPh:'—', next:'Confirmar · Siguiente (Diseño de página)', clearConfirm:'¿Vaciar los datos de combinación subidos?', parseEmpty:'No se encontraron filas de combinación. Revise el formato del Excel.', parseFail:'No se pudo leer el Excel:', loaderFail:'No se pudo cargar el lector de Excel (revise su conexión).', dbXlsxBtn:'Importar Excel', xlsxImported:'Importación lista — {added} nuevos, {updated} actualizados, {img} imágenes.' },
   };
   XT = {
-    en: { selectAll:'Select all', deleteSel:'Delete selected', deleteConfirm:'Delete {n} selected product(s)? They are removed from the work list, along with any saved guide and combination data. The accessory database is not affected.', saveTpl:'Save as template', applyTpl:'— Apply template —', tplNamePrompt:'Template name:', tplSaved:'Saved as template "{name}".', tplNoData:'Build a combination guide first — there is nothing to save as a template yet.', tplApplied:'Template "{name}" applied to {model}.', tplBadge:'TEMPLATE' },
-    ko: { selectAll:'전체 선택', deleteSel:'선택 삭제', deleteConfirm:'선택한 제품 {n}개를 삭제할까요? 작업 리스트에서 제거되며, 저장된 가이드·결합 데이터도 함께 삭제됩니다. 악세서리 데이터베이스는 영향받지 않습니다.', saveTpl:'템플릿으로 저장', applyTpl:'— 템플릿 적용 —', tplNamePrompt:'템플릿 이름:', tplSaved:'"{name}" 템플릿으로 저장했습니다.', tplNoData:'먼저 결합 가이드를 구성하세요 — 저장할 템플릿 내용이 없습니다.', tplApplied:'"{name}" 템플릿을 {model}에 적용했습니다.', tplBadge:'템플릿' },
-    ja: { selectAll:'全て選択', deleteSel:'選択削除', deleteConfirm:'選択した製品{n}件を削除しますか？作業リストから削除され、保存済みガイド・組合せデータも削除されます。アクセサリDBには影響しません。', saveTpl:'テンプレートとして保存', applyTpl:'— テンプレート適用 —', tplNamePrompt:'テンプレート名:', tplSaved:'「{name}」をテンプレートとして保存しました。', tplNoData:'先に組合せガイドを作成してください — 保存する内容がありません。', tplApplied:'テンプレート「{name}」を{model}に適用しました。', tplBadge:'テンプレート' },
-    es: { selectAll:'Seleccionar todo', deleteSel:'Eliminar selección', deleteConfirm:'¿Eliminar {n} producto(s) seleccionado(s)? Se quitan de la lista de trabajo, junto con la guía y los datos de combinación guardados. La base de datos de accesorios no se ve afectada.', saveTpl:'Guardar como plantilla', applyTpl:'— Aplicar plantilla —', tplNamePrompt:'Nombre de plantilla:', tplSaved:'Guardado como plantilla "{name}".', tplNoData:'Primero cree una guía de combinación — aún no hay nada que guardar.', tplApplied:'Plantilla "{name}" aplicada a {model}.', tplBadge:'PLANTILLA' },
+    en: { selectAll:'Select all', deleteSel:'Delete selected', deleteConfirm:'Delete {n} selected product(s)? They are removed from the work list, along with any saved guide and combination data. The accessory database is not affected.', saveTpl:'Save as template', applyTpl:'— Apply template —', tplNamePrompt:'Template name:', tplSaved:'Saved as template "{name}".', tplNoData:'Build a combination guide first — there is nothing to save as a template yet.', tplApplied:'Template "{name}" applied to {model}.', tplBadge:'TEMPLATE', manageTpl:'Manage templates', tplManagerTitle:'Saved templates', tplRename:'Rename', tplDelete:'Delete', tplApplyBtn:'Apply', tplRenamePrompt:'New template name:', tplDeleteConfirm:'Delete template "{name}"? This cannot be undone.', tplNameExists:'A template named "{name}" already exists.', tplManagerEmpty:'No templates yet. Save one from the Final review step (★ Save as template).', close:'Close' },
+    ko: { selectAll:'전체 선택', deleteSel:'선택 삭제', deleteConfirm:'선택한 제품 {n}개를 삭제할까요? 작업 리스트에서 제거되며, 저장된 가이드·결합 데이터도 함께 삭제됩니다. 악세서리 데이터베이스는 영향받지 않습니다.', saveTpl:'템플릿으로 저장', applyTpl:'— 템플릿 적용 —', tplNamePrompt:'템플릿 이름:', tplSaved:'"{name}" 템플릿으로 저장했습니다.', tplNoData:'먼저 결합 가이드를 구성하세요 — 저장할 템플릿 내용이 없습니다.', tplApplied:'"{name}" 템플릿을 {model}에 적용했습니다.', tplBadge:'템플릿', manageTpl:'템플릿 관리', tplManagerTitle:'저장된 템플릿', tplRename:'이름변경', tplDelete:'삭제', tplApplyBtn:'적용', tplRenamePrompt:'새 템플릿 이름:', tplDeleteConfirm:'"{name}" 템플릿을 삭제할까요? 되돌릴 수 없습니다.', tplNameExists:'"{name}" 이름의 템플릿이 이미 있습니다.', tplManagerEmpty:'저장된 템플릿이 없습니다. Final review 단계에서 ★ Save as template으로 저장하세요.', close:'닫기' },
+    ja: { selectAll:'全て選択', deleteSel:'選択削除', deleteConfirm:'選択した製品{n}件を削除しますか？作業リストから削除され、保存済みガイド・組合せデータも削除されます。アクセサリDBには影響しません。', saveTpl:'テンプレートとして保存', applyTpl:'— テンプレート適用 —', tplNamePrompt:'テンプレート名:', tplSaved:'「{name}」をテンプレートとして保存しました。', tplNoData:'先に組合せガイドを作成してください — 保存する内容がありません。', tplApplied:'テンプレート「{name}」を{model}に適用しました。', tplBadge:'テンプレート', manageTpl:'テンプレート管理', tplManagerTitle:'保存済みテンプレート', tplRename:'名前変更', tplDelete:'削除', tplApplyBtn:'適用', tplRenamePrompt:'新しいテンプレート名:', tplDeleteConfirm:'テンプレート「{name}」を削除しますか？元に戻せません。', tplNameExists:'「{name}」という名前のテンプレートが既にあります。', tplManagerEmpty:'テンプレートがありません。Final reviewで★ Save as templateから保存してください。', close:'閉じる' },
+    es: { selectAll:'Seleccionar todo', deleteSel:'Eliminar selección', deleteConfirm:'¿Eliminar {n} producto(s) seleccionado(s)? Se quitan de la lista de trabajo, junto con la guía y los datos de combinación guardados. La base de datos de accesorios no se ve afectada.', saveTpl:'Guardar como plantilla', applyTpl:'— Aplicar plantilla —', tplNamePrompt:'Nombre de plantilla:', tplSaved:'Guardado como plantilla "{name}".', tplNoData:'Primero cree una guía de combinación — aún no hay nada que guardar.', tplApplied:'Plantilla "{name}" aplicada a {model}.', tplBadge:'PLANTILLA', manageTpl:'Gestionar plantillas', tplManagerTitle:'Plantillas guardadas', tplRename:'Renombrar', tplDelete:'Eliminar', tplApplyBtn:'Aplicar', tplRenamePrompt:'Nuevo nombre de plantilla:', tplDeleteConfirm:'¿Eliminar la plantilla "{name}"? No se puede deshacer.', tplNameExists:'Ya existe una plantilla llamada "{name}".', tplManagerEmpty:'Sin plantillas. Guarde una desde Revisión final (★ Save as template).', close:'Cerrar' },
   };
   HELP_UI = {
     en: { btn:'Help', title:'Help & documentation', sub:'Feature reference and step-by-step guide', catF:'FEATURES', catU:'HOW TO USE', pdf:'Save full help as PDF', close:'Close' },
@@ -2196,6 +2228,22 @@ class Component extends DCLogic {
     this._persistLayout(layout); this._persistNames(accNames);
     try { localStorage.setItem('avycon_disabled_locs', JSON.stringify(disabledLocs)); } catch (e) {}
     this.setState({ layout, accNames, disabledLocs, uidSeq: this._maxUid(layout) + 1, view: 'main', drawerOpen: true });
+  };
+  openTemplateManager = () => this.setState({ templateManagerOpen: true });
+  closeTemplateManager = () => this.setState({ templateManagerOpen: false });
+  deleteTemplate = (name) => {
+    try { if (!window.confirm(String(this._xt().tplDeleteConfirm).replace('{name}', name))) return; } catch (e) {}
+    this.setState(s => { const templates = { ...s.templates }; delete templates[name]; this._persistTemplates(templates); return { templates }; });
+  };
+  renameTemplate = (name) => {
+    let nn = name; try { nn = window.prompt(this._xt().tplRenamePrompt, name); } catch (e) {}
+    if (nn == null) return; nn = String(nn).trim(); if (!nn || nn === name) return;
+    if ((this.state.templates || {})[nn]) { try { alert(String(this._xt().tplNameExists).replace('{name}', nn)); } catch (e) {} return; }
+    this.setState(s => {
+      const templates = { ...s.templates }; const tp = templates[name]; if (!tp) return {};
+      delete templates[name]; templates[nn] = { ...tp, name: nn };
+      this._persistTemplates(templates); return { templates };
+    });
   };
   setDropActive = (v) => this.setState({ dropActive: !!v });
   onRosterDrop = (e) => {
@@ -3275,6 +3323,13 @@ class Component extends DCLogic {
     const _wAllSel = _wAllKeys.length > 0 && _wAllKeys.every(k => _wSel[k]);
     const _tpls = this.state.templates || {};
     const _tplNames = Object.keys(_tpls).sort((a, b) => String((_tpls[b] || {}).createdAt || '').localeCompare(String((_tpls[a] || {}).createdAt || '')));
+    const _tplRows = _tplNames.map(n => {
+      const tp = _tpls[n] || {}; let when = tp.createdAt || '';
+      try { when = new Date(tp.createdAt).toLocaleDateString(); } catch (e) {}
+      const locs = Object.keys(tp.layout || {}).length;
+      return { name: n, meta: locs + ' · ' + (tp.by || 'anonymous') + ' · ' + when,
+        onApply: (() => this.applyTemplate(n)), onRename: (() => this.renameTemplate(n)), onDelete: (() => this.deleteTemplate(n)) };
+    });
 
     // --- Product combination-case data (from Excel), for the current product, grouped by install location ---
     const _cm = (((this.state.settings || {}).cameraModel) || '').trim();
@@ -3360,6 +3415,11 @@ class Component extends DCLogic {
       templateOptions: _tplNames.map(n => ({ value: n, label: n })),
       hasTemplates: _tplNames.length > 0,
       onApplyTemplate: ((e) => { const v = e.target.value; if (v) this.applyTemplate(v); }),
+      manageTemplates: this.openTemplateManager,
+      templateManagerOpen: !!this.state.templateManagerOpen,
+      closeTemplateManager: this.closeTemplateManager,
+      templateRows: _tplRows,
+      noTemplates: _tplNames.length === 0,
       workCount: _wCount,
       workShownFrom: _wCount ? (_wPage * _wSize + 1) : 0,
       workShownTo: Math.min(_wCount, _wPage * _wSize + _wSize),
