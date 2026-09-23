@@ -355,13 +355,19 @@
           </div>
         </div>
 
-        <div style="display:flex; align-items:center; gap:8px;">
-          <span style="font-size:10.5px; color:#9aa0a7;">{{ home.wlWorkingAs }}</span>
-          <input type="text" value="{{ userName }}" onChange="{{ onUserNameChange }}" placeholder="{{ home.wlAnon }}" style="font-family:'Pretendard','Inter',sans-serif; font-size:12px; font-weight:600; padding:6px 10px; border:1px solid #e0e3e7; border-radius:6px; background:#fff; color:#1c1d1f; outline:none; width:150px;">
+        <div style="display:flex; align-items:center; gap:12px; flex-wrap:wrap;">
+          <div style="display:flex; align-items:center; gap:8px;">
+            <span style="font-size:10.5px; color:#9aa0a7;">{{ home.wlWorkingAs }}</span>
+            <input type="text" value="{{ userName }}" onChange="{{ onUserNameChange }}" placeholder="{{ home.wlAnon }}" style="font-family:'Pretendard','Inter',sans-serif; font-size:12px; font-weight:600; padding:6px 10px; border:1px solid #e0e3e7; border-radius:6px; background:#fff; color:#1c1d1f; outline:none; width:150px;">
+          </div>
+          <sc-if value="{{ hasSelection }}" hint-placeholder-val="{{ false }}">
+            <button type="button" onClick="{{ onDeleteSelected }}" style="cursor:pointer; font-family:'Pretendard','Inter',sans-serif; font-size:11.5px; font-weight:700; color:#fff; background:#b04f4f; border:none; padding:8px 14px; border-radius:7px;">🗑 {{ xt.deleteSel }} ({{ selectedCount }})</button>
+          </sc-if>
         </div>
 
         <div style="border:1px solid #e6e8ec; border-radius:11px; overflow:hidden; background:#fff;">
-          <div style="display:grid; grid-template-columns:44px 1.5fr 0.9fr 1fr 1.3fr 1fr 84px; gap:10px; padding:12px 18px; background:#f7f8fa; border-bottom:1px solid #e6e8ec;">
+          <div style="display:grid; grid-template-columns:34px 44px 1.5fr 0.9fr 1fr 1.3fr 1fr 84px; gap:10px; padding:12px 18px; background:#f7f8fa; border-bottom:1px solid #e6e8ec; align-items:center;">
+            <button type="button" onClick="{{ onSelectAll }}" title="{{ xt.selectAll }}" style="cursor:pointer; width:18px; height:18px; border-radius:4px; border:1.5px solid {{ selectAllBorder }}; background:{{ selectAllBg }}; color:#fff; font-size:11px; line-height:1; display:flex; align-items:center; justify-content:center; padding:0;">{{ selectAllGlyph }}</button>
             <span style="font-size:9.5px; font-weight:700; letter-spacing:.6px; color:#9aa0a7;">#</span>
             <span style="font-size:9.5px; font-weight:700; letter-spacing:.6px; color:#9aa0a7;">{{ home.colModel }}</span>
             <span style="font-size:9.5px; font-weight:700; letter-spacing:.6px; color:#9aa0a7;">{{ home.colType }}</span>
@@ -371,7 +377,8 @@
             <span></span>
           </div>
           <sc-for list="{{ workPageItems }}" as="w" hint-placeholder-count="6">
-            <div style="display:grid; grid-template-columns:44px 1.5fr 0.9fr 1fr 1.3fr 1fr 84px; gap:10px; align-items:center; padding:12px 18px; border-bottom:1px solid #f0f2f4; background:{{ w.rowBg }};" style-hover="background:#f2f6fb;">
+            <div style="display:grid; grid-template-columns:34px 44px 1.5fr 0.9fr 1fr 1.3fr 1fr 84px; gap:10px; align-items:center; padding:12px 18px; border-bottom:1px solid #f0f2f4; background:{{ w.rowBg }};" style-hover="background:#f2f6fb;">
+              <button type="button" onClick="{{ w.onToggle }}" title="{{ xt.selectAll }}" style="cursor:pointer; width:18px; height:18px; border-radius:4px; border:1.5px solid {{ w.checkBorder }}; background:{{ w.checkBg }}; color:#fff; font-size:11px; line-height:1; display:flex; align-items:center; justify-content:center; padding:0;">{{ w.checkGlyph }}</button>
               <span style="font-size:11px; color:#b4b9c0;">{{ w.num }}</span>
               <button type="button" onClick="{{ w.onOpen }}" title="{{ home.wlOpen }}" style="justify-self:start; text-align:left; cursor:pointer; font-family:'Pretendard','Inter',sans-serif; font-size:12.5px; font-weight:700; color:#9E1B32; background:transparent; border:none; padding:0; word-break:break-all;" style-hover="text-decoration:underline;">{{ w.model }}</button>
               <span style="font-size:11.5px; color:#6b6f76;">{{ w.type }}</span>
@@ -492,7 +499,13 @@
           </div>
           <span style="max-width:760px; font-size:11.5px; line-height:1.6; color:#8a8f96; text-wrap:pretty;">{{ combo.desc }}</span>
         </div>
-        <div style="display:flex; align-items:center; gap:9px;">
+        <div style="display:flex; align-items:center; gap:9px; flex-wrap:wrap;">
+          <sc-if value="{{ hasTemplates }}" hint-placeholder-val="{{ false }}">
+            <select value="" onChange="{{ onApplyTemplate }}" title="{{ xt.saveTpl }}" style="cursor:pointer; font-family:'Pretendard','Inter',sans-serif; font-size:12px; font-weight:700; padding:10px 12px; border:1.5px solid #9E1B32; border-radius:7px; background:#fff; color:#9E1B32; outline:none;">
+              <option value="">★ {{ xt.applyTpl }}</option>
+              <sc-for list="{{ templateOptions }}" as="tp" hint-placeholder-count="0"><option value="{{ tp.value }}">{{ tp.label }}</option></sc-for>
+            </select>
+          </sc-if>
           <label style="cursor:pointer; display:flex; align-items:center; gap:7px; font-family:'Pretendard','Inter',sans-serif; font-size:12px; font-weight:700; color:#fff; background:#9E1B32; padding:10px 16px; border-radius:7px;"><span style="font-size:13px; line-height:1;">⬆</span> {{ comboUploadLabel }}
             <input type="file" accept=".xlsx,application/vnd.openxmlformats-officedocument.spreadsheetml.sheet" onChange="{{ onComboExcel }}" style="display:none;"></label>
           <sc-if value="{{ hasCombo }}" hint-placeholder-val="{{ false }}">
@@ -871,6 +884,7 @@
           <span style="font-size:18px; font-weight:700; color:#1c1d1f;">{{ finalPageCount }}</span>
         </div>
         <button type="button" onClick="{{ gotoMain }}" style="cursor:pointer; font-family:'Pretendard','Inter',sans-serif; font-size:11.5px; font-weight:600; color:#1c1d1f; background:#fff; border:1px solid #d4d7db; padding:11px 15px; border-radius:7px;">{{ fin.edit }}</button>
+        <button type="button" onClick="{{ saveAsTemplate }}" style="cursor:pointer; font-family:'Pretendard','Inter',sans-serif; font-size:11.5px; font-weight:700; color:#9E1B32; background:#fff; border:1.5px solid #9E1B32; padding:11px 15px; border-radius:7px;">★ {{ xt.saveTpl }}</button>
         <button type="button" onClick="{{ savePdf }}" style="cursor:pointer; display:flex; align-items:center; gap:8px; font-family:'Pretendard','Inter',sans-serif; font-size:12px; font-weight:700; color:#fff; background:#9E1B32; border:none; padding:12px 20px; border-radius:7px;">{{ fin.pdf }} <span style="font-size:13px; line-height:1;">↓</span></button>
       </div>
     </div>
@@ -1329,7 +1343,7 @@
   &quot;showNotes&quot;: { &quot;editor&quot;: null, &quot;default&quot;: true, &quot;tsType&quot;: &quot;boolean&quot; }
 }">
 class Component extends DCLogic {
-  state = { camImage: null, accNames: {}, imgByName: {}, drawerOpen: true, view: 'home', tableQuery: '', roster: {}, rosterDraft: { model:'', category:'Turret', accCat:'MNT_WALL', accName:'', accs:[] }, dropActive: false, openLoc: null, settings: {}, profiles: {}, layout: {}, uidSeq: 1, addMenuLoc: null, productDb: {}, dbDraft: {}, dbDraftImg: {}, dbSaved: false, pickerKey: null, pickerCat: null, noteText: '', disabledLocs: {}, currentProfile: null, history: [], historyOpen: false, savedFlash: false, workQuery: '', workSort: 'recent', workPage: 0, workPageSize: 20, userName: '', comboByModel: {}, comboBusy: false };
+  state = { camImage: null, accNames: {}, imgByName: {}, drawerOpen: true, view: 'home', tableQuery: '', roster: {}, rosterDraft: { model:'', category:'Turret', accCat:'MNT_WALL', accName:'', accs:[] }, dropActive: false, openLoc: null, settings: {}, profiles: {}, layout: {}, uidSeq: 1, addMenuLoc: null, productDb: {}, dbDraft: {}, dbDraftImg: {}, dbSaved: false, pickerKey: null, pickerCat: null, noteText: '', disabledLocs: {}, currentProfile: null, history: [], historyOpen: false, savedFlash: false, workQuery: '', workSort: 'recent', workPage: 0, workPageSize: 20, userName: '', comboByModel: {}, comboBusy: false, selectedWork: {}, templates: {} };
 
   LOCS = ['Wall', 'Ceiling', 'Pole', 'Corner', 'Parapet'];
   CODES = { Wall:'WL', Ceiling:'CL', Pole:'PO', Corner:'CR', Parapet:'PA' };
@@ -1411,6 +1425,12 @@ class Component extends DCLogic {
     ko: { title:'결합 데이터', desc:'카메라별 결합 케이스 엑셀을 업로드하세요. 참조(숨김) 열은 무시됩니다. 여기서 확인·수정하며, 이 데이터로 결합 가이드가 생성됩니다.', upload:'엑셀 업로드 (.xlsx)', reupload:'엑셀 교체', clear:'비우기', busy:'엑셀 읽는 중…', empty:'결합 데이터가 없습니다. 카메라 엑셀(.xlsx)을 업로드하면 케이스가 여기 정리됩니다.', cam:'카메라', type:'유형', cases:'케이스', caseId:'케이스', accessories:'악세서리 (순서대로)', count:'개수', remarks:'비고', remarksPh:'—', next:'확인 · 다음 단계 (페이지 디자인)', clearConfirm:'업로드한 결합 데이터를 비울까요?', parseEmpty:'결합 행을 찾지 못했습니다. 엑셀 형식을 확인하세요.', parseFail:'엑셀을 읽지 못했습니다:', loaderFail:'엑셀 리더를 불러오지 못했습니다(연결 확인).', dbXlsxBtn:'엑셀 가져오기', xlsxImported:'가져오기 완료 — 신규 {added}개, 기존 {updated}개 갱신, 이미지 {img}개 적용.' },
     ja: { title:'組合せデータ', desc:'カメラ別の組合せケースExcelをアップロードしてください。参照(非表示)列は無視されます。ここで確認・編集でき、このデータから組合せガイドが生成されます。', upload:'Excelをアップロード (.xlsx)', reupload:'Excelを差し替え', clear:'クリア', busy:'Excelを読み込み中…', empty:'組合せデータがありません。カメラのExcel(.xlsx)をアップロードするとケースが整理されます。', cam:'カメラ', type:'タイプ', cases:'ケース', caseId:'ケース', accessories:'アクセサリ（順番）', count:'数', remarks:'備考', remarksPh:'—', next:'確認 · 次へ (ページデザイン)', clearConfirm:'アップロードした組合せデータをクリアしますか？', parseEmpty:'組合せ行が見つかりません。Excel形式を確認してください。', parseFail:'Excelを読み込めませんでした:', loaderFail:'Excelリーダーを読み込めませんでした（接続を確認）。', dbXlsxBtn:'Excel取込', xlsxImported:'取込完了 — 新規{added}件、既存{updated}件更新、画像{img}件設定。' },
     es: { title:'Datos de combinación', desc:'Suba el Excel de casos de combinación por cámara. Las columnas de referencia (ocultas) se ignoran. Revise y edite aquí; la guía de combinación se genera a partir de esto.', upload:'Subir Excel (.xlsx)', reupload:'Reemplazar Excel', clear:'Vaciar', busy:'Leyendo Excel…', empty:'Aún no hay datos de combinación. Suba el Excel de la cámara (.xlsx) para organizar sus casos aquí.', cam:'Cámara', type:'Tipo', cases:'casos', caseId:'CASO', accessories:'ACCESORIOS (en orden)', count:'ACC', remarks:'NOTAS', remarksPh:'—', next:'Confirmar · Siguiente (Diseño de página)', clearConfirm:'¿Vaciar los datos de combinación subidos?', parseEmpty:'No se encontraron filas de combinación. Revise el formato del Excel.', parseFail:'No se pudo leer el Excel:', loaderFail:'No se pudo cargar el lector de Excel (revise su conexión).', dbXlsxBtn:'Importar Excel', xlsxImported:'Importación lista — {added} nuevos, {updated} actualizados, {img} imágenes.' },
+  };
+  XT = {
+    en: { selectAll:'Select all', deleteSel:'Delete selected', deleteConfirm:'Delete {n} selected product(s)? They are removed from the work list, along with any saved guide and combination data. The accessory database is not affected.', saveTpl:'Save as template', applyTpl:'— Apply template —', tplNamePrompt:'Template name:', tplSaved:'Saved as template "{name}".', tplNoData:'Build a combination guide first — there is nothing to save as a template yet.', tplApplied:'Template "{name}" applied to {model}.', tplBadge:'TEMPLATE' },
+    ko: { selectAll:'전체 선택', deleteSel:'선택 삭제', deleteConfirm:'선택한 제품 {n}개를 삭제할까요? 작업 리스트에서 제거되며, 저장된 가이드·결합 데이터도 함께 삭제됩니다. 악세서리 데이터베이스는 영향받지 않습니다.', saveTpl:'템플릿으로 저장', applyTpl:'— 템플릿 적용 —', tplNamePrompt:'템플릿 이름:', tplSaved:'"{name}" 템플릿으로 저장했습니다.', tplNoData:'먼저 결합 가이드를 구성하세요 — 저장할 템플릿 내용이 없습니다.', tplApplied:'"{name}" 템플릿을 {model}에 적용했습니다.', tplBadge:'템플릿' },
+    ja: { selectAll:'全て選択', deleteSel:'選択削除', deleteConfirm:'選択した製品{n}件を削除しますか？作業リストから削除され、保存済みガイド・組合せデータも削除されます。アクセサリDBには影響しません。', saveTpl:'テンプレートとして保存', applyTpl:'— テンプレート適用 —', tplNamePrompt:'テンプレート名:', tplSaved:'「{name}」をテンプレートとして保存しました。', tplNoData:'先に組合せガイドを作成してください — 保存する内容がありません。', tplApplied:'テンプレート「{name}」を{model}に適用しました。', tplBadge:'テンプレート' },
+    es: { selectAll:'Seleccionar todo', deleteSel:'Eliminar selección', deleteConfirm:'¿Eliminar {n} producto(s) seleccionado(s)? Se quitan de la lista de trabajo, junto con la guía y los datos de combinación guardados. La base de datos de accesorios no se ve afectada.', saveTpl:'Guardar como plantilla', applyTpl:'— Aplicar plantilla —', tplNamePrompt:'Nombre de plantilla:', tplSaved:'Guardado como plantilla "{name}".', tplNoData:'Primero cree una guía de combinación — aún no hay nada que guardar.', tplApplied:'Plantilla "{name}" aplicada a {model}.', tplBadge:'PLANTILLA' },
   };
   HELP_UI = {
     en: { btn:'Help', title:'Help & documentation', sub:'Feature reference and step-by-step guide', catF:'FEATURES', catU:'HOW TO USE', pdf:'Save full help as PDF', close:'Close' },
@@ -1673,6 +1693,7 @@ class Component extends DCLogic {
     this._loadSharedProfiles();
     try { const un = localStorage.getItem('avycon_username'); if (un != null) this.setState({ userName: un }); } catch (e) {}
     try { const cd = localStorage.getItem('avycon_combodata'); if (cd) { let m = JSON.parse(cd); if (m && m.cases) m = { [(m.camera || 'default')]: m }; if (m && typeof m === 'object') this.setState({ comboByModel: m }); } } catch (e) {}
+    try { const tp = localStorage.getItem('avycon_templates'); if (tp) { const m = JSON.parse(tp); if (m && typeof m === 'object') this.setState({ templates: m }); } } catch (e) {}
   }
 
   // Auto-load the bundled product dataset (CSV committed at the repo root) when the
@@ -2133,6 +2154,49 @@ class Component extends DCLogic {
     this._persistRoster(roster);
     return { roster };
   });
+  _xt = () => this.XT[(this.state.settings || {}).lang || 'en'] || this.XT.en;
+  // ---- Work-list selection + bulk delete ----
+  toggleWorkSelect = (model) => this.setState(s => { const sw = { ...s.selectedWork }; if (sw[model]) delete sw[model]; else sw[model] = true; return { selectedWork: sw }; });
+  toggleWorkSelectAll = (keys) => this.setState(s => {
+    const sw = { ...s.selectedWork };
+    const all = keys.length && keys.every(k => sw[k]);
+    keys.forEach(k => { if (all) delete sw[k]; else sw[k] = true; });
+    return { selectedWork: sw };
+  });
+  deleteSelectedWork = () => {
+    const sel = Object.keys(this.state.selectedWork || {}).filter(k => this.state.selectedWork[k]);
+    if (!sel.length) return;
+    try { if (!window.confirm(String(this._xt().deleteConfirm).replace('{n}', sel.length))) return; } catch (e) {}
+    this.setState(s => {
+      const roster = { ...s.roster }, profiles = { ...s.profiles }, combo = { ...s.comboByModel };
+      let cur = s.currentProfile;
+      sel.forEach(m => { delete roster[m]; delete profiles[m]; delete combo[m]; if (cur === m) cur = null; });
+      this._persistRoster(roster); this._persistProfiles(profiles); this._persistCombo(combo);
+      try { localStorage.setItem('avycon_current_profile', cur || ''); } catch (e) {}
+      return { roster, profiles, comboByModel: combo, selectedWork: {}, currentProfile: cur };
+    });
+  };
+  // ---- Templates: save the combination structure, apply to any camera ----
+  _persistTemplates = (t) => { try { localStorage.setItem('avycon_templates', JSON.stringify(t || {})); } catch (e) {} };
+  saveAsTemplate = () => {
+    const layout = this.state.layout || {};
+    if (!Object.keys(layout).length) { try { alert(this._xt().tplNoData); } catch (e) {} return; }
+    const def = (((this.state.settings || {}).cameraModel) || '').trim() || 'Template';
+    let name = def; try { name = window.prompt(this._xt().tplNamePrompt, def); } catch (e) {}
+    if (name == null) return; name = String(name).trim(); if (!name) return;
+    const tpl = { name, layout: JSON.parse(JSON.stringify(layout)), accNames: { ...(this.state.accNames || {}) }, disabledLocs: { ...(this.state.disabledLocs || {}) }, createdAt: new Date().toISOString(), by: ((this.state.userName || '').trim() || 'anonymous') };
+    this.setState(s => { const templates = { ...s.templates, [name]: tpl }; this._persistTemplates(templates); return { templates }; });
+    try { alert(String(this._xt().tplSaved).replace('{name}', name)); } catch (e) {}
+  };
+  applyTemplate = (name) => {
+    const tpl = (this.state.templates || {})[name]; if (!tpl) return;
+    const layout = JSON.parse(JSON.stringify(tpl.layout || {}));
+    const accNames = { ...(tpl.accNames || {}) };
+    const disabledLocs = { ...(tpl.disabledLocs || {}) };
+    this._persistLayout(layout); this._persistNames(accNames);
+    try { localStorage.setItem('avycon_disabled_locs', JSON.stringify(disabledLocs)); } catch (e) {}
+    this.setState({ layout, accNames, disabledLocs, uidSeq: this._maxUid(layout) + 1, view: 'main', drawerOpen: true });
+  };
   setDropActive = (v) => this.setState({ dropActive: !!v });
   onRosterDrop = (e) => {
     e.preventDefault(); this.setState({ dropActive: false });
@@ -3192,14 +3256,25 @@ class Component extends DCLogic {
     const _wSize = this.state.workPageSize || 20;
     const _wPages = Math.max(1, Math.ceil(_wCount / _wSize));
     const _wPage = Math.min(Math.max(0, this.state.workPage || 0), _wPages - 1);
+    const _wSel = this.state.selectedWork || {};
     const _wSlice = _wItems.slice(_wPage * _wSize, _wPage * _wSize + _wSize).map((r, i) => ({
       key: r.key, num: _wPage * _wSize + i + 1, model: r.model, type: r.type, accCount: r.accCount,
       statusText: r.saved ? (_wHome.wlSaved + ' · ' + _wfmt(r.updatedAt)) : _wHome.wlNotStarted,
       statusColor: r.saved ? '#2f8f6b' : '#b4b9c0',
       savedByText: r.saved ? (r.savedBy || _wHome.wlAnon) : '—',
-      rowBg: i % 2 ? '#fbfcfd' : '#ffffff',
+      rowBg: _wSel[r.key] ? '#fdf1f3' : (i % 2 ? '#fbfcfd' : '#ffffff'),
+      selected: !!_wSel[r.key],
+      checkGlyph: _wSel[r.key] ? '✓' : '',
+      checkBg: _wSel[r.key] ? '#9E1B32' : '#ffffff',
+      checkBorder: _wSel[r.key] ? '#9E1B32' : '#cdd2d8',
+      onToggle: (() => this.toggleWorkSelect(r.key)),
       onOpen: (() => this.openWorkItem(r.key)),
     }));
+    const _wAllKeys = _wItems.map(r => r.key);
+    const _wSelCount = _wAllKeys.filter(k => _wSel[k]).length;
+    const _wAllSel = _wAllKeys.length > 0 && _wAllKeys.every(k => _wSel[k]);
+    const _tpls = this.state.templates || {};
+    const _tplNames = Object.keys(_tpls).sort((a, b) => String((_tpls[b] || {}).createdAt || '').localeCompare(String((_tpls[a] || {}).createdAt || '')));
 
     // --- Product combination-case data (from Excel), for the current product, grouped by install location ---
     const _cm = (((this.state.settings || {}).cameraModel) || '').trim();
@@ -3272,6 +3347,19 @@ class Component extends DCLogic {
         return { id: sn.id, when: when, summary: summary, onRestore: () => this.restoreSnapshot(sn.id) };
       }),
       workPageItems: _wSlice,
+      xt: this.XT[lang] || this.XT.en,
+      selectedCount: _wSelCount,
+      hasSelection: _wSelCount > 0,
+      allSelected: _wAllSel,
+      selectAllGlyph: _wAllSel ? '✓' : '',
+      selectAllBg: _wAllSel ? '#9E1B32' : '#ffffff',
+      selectAllBorder: _wAllSel ? '#9E1B32' : '#cdd2d8',
+      onSelectAll: (() => this.toggleWorkSelectAll(_wAllKeys)),
+      onDeleteSelected: this.deleteSelectedWork,
+      saveAsTemplate: this.saveAsTemplate,
+      templateOptions: _tplNames.map(n => ({ value: n, label: n })),
+      hasTemplates: _tplNames.length > 0,
+      onApplyTemplate: ((e) => { const v = e.target.value; if (v) this.applyTemplate(v); }),
       workCount: _wCount,
       workShownFrom: _wCount ? (_wPage * _wSize + 1) : 0,
       workShownTo: Math.min(_wCount, _wPage * _wSize + _wSize),
