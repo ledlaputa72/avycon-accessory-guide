@@ -27,6 +27,9 @@ Claude Design에서 내보낸 **정적 웹사이트**. 카메라 악세서리 �
 - 화면 view는 `main`(선택 location 1개) / `cover` / `db` 3가지.
 - **location 활성/비활성**: 각 location 페이지 우측 상단 "이 위치 사용" 토글. 비활성(`state.disabledLocs`, `localStorage('avycon_disabled_locs')`)이면 커버 카드 제거 + Export(print)에서 제외(`.page:not(.print-page){display:none}`). 화면 편집용으로는 남아 재활성화 가능. 미사용 location(예: Parapet) 정리용.
 - **작업 문서 vs 라이브러리**: 작업 문서(`settings`/`accNames`/`layout`/`camImage`/`note`/`disabledLocs`)는 **Reset** 또는 **New product** 버튼으로 빈 템플릿 초기화(`_clearWorkingDoc`, 변경 시 확인창). 라이브러리(`productDb`/`profiles`/`imgByName`)는 보존. 저장된 제품은 "Load saved product" 드롭다운으로 불러오면 카메라·악세서리·메모·비활성 location까지 복원(`saveProfile`/`loadProfile`).
+- **로스터 자동 로드 / 삭제 영속성**: 첫 방문 시 저장소 루트 `Accesory data (2026-07-28).csv`에서 기본 제품(161)을 자동 로드(`_loadDefaultRoster`). ⚠️ 한 번 로드되면 `localStorage('avycon_roster_seeded')='1'` 이 설정되어 **이후에는 비어 있어도 재로드하지 않음** — 그래야 작업 리스트에서 전부 삭제해도 새로고침 시 되살아나지 않음.
+- **작업 리스트 선택·삭제 / 템플릿**: Home 작업 리스트에 체크박스+전체선택+선택삭제(`deleteSelectedWork`). 템플릿은 `avycon_templates`(조합 layout+accNames+disabledLocs+**커버**(coverSubtitle/coverFooter)+**camImage** 저장). Final review의 ★Save as template로 저장, Combination Data의 Apply template로 적용, ⚙로 이름변경·삭제 관리.
+- **카메라 사진(camImage)**: `imgByName[카메라모델]`에 둠. 저장소 루트 **`camera_images.json`**(모델→Blob URL, 구글 드라이브 1000x1000 → `/api/upload`, 155개)을 시작 시 `_loadCameraImages`가 imgByName에 병합(이미 있으면 유지). 제품을 열면 `camImage=imgByName[모델]`로 커버·카메라 칸에 표시. 갱신하려면 `camera_images.json` 재생성 후 커밋(단, 기존 사용자 localStorage엔 이미 병합돼 있어 새 값 반영은 해당 키가 없을 때만).
 - React를 **unpkg.com**에서 로드 → 인터넷 필요.
 - PDF/PPTX 출력은 이 사이트에 없음 → 별도 파이프라인(아래) 담당.
 
