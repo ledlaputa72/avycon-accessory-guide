@@ -29,6 +29,9 @@
     body { background:#fff; }
     .page { box-shadow:none !important; margin:0 !important; break-after:page; }
     .page:last-child { break-after:auto; }
+    /* the last page that actually prints (a disabled location may sit after it in the DOM and is
+       display:none, so :last-child would miss it) must not force a break → no blank trailing page */
+    .print-last { break-after:auto !important; }
     .screen-only { display:none !important; }
     .print-only { display:flex !important; }
     .pg-hidden { display:flex !important; }
@@ -1010,7 +1013,7 @@
   </sc-if>
 
   <sc-for list="{{ pages }}" as="pg" hint-placeholder-count="1">
-  <div class="page {{ pg.hideClass }}" style="position:relative; width:816px; height:1056px; overflow:hidden; background:#ffffff; box-shadow:0 6px 28px rgba(20,22,28,.18); padding:34px 52px 20px; display:flex; flex-direction:column; color:#1c1d1f;">
+  <div class="page {{ pg.hideClass }} {{ pg.breakClass }}" style="position:relative; width:816px; height:1056px; overflow:hidden; background:#ffffff; box-shadow:0 6px 28px rgba(20,22,28,.18); padding:34px 52px 20px; display:flex; flex-direction:column; color:#1c1d1f;">
 
     <!-- MASTHEAD -->
     <div style="display:flex; align-items:center; justify-content:space-between; padding-bottom:12px; border-bottom:1.5px solid #1c1d1f;">
@@ -3273,6 +3276,10 @@ class Component extends DCLogic {
         });
       });
     });
+    // Mark the last page that will actually print so it does not force a page break after itself
+    // (prevents a blank trailing page when the final location, e.g. Parapet, is disabled/hidden).
+    pages.forEach(p => { p.breakClass = ''; });
+    for (let i = pages.length - 1; i >= 0; i--) { if (!pages[i].isDisabled) { pages[i].breakClass = 'print-last'; break; } }
     const coverDefaultFooter = 'AVYCON Network / IP Camera Lineup';
     const cover = {
       hideClass: (view === 'cover' || view === 'final') ? '' : 'pg-hidden',
