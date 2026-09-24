@@ -37,7 +37,9 @@
     .pg-hidden { display:flex !important; }
     .print-hide { display:none !important; }
     .pg-off { display:none !important; }
-    .shell { padding-left:0 !important; padding-right:0 !important; min-width:0 !important; }
+    /* zero the shell padding AND flex gap: each .page is exactly one sheet, so the 28px bottom
+       padding (and inter-page gap) would otherwise overflow past the last page and print a blank sheet */
+    .shell { padding:0 !important; gap:0 !important; min-width:0 !important; }
   }
   /* final review: the document only, no in-page editing affordances */
   .final .page .screen-only { display:none !important; }
