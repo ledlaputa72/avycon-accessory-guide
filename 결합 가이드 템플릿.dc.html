@@ -1264,11 +1264,13 @@
 
     </div>
 
-    <!-- NOTE -->
-    <div style="margin-top:10px; padding:9px 14px; background:#fafbfc; border:1px solid #eef0f3; border-radius:6px; display:flex; gap:10px; align-items:flex-start;">
+    <!-- NOTE (optional; hidden from the printed page when empty so combinations can use the space) -->
+    <sc-if value="{{ pg.showNoteBox }}" hint-placeholder-val="{{ true }}">
+    <div class="{{ pg.noteScreenOnly }}" style="margin-top:10px; padding:9px 14px; background:#fafbfc; border:1px solid #eef0f3; border-radius:6px; display:flex; gap:10px; align-items:flex-start;">
       <span style="font-family:'Pretendard','Inter',sans-serif; font-size:9px; font-weight:600; letter-spacing:1px; color:{{ pg.accent }}; padding-top:1px;">NOTE</span>
       <textarea value="{{ noteText }}" onChange="{{ onNoteChange }}" ref="{{ noteRef }}" placeholder="{{ t.notePh }}" rows="2" style="flex:1; min-width:0; font-family:'Pretendard','Inter',system-ui,sans-serif; font-size:10px; color:#7a7f86; line-height:1.5; border:none; background:transparent; outline:none; resize:none; padding:0; margin:0; overflow:hidden; min-height:30px; box-sizing:border-box;"></textarea>
     </div>
+    </sc-if>
 
     <!-- FOOTER -->
     <div style="margin-top:auto; padding-top:16px; display:flex; align-items:center; justify-content:space-between; border-top:1px solid #e6e8ec;">
@@ -3167,7 +3169,13 @@ class Component extends DCLogic {
     // (e.g. a Wall page with many mounts becomes Wall page 1 + page 2). Calibrated to the fixed
     // 816x1056 sheet: ~690px of vertical room for combos AFTER the header (masthead/title/context
     // band), the note box and the footer \u2014 which are repeated in full on every page and never shrunk.
-    const PAGE_COMBO_AVAIL = 690, COMBO_GAP = 8, OPT_CARD_H = 46, CHIPS_PER_ROW = 5;
+    // The NOTE box is optional: when there is no memo (or notes are hidden) it is dropped from the
+    // printed page, so that ~58px is freed for combinations — a case that would have spilled onto a
+    // new page can then stay on the previous one.
+    const noteHasText = ((this.state.noteText || '').trim().length > 0);
+    const notePrints = showNotesVal && noteHasText;
+    const NOTE_BOX_H = 58;
+    const PAGE_COMBO_AVAIL = (notePrints ? 690 : 690 + NOTE_BOX_H), COMBO_GAP = 8, OPT_CARD_H = 46, CHIPS_PER_ROW = 5;
     const estComboH = (c) => {
       const n = ((c && c.items) || []).length;              // camera + accessories + placement chips
       const rows = Math.max(1, Math.ceil(n / CHIPS_PER_ROW));
@@ -3229,6 +3237,10 @@ class Component extends DCLogic {
           hasOptionalSummary: built.hasOptionalSummary && isLastPart,
           partLabel: totalParts > 1 ? ((ci + 1) + ' / ' + totalParts) : '',
           isMultiPart: totalParts > 1,
+          // Note box: printed only when it has content; otherwise kept as a screen-only editable box on
+          // the active edit page (so a memo can still be added) and omitted from the printed output.
+          showNoteBox: notePrints || (view === 'main' && isActive),
+          noteScreenOnly: (!notePrints && view === 'main' && isActive) ? 'screen-only' : '',
           firstOfLoc: ci === 0,
           pageNo: pageNo,
           isActive, hideClass: hideClass,
