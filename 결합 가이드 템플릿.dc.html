@@ -2268,7 +2268,9 @@ class Component extends DCLogic {
     let name = def; try { name = window.prompt(this._xt().tplNamePrompt, def); } catch (e) {}
     if (name == null) return; name = String(name).trim(); if (!name) return;
     const _S = this.state.settings || {};
-    const tpl = { name, layout: JSON.parse(JSON.stringify(layout)), accNames: { ...(this.state.accNames || {}) }, disabledLocs: { ...(this.state.disabledLocs || {}) }, cover: { coverSubtitle: (_S.coverSubtitle || ''), coverFooter: (_S.coverFooter || '') }, camImage: (this.state.camImage || ''), createdAt: new Date().toISOString(), by: ((this.state.userName || '').trim() || 'anonymous') };
+    const _cm = ((_S.cameraModel || '').trim());
+    const _combo = ((this.state.comboByModel || {})[_cm] ? JSON.parse(JSON.stringify((this.state.comboByModel || {})[_cm])) : null);
+    const tpl = { name, layout: JSON.parse(JSON.stringify(layout)), accNames: { ...(this.state.accNames || {}) }, disabledLocs: { ...(this.state.disabledLocs || {}) }, cover: { coverSubtitle: (_S.coverSubtitle || ''), coverFooter: (_S.coverFooter || '') }, camImage: (this.state.camImage || ''), combo: _combo, createdAt: new Date().toISOString(), by: ((this.state.userName || '').trim() || 'anonymous') };
     this.setState(s => { const templates = { ...s.templates, [name]: tpl }; this._persistTemplates(templates); return { templates }; });
     try { alert(String(this._xt().tplSaved).replace('{name}', name)); } catch (e) {}
   };
@@ -2284,7 +2286,16 @@ class Component extends DCLogic {
       if (tpl.cover) { settings = { ...s.settings, coverSubtitle: (tpl.cover.coverSubtitle || ''), coverFooter: (tpl.cover.coverFooter || '') }; this._persistSettings(settings); }
       const cm = (((s.settings || {}).cameraModel) || '').trim();
       const camImage = (s.imgByName || {})[cm] || tpl.camImage || s.camImage || null;
-      return { layout, accNames, disabledLocs, settings, camImage, uidSeq: this._maxUid(layout) + 1, view: 'main', drawerOpen: true };
+      // Restore the combination-case data so Combination Data (step 1) shows the same table as the
+      // template. Prefer the snapshot saved in the template; fall back to combo data still stored under
+      // the template's original model name (covers templates saved before combo snapshots existed).
+      let comboByModel = s.comboByModel || {};
+      const comboSrc = tpl.combo || comboByModel[name] || null;
+      if (cm && comboSrc && comboSrc.cases && comboSrc.cases.length) {
+        comboByModel = { ...comboByModel, [cm]: { ...JSON.parse(JSON.stringify(comboSrc)), camera: cm } };
+        this._persistCombo(comboByModel);
+      }
+      return { layout, accNames, disabledLocs, settings, camImage, comboByModel, uidSeq: this._maxUid(layout) + 1, view: 'main', drawerOpen: true };
     });
   };
   openTemplateManager = () => this.setState({ templateManagerOpen: true });
@@ -2347,6 +2358,7 @@ class Component extends DCLogic {
       disabledLocs: { ...((built && built.disabledLocs) || this.state.disabledLocs || {}) },
       cover: { coverSubtitle: (_S.coverSubtitle || ''), coverFooter: (_S.coverFooter || '') },
       camImage: ((this.state.imgByName || {})[model] || this.state.camImage || ''),
+      combo: ((this.state.comboByModel || {})[model] ? JSON.parse(JSON.stringify((this.state.comboByModel || {})[model])) : null),
       createdAt: new Date().toISOString(), by: ((this.state.userName || '').trim() || 'anonymous'), fromExcel: true };
     this.setState(s => { const templates = { ...s.templates, [model]: tpl }; this._persistTemplates(templates); return { templates }; });
   };
