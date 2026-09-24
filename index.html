@@ -1721,6 +1721,7 @@ class Component extends DCLogic {
       if (rs) this.setState({ roster: JSON.parse(rs) || {} });
     } catch (e) {}
     this._loadDefaultRoster();
+    this._loadCameraImages();
     this._loadHistory();
     this._loadSharedProfiles();
     try { const un = localStorage.getItem('avycon_username'); if (un != null) this.setState({ userName: un }); } catch (e) {}
@@ -1734,14 +1735,35 @@ class Component extends DCLogic {
   DEFAULT_DATA_CSV = 'Accesory data (2026-07-28).csv';
   _loadDefaultRoster = () => {
     try {
+      // Once the default set has been loaded (or the user has curated the list), never auto-reload —
+      // otherwise deleting all products would repopulate from the bundled CSV on the next refresh.
+      if (localStorage.getItem('avycon_roster_seeded')) return;
       const rs = localStorage.getItem('avycon_roster');
-      if (rs) { const r = JSON.parse(rs) || {}; if (r && Object.keys(r).length) return; }
+      if (rs) { const r = JSON.parse(rs) || {}; if (r && Object.keys(r).length) { try { localStorage.setItem('avycon_roster_seeded', '1'); } catch (e2) {} return; } }
     } catch (e) {}
     try {
       fetch(encodeURI(this.DEFAULT_DATA_CSV), { cache: 'no-store' })
         .then((resp) => (resp && resp.ok) ? resp.text() : null)
-        .then((text) => { if (text && String(text).trim()) this._ingestRosterCsv(text, true); })
+        .then((text) => { if (text && String(text).trim()) { this._ingestRosterCsv(text, true); try { localStorage.setItem('avycon_roster_seeded', '1'); } catch (e2) {} } })
         .catch(() => {});
+    } catch (e) {}
+  };
+  // Bundled camera photos (model -> Blob URL), pulled from Google Drive. Merged into imgByName
+  // so every camera shows its product photo on the cover/cells without a manual upload.
+  _loadCameraImages = () => {
+    try {
+      fetch('camera_images.json', { cache: 'no-store' })
+        .then((r) => (r && r.ok) ? r.json() : null)
+        .then((map) => {
+          if (!map || typeof map !== 'object') return;
+          this.setState((s) => {
+            const imgByName = { ...s.imgByName }; let added = 0;
+            Object.keys(map).forEach((k) => { const url = String(map[k] || ''); if (/^https?:\/\//i.test(url) && !imgByName[k]) { imgByName[k] = url; added++; } });
+            if (!added) return {};
+            this._persistImgs(imgByName);
+            return { imgByName };
+          });
+        }).catch(() => {});
     } catch (e) {}
   };
 
@@ -2204,6 +2226,7 @@ class Component extends DCLogic {
       let cur = s.currentProfile;
       sel.forEach(m => { delete roster[m]; delete profiles[m]; delete combo[m]; if (cur === m) cur = null; });
       this._persistRoster(roster); this._persistProfiles(profiles); this._persistCombo(combo);
+      try { localStorage.setItem('avycon_roster_seeded', '1'); } catch (e) {}
       try { localStorage.setItem('avycon_current_profile', cur || ''); } catch (e) {}
       return { roster, profiles, comboByModel: combo, selectedWork: {}, currentProfile: cur };
     });
@@ -2217,7 +2240,7 @@ class Component extends DCLogic {
     let name = def; try { name = window.prompt(this._xt().tplNamePrompt, def); } catch (e) {}
     if (name == null) return; name = String(name).trim(); if (!name) return;
     const _S = this.state.settings || {};
-    const tpl = { name, layout: JSON.parse(JSON.stringify(layout)), accNames: { ...(this.state.accNames || {}) }, disabledLocs: { ...(this.state.disabledLocs || {}) }, cover: { coverSubtitle: (_S.coverSubtitle || ''), coverFooter: (_S.coverFooter || '') }, createdAt: new Date().toISOString(), by: ((this.state.userName || '').trim() || 'anonymous') };
+    const tpl = { name, layout: JSON.parse(JSON.stringify(layout)), accNames: { ...(this.state.accNames || {}) }, disabledLocs: { ...(this.state.disabledLocs || {}) }, cover: { coverSubtitle: (_S.coverSubtitle || ''), coverFooter: (_S.coverFooter || '') }, camImage: (this.state.camImage || ''), createdAt: new Date().toISOString(), by: ((this.state.userName || '').trim() || 'anonymous') };
     this.setState(s => { const templates = { ...s.templates, [name]: tpl }; this._persistTemplates(templates); return { templates }; });
     try { alert(String(this._xt().tplSaved).replace('{name}', name)); } catch (e) {}
   };
@@ -2231,7 +2254,9 @@ class Component extends DCLogic {
     this.setState(s => {
       let settings = s.settings;
       if (tpl.cover) { settings = { ...s.settings, coverSubtitle: (tpl.cover.coverSubtitle || ''), coverFooter: (tpl.cover.coverFooter || '') }; this._persistSettings(settings); }
-      return { layout, accNames, disabledLocs, settings, uidSeq: this._maxUid(layout) + 1, view: 'main', drawerOpen: true };
+      const cm = (((s.settings || {}).cameraModel) || '').trim();
+      const camImage = (s.imgByName || {})[cm] || tpl.camImage || s.camImage || null;
+      return { layout, accNames, disabledLocs, settings, camImage, uidSeq: this._maxUid(layout) + 1, view: 'main', drawerOpen: true };
     });
   };
   openTemplateManager = () => this.setState({ templateManagerOpen: true });
@@ -2509,7 +2534,7 @@ class Component extends DCLogic {
     if (lang) settings.lang = lang;
     this._persistSettings(settings); this._persistNames(accNames); this._persistLayout(layout);
     try { localStorage.setItem('avycon_disabled_locs', JSON.stringify(disabledLocs)); } catch (e) {}
-    this.setState({ settings, accNames, layout, uidSeq: uid, disabledLocs, view: 'main', drawerOpen: true, currentProfile: null, camImage: null });
+    this.setState({ settings, accNames, layout, uidSeq: uid, disabledLocs, view: 'main', drawerOpen: true, currentProfile: null, camImage: ((this.state.imgByName || {})[model] || null) });
   };
   // Open a work-list row into STEP 1 (Product Data) for that product: set it as the current
   // camera (and prime the roster-based guide), then land on the Product Data / combination-data stage.
@@ -2780,7 +2805,8 @@ class Component extends DCLogic {
       const layout = p.layout ? JSON.parse(JSON.stringify(p.layout)) : s.layout;
       this._persistLayout(layout);
       try { localStorage.setItem('avycon_current_profile', model); } catch (e) {}
-      return { settings, accNames, imgByName, layout, uidSeq: this._maxUid(layout) + 1, currentProfile: model };
+      const camImage = imgByName[model] || p.camImage || null;
+      return { settings, accNames, imgByName, layout, uidSeq: this._maxUid(layout) + 1, currentProfile: model, camImage };
     });
   };
   // CRC32 + minimal store-only ZIP writer (no external deps)
