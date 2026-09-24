@@ -2216,7 +2216,8 @@ class Component extends DCLogic {
     const def = (((this.state.settings || {}).cameraModel) || '').trim() || 'Template';
     let name = def; try { name = window.prompt(this._xt().tplNamePrompt, def); } catch (e) {}
     if (name == null) return; name = String(name).trim(); if (!name) return;
-    const tpl = { name, layout: JSON.parse(JSON.stringify(layout)), accNames: { ...(this.state.accNames || {}) }, disabledLocs: { ...(this.state.disabledLocs || {}) }, createdAt: new Date().toISOString(), by: ((this.state.userName || '').trim() || 'anonymous') };
+    const _S = this.state.settings || {};
+    const tpl = { name, layout: JSON.parse(JSON.stringify(layout)), accNames: { ...(this.state.accNames || {}) }, disabledLocs: { ...(this.state.disabledLocs || {}) }, cover: { coverSubtitle: (_S.coverSubtitle || ''), coverFooter: (_S.coverFooter || '') }, createdAt: new Date().toISOString(), by: ((this.state.userName || '').trim() || 'anonymous') };
     this.setState(s => { const templates = { ...s.templates, [name]: tpl }; this._persistTemplates(templates); return { templates }; });
     try { alert(String(this._xt().tplSaved).replace('{name}', name)); } catch (e) {}
   };
@@ -2227,7 +2228,11 @@ class Component extends DCLogic {
     const disabledLocs = { ...(tpl.disabledLocs || {}) };
     this._persistLayout(layout); this._persistNames(accNames);
     try { localStorage.setItem('avycon_disabled_locs', JSON.stringify(disabledLocs)); } catch (e) {}
-    this.setState({ layout, accNames, disabledLocs, uidSeq: this._maxUid(layout) + 1, view: 'main', drawerOpen: true });
+    this.setState(s => {
+      let settings = s.settings;
+      if (tpl.cover) { settings = { ...s.settings, coverSubtitle: (tpl.cover.coverSubtitle || ''), coverFooter: (tpl.cover.coverFooter || '') }; this._persistSettings(settings); }
+      return { layout, accNames, disabledLocs, settings, uidSeq: this._maxUid(layout) + 1, view: 'main', drawerOpen: true };
+    });
   };
   openTemplateManager = () => this.setState({ templateManagerOpen: true });
   closeTemplateManager = () => this.setState({ templateManagerOpen: false });
