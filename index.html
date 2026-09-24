@@ -3375,11 +3375,19 @@ class Component extends DCLogic {
     const _wq = String(this.state.workQuery || '').trim().toLowerCase();
     const _wsort = this.state.workSort || 'recent';
     const _wfmt = (iso) => { try { const d = new Date(iso); return d.toLocaleDateString() + ' ' + d.toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' }); } catch (e) { return String(iso || ''); } };
-    let _wItems = Object.keys(_wRoster).map((k) => {
-      const e = _wRoster[k] || {}; const p = _wProfiles[k];
-      return { key: k, model: e.model || k, type: e.category || '—', accCount: (e.accs || []).length,
+    // Union of loaded roster products AND saved products (profiles): a product saved via "Save product"
+    // must appear here even when it is not part of the roster (e.g. after the roster was cleared, or a
+    // camera that only exists as a saved guide).
+    const _wKeys = Array.from(new Set([...Object.keys(_wRoster), ...Object.keys(_wProfiles)]));
+    let _wItems = _wKeys.map((k) => {
+      const e = _wRoster[k] || {}; const p = _wProfiles[k]; const inRoster = !!_wRoster[k];
+      const rawType = e.category || (p && p.category) || '';
+      const type = (rawType && rawType !== 'Select Camera') ? rawType : '—';
+      const accCount = inRoster ? (e.accs || []).length
+        : (p ? ((p.accessories || []).length || Object.values(p.accNames || {}).filter(n => String(n || '').trim()).length) : 0);
+      return { key: k, model: e.model || (p && p.model) || k, type, accCount,
         saved: !!p, updatedAt: p ? (p.updatedAt || '') : '', savedBy: p ? (p.savedBy || _wHome.wlAnon) : '',
-        _hay: (k + ' ' + (e.category || '')).toLowerCase() };
+        _hay: (k + ' ' + rawType).toLowerCase() };
     });
     if (_wq) _wItems = _wItems.filter((r) => r._hay.indexOf(_wq) !== -1);
     if (_wsort === 'name') _wItems.sort((a, b) => a.model.localeCompare(b.model));
