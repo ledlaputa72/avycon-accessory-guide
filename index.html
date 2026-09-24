@@ -1730,7 +1730,26 @@ class Component extends DCLogic {
     try { const un = localStorage.getItem('avycon_username'); if (un != null) this.setState({ userName: un }); } catch (e) {}
     try { const cd = localStorage.getItem('avycon_combodata'); if (cd) { let m = JSON.parse(cd); if (m && m.cases) m = { [(m.camera || 'default')]: m }; if (m && typeof m === 'object') this.setState({ comboByModel: m }); } } catch (e) {}
     try { const tp = localStorage.getItem('avycon_templates'); if (tp) { const m = JSON.parse(tp); if (m && typeof m === 'object') this.setState({ templates: m }); } } catch (e) {}
+    // Give the browser's Save-as-PDF dialog a meaningful default file name: "<model>_Accessory_Combination".
+    // Chrome derives the PDF name from document.title at print time, so set it on beforeprint and restore after.
+    try {
+      this._origDocTitle = document.title;
+      this._onBeforePrint = () => { try { document.title = this._printFileName(); } catch (e) {} };
+      this._onAfterPrint = () => { try { document.title = this._origDocTitle; } catch (e) {} };
+      window.addEventListener('beforeprint', this._onBeforePrint);
+      window.addEventListener('afterprint', this._onAfterPrint);
+    } catch (e) {}
   }
+  componentWillUnmount() {
+    try { window.removeEventListener('beforeprint', this._onBeforePrint); window.removeEventListener('afterprint', this._onAfterPrint); } catch (e) {}
+  }
+  // Default download name for the printed/PDF document.
+  _printFileName = () => {
+    const S = this.state.settings || {};
+    const model = (S.cameraModel || '').trim();
+    const base = (model ? model + '_Accessory_Combination' : 'AVYCON_Accessory_Combination');
+    return base.replace(/[\\/:*?"<>|]+/g, '-');   // strip characters not allowed in file names
+  };
 
   // Auto-load the bundled product dataset (CSV committed at the repo root) when the
   // roster is empty, so every visitor lands on a populated Product Data table without
