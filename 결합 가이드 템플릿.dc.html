@@ -571,6 +571,12 @@
           <span style="margin-left:auto; font-size:10px; color:#b4b9c0;">{{ comboFileName }}</span>
         </div>
       </sc-if>
+      <sc-if value="{{ comboIsTemplate }}" hint-placeholder-val="{{ false }}">
+        <div style="display:flex; align-items:center; gap:9px; padding:9px 14px; background:#fdf1f3; border:1px solid #f0c9d1; border-radius:9px;">
+          <span style="flex-shrink:0; font-family:'Pretendard','Inter',sans-serif; font-size:9px; font-weight:800; letter-spacing:.5px; color:#ffffff; background:#9E1B32; padding:3px 8px; border-radius:20px; white-space:nowrap;">★ {{ comboTplBadge }}</span>
+          <span style="font-size:11px; color:#9E1B32; font-weight:600; line-height:1.4;">{{ comboTplNoteText }}</span>
+        </div>
+      </sc-if>
     </div>
 
     <sc-if value="{{ comboBusy }}" hint-placeholder-val="{{ false }}">
@@ -1479,10 +1485,10 @@ class Component extends DCLogic {
     es: { title:'Datos de combinación', desc:'Suba el Excel de casos de combinación por cámara. Las columnas de referencia (ocultas) se ignoran. Revise y edite aquí; la guía de combinación se genera a partir de esto.', upload:'Subir Excel (.xlsx)', reupload:'Reemplazar Excel', clear:'Vaciar', busy:'Leyendo Excel…', empty:'Aún no hay datos de combinación. Suba el Excel de la cámara (.xlsx) para organizar sus casos aquí.', cam:'Cámara', type:'Tipo', cases:'casos', caseId:'CASO', accessories:'ACCESORIOS (en orden)', count:'ACC', remarks:'NOTAS', remarksPh:'—', next:'Confirmar · Siguiente (Diseño de página)', clearConfirm:'¿Vaciar los datos de combinación subidos?', parseEmpty:'No se encontraron filas de combinación. Revise el formato del Excel.', parseFail:'No se pudo leer el Excel:', loaderFail:'No se pudo cargar el lector de Excel (revise su conexión).', dbXlsxBtn:'Importar Excel', xlsxImported:'Importación lista — {added} nuevos, {updated} actualizados, {img} imágenes.' },
   };
   XT = {
-    en: { tplFromExcel:'Registered "{name}" as a template and built its combination pages ({cases} cases).', selectAll:'Select page', selectAllProducts:'Select all {n} products', deselectAll:'Clear selection', deleteSel:'Delete selected', deleteConfirm:'Delete {n} selected product(s)? They are removed from the work list, along with any saved guide and combination data. The accessory database is not affected.', saveTpl:'Save as template', applyTpl:'— Apply template —', tplNamePrompt:'Template name:', tplSaved:'Saved as template "{name}".', tplNoData:'Build a combination guide first — there is nothing to save as a template yet.', tplApplied:'Template "{name}" applied to {model}.', tplBadge:'TEMPLATE', manageTpl:'Manage templates', tplManagerTitle:'Saved templates', tplRename:'Rename', tplDelete:'Delete', tplApplyBtn:'Apply', tplRenamePrompt:'New template name:', tplDeleteConfirm:'Delete template "{name}"? This cannot be undone.', tplNameExists:'A template named "{name}" already exists.', tplManagerEmpty:'No templates yet. Save one from the Final review step (★ Save as template).', close:'Close', newProductPrompt:'New product — enter the camera model name (required):', newProductNoName:'A camera model name is required.', newProductReady:'New product "{name}" started. Upload its Excel or apply a template on this screen.', newTemplatePrompt:'New template — enter the template name (required):', newTemplateReady:'New template "{name}" started. Upload its Excel or build the combination here; it will be saved as a template.' },
-    ko: { tplFromExcel:'"{name}"을(를) 템플릿으로 등록하고 결합 페이지를 생성했습니다 (케이스 {cases}개).', selectAll:'페이지 선택', selectAllProducts:'전체 제품 선택 ({n})', deselectAll:'선택 해제', deleteSel:'선택 삭제', deleteConfirm:'선택한 제품 {n}개를 삭제할까요? 작업 리스트에서 제거되며, 저장된 가이드·결합 데이터도 함께 삭제됩니다. 악세서리 데이터베이스는 영향받지 않습니다.', saveTpl:'템플릿으로 저장', applyTpl:'— 템플릿 적용 —', tplNamePrompt:'템플릿 이름:', tplSaved:'"{name}" 템플릿으로 저장했습니다.', tplNoData:'먼저 결합 가이드를 구성하세요 — 저장할 템플릿 내용이 없습니다.', tplApplied:'"{name}" 템플릿을 {model}에 적용했습니다.', tplBadge:'템플릿', manageTpl:'템플릿 관리', tplManagerTitle:'저장된 템플릿', tplRename:'이름변경', tplDelete:'삭제', tplApplyBtn:'적용', tplRenamePrompt:'새 템플릿 이름:', tplDeleteConfirm:'"{name}" 템플릿을 삭제할까요? 되돌릴 수 없습니다.', tplNameExists:'"{name}" 이름의 템플릿이 이미 있습니다.', tplManagerEmpty:'저장된 템플릿이 없습니다. Final review 단계에서 ★ Save as template으로 저장하세요.', close:'닫기', newProductPrompt:'새 제품 — 카메라 모델명을 입력하세요 (필수):', newProductNoName:'카메라 모델명은 필수입니다.', newProductReady:'새 제품 "{name}"을(를) 시작했습니다. 이 화면에서 엑셀을 업로드하거나 템플릿을 적용하세요.', newTemplatePrompt:'새 템플릿 — 템플릿 이름을 입력하세요 (필수):', newTemplateReady:'새 템플릿 "{name}"을(를) 시작했습니다. 이 화면에서 엑셀을 업로드하거나 결합을 구성하면 템플릿으로 저장됩니다.' },
-    ja: { tplFromExcel:'「{name}」をテンプレートとして登録し、組合せページを作成しました（ケース{cases}件）。', selectAll:'ページを選択', selectAllProducts:'全製品を選択 ({n})', deselectAll:'選択解除', deleteSel:'選択削除', deleteConfirm:'選択した製品{n}件を削除しますか？作業リストから削除され、保存済みガイド・組合せデータも削除されます。アクセサリDBには影響しません。', saveTpl:'テンプレートとして保存', applyTpl:'— テンプレート適用 —', tplNamePrompt:'テンプレート名:', tplSaved:'「{name}」をテンプレートとして保存しました。', tplNoData:'先に組合せガイドを作成してください — 保存する内容がありません。', tplApplied:'テンプレート「{name}」を{model}に適用しました。', tplBadge:'テンプレート', manageTpl:'テンプレート管理', tplManagerTitle:'保存済みテンプレート', tplRename:'名前変更', tplDelete:'削除', tplApplyBtn:'適用', tplRenamePrompt:'新しいテンプレート名:', tplDeleteConfirm:'テンプレート「{name}」を削除しますか？元に戻せません。', tplNameExists:'「{name}」という名前のテンプレートが既にあります。', tplManagerEmpty:'テンプレートがありません。Final reviewで★ Save as templateから保存してください。', close:'閉じる', newProductPrompt:'新規製品 — カメラのモデル名を入力してください（必須）:', newProductNoName:'カメラのモデル名は必須です。', newProductReady:'新規製品「{name}」を開始しました。この画面でExcelをアップロードするかテンプレートを適用してください。', newTemplatePrompt:'新規テンプレート — テンプレート名を入力してください（必須）:', newTemplateReady:'新規テンプレート「{name}」を開始しました。この画面でExcelをアップロードするか組合せを作成すると、テンプレートとして保存されます。' },
-    es: { tplFromExcel:'"{name}" registrada como plantilla y páginas de combinación creadas ({cases} casos).', selectAll:'Seleccionar página', selectAllProducts:'Seleccionar todos ({n})', deselectAll:'Anular selección', deleteSel:'Eliminar selección', deleteConfirm:'¿Eliminar {n} producto(s) seleccionado(s)? Se quitan de la lista de trabajo, junto con la guía y los datos de combinación guardados. La base de datos de accesorios no se ve afectada.', saveTpl:'Guardar como plantilla', applyTpl:'— Aplicar plantilla —', tplNamePrompt:'Nombre de plantilla:', tplSaved:'Guardado como plantilla "{name}".', tplNoData:'Primero cree una guía de combinación — aún no hay nada que guardar.', tplApplied:'Plantilla "{name}" aplicada a {model}.', tplBadge:'PLANTILLA', manageTpl:'Gestionar plantillas', tplManagerTitle:'Plantillas guardadas', tplRename:'Renombrar', tplDelete:'Eliminar', tplApplyBtn:'Aplicar', tplRenamePrompt:'Nuevo nombre de plantilla:', tplDeleteConfirm:'¿Eliminar la plantilla "{name}"? No se puede deshacer.', tplNameExists:'Ya existe una plantilla llamada "{name}".', tplManagerEmpty:'Sin plantillas. Guarde una desde Revisión final (★ Save as template).', close:'Cerrar', newProductPrompt:'Nuevo producto — escriba el nombre del modelo de cámara (obligatorio):', newProductNoName:'Se requiere el nombre del modelo de cámara.', newProductReady:'Producto nuevo "{name}" iniciado. Suba su Excel o aplique una plantilla en esta pantalla.', newTemplatePrompt:'Nueva plantilla — escriba el nombre de la plantilla (obligatorio):', newTemplateReady:'Nueva plantilla "{name}" iniciada. Suba su Excel o construya la combinación aquí; se guardará como plantilla.' },
+    en: { tplFromExcel:'Registered "{name}" as a template and built its combination pages ({cases} cases).', selectAll:'Select page', selectAllProducts:'Select all {n} products', deselectAll:'Clear selection', deleteSel:'Delete selected', deleteConfirm:'Delete {n} selected product(s)? They are removed from the work list, along with any saved guide and combination data. The accessory database is not affected.', saveTpl:'Save as template', applyTpl:'— Apply template —', tplNamePrompt:'Template name:', tplSaved:'Saved as template "{name}".', tplNoData:'Build a combination guide first — there is nothing to save as a template yet.', tplApplied:'Template "{name}" applied to {model}.', tplBadge:'TEMPLATE', manageTpl:'Manage templates', tplManagerTitle:'Saved templates', tplRename:'Rename', tplDelete:'Delete', tplApplyBtn:'Apply', tplRenamePrompt:'New template name:', tplDeleteConfirm:'Delete template "{name}"? This cannot be undone.', tplNameExists:'A template named "{name}" already exists.', tplManagerEmpty:'No templates yet. Save one from the Final review step (★ Save as template).', close:'Close', newProductPrompt:'New product — enter the camera model name (required):', newProductNoName:'A camera model name is required.', newProductReady:'New product "{name}" started. Upload its Excel or apply a template on this screen.', newTemplatePrompt:'New template — enter the template name (required):', newTemplateReady:'New template "{name}" started. Upload its Excel or build the combination here; it will be saved as a template.', tplPropagate:'This is a template used by {n} other product(s). Apply these changes to all of them too?', tplPropagated:'Applied the changes to {n} product(s) using this template.' },
+    ko: { tplFromExcel:'"{name}"을(를) 템플릿으로 등록하고 결합 페이지를 생성했습니다 (케이스 {cases}개).', selectAll:'페이지 선택', selectAllProducts:'전체 제품 선택 ({n})', deselectAll:'선택 해제', deleteSel:'선택 삭제', deleteConfirm:'선택한 제품 {n}개를 삭제할까요? 작업 리스트에서 제거되며, 저장된 가이드·결합 데이터도 함께 삭제됩니다. 악세서리 데이터베이스는 영향받지 않습니다.', saveTpl:'템플릿으로 저장', applyTpl:'— 템플릿 적용 —', tplNamePrompt:'템플릿 이름:', tplSaved:'"{name}" 템플릿으로 저장했습니다.', tplNoData:'먼저 결합 가이드를 구성하세요 — 저장할 템플릿 내용이 없습니다.', tplApplied:'"{name}" 템플릿을 {model}에 적용했습니다.', tplBadge:'템플릿', manageTpl:'템플릿 관리', tplManagerTitle:'저장된 템플릿', tplRename:'이름변경', tplDelete:'삭제', tplApplyBtn:'적용', tplRenamePrompt:'새 템플릿 이름:', tplDeleteConfirm:'"{name}" 템플릿을 삭제할까요? 되돌릴 수 없습니다.', tplNameExists:'"{name}" 이름의 템플릿이 이미 있습니다.', tplManagerEmpty:'저장된 템플릿이 없습니다. Final review 단계에서 ★ Save as template으로 저장하세요.', close:'닫기', newProductPrompt:'새 제품 — 카메라 모델명을 입력하세요 (필수):', newProductNoName:'카메라 모델명은 필수입니다.', newProductReady:'새 제품 "{name}"을(를) 시작했습니다. 이 화면에서 엑셀을 업로드하거나 템플릿을 적용하세요.', newTemplatePrompt:'새 템플릿 — 템플릿 이름을 입력하세요 (필수):', newTemplateReady:'새 템플릿 "{name}"을(를) 시작했습니다. 이 화면에서 엑셀을 업로드하거나 결합을 구성하면 템플릿으로 저장됩니다.', tplPropagate:'이 제품은 {n}개의 다른 제품이 사용하는 템플릿입니다. 변경 사항을 그 제품들에도 모두 적용할까요?', tplPropagated:'이 템플릿을 사용하는 제품 {n}개에 변경 사항을 적용했습니다.' },
+    ja: { tplFromExcel:'「{name}」をテンプレートとして登録し、組合せページを作成しました（ケース{cases}件）。', selectAll:'ページを選択', selectAllProducts:'全製品を選択 ({n})', deselectAll:'選択解除', deleteSel:'選択削除', deleteConfirm:'選択した製品{n}件を削除しますか？作業リストから削除され、保存済みガイド・組合せデータも削除されます。アクセサリDBには影響しません。', saveTpl:'テンプレートとして保存', applyTpl:'— テンプレート適用 —', tplNamePrompt:'テンプレート名:', tplSaved:'「{name}」をテンプレートとして保存しました。', tplNoData:'先に組合せガイドを作成してください — 保存する内容がありません。', tplApplied:'テンプレート「{name}」を{model}に適用しました。', tplBadge:'テンプレート', manageTpl:'テンプレート管理', tplManagerTitle:'保存済みテンプレート', tplRename:'名前変更', tplDelete:'削除', tplApplyBtn:'適用', tplRenamePrompt:'新しいテンプレート名:', tplDeleteConfirm:'テンプレート「{name}」を削除しますか？元に戻せません。', tplNameExists:'「{name}」という名前のテンプレートが既にあります。', tplManagerEmpty:'テンプレートがありません。Final reviewで★ Save as templateから保存してください。', close:'閉じる', newProductPrompt:'新規製品 — カメラのモデル名を入力してください（必須）:', newProductNoName:'カメラのモデル名は必須です。', newProductReady:'新規製品「{name}」を開始しました。この画面でExcelをアップロードするかテンプレートを適用してください。', newTemplatePrompt:'新規テンプレート — テンプレート名を入力してください（必須）:', newTemplateReady:'新規テンプレート「{name}」を開始しました。この画面でExcelをアップロードするか組合せを作成すると、テンプレートとして保存されます。', tplPropagate:'これは{n}件の他製品が使用するテンプレートです。変更をそれらすべてにも適用しますか？', tplPropagated:'このテンプレートを使用する製品{n}件に変更を適用しました。' },
+    es: { tplFromExcel:'"{name}" registrada como plantilla y páginas de combinación creadas ({cases} casos).', selectAll:'Seleccionar página', selectAllProducts:'Seleccionar todos ({n})', deselectAll:'Anular selección', deleteSel:'Eliminar selección', deleteConfirm:'¿Eliminar {n} producto(s) seleccionado(s)? Se quitan de la lista de trabajo, junto con la guía y los datos de combinación guardados. La base de datos de accesorios no se ve afectada.', saveTpl:'Guardar como plantilla', applyTpl:'— Aplicar plantilla —', tplNamePrompt:'Nombre de plantilla:', tplSaved:'Guardado como plantilla "{name}".', tplNoData:'Primero cree una guía de combinación — aún no hay nada que guardar.', tplApplied:'Plantilla "{name}" aplicada a {model}.', tplBadge:'PLANTILLA', manageTpl:'Gestionar plantillas', tplManagerTitle:'Plantillas guardadas', tplRename:'Renombrar', tplDelete:'Eliminar', tplApplyBtn:'Aplicar', tplRenamePrompt:'Nuevo nombre de plantilla:', tplDeleteConfirm:'¿Eliminar la plantilla "{name}"? No se puede deshacer.', tplNameExists:'Ya existe una plantilla llamada "{name}".', tplManagerEmpty:'Sin plantillas. Guarde una desde Revisión final (★ Save as template).', close:'Cerrar', newProductPrompt:'Nuevo producto — escriba el nombre del modelo de cámara (obligatorio):', newProductNoName:'Se requiere el nombre del modelo de cámara.', newProductReady:'Producto nuevo "{name}" iniciado. Suba su Excel o aplique una plantilla en esta pantalla.', newTemplatePrompt:'Nueva plantilla — escriba el nombre de la plantilla (obligatorio):', newTemplateReady:'Nueva plantilla "{name}" iniciada. Suba su Excel o construya la combinación aquí; se guardará como plantilla.', tplPropagate:'Esta es una plantilla usada por {n} producto(s) más. ¿Aplicar estos cambios también a todos ellos?', tplPropagated:'Cambios aplicados a {n} producto(s) que usan esta plantilla.' },
   };
   HELP_UI = {
     en: { btn:'Help', title:'Help & documentation', sub:'Feature reference and step-by-step guide', catF:'FEATURES', catU:'HOW TO USE', pdf:'Save full help as PDF', close:'Close' },
@@ -2358,13 +2364,12 @@ class Component extends DCLogic {
   _curModel = () => (((this.state.settings || {}).cameraModel) || '').trim();
   // Convert the Excel combination cases into the guide layout: one combo per case (no forced
   // "Direct install" base), keeping the Excel case IDs and accessory order. Locations with no case are disabled.
-  _applyComboToLayout = (model) => {
-    const cd = (this.state.comboByModel || {})[model];
-    if (!cd || !cd.cases || !cd.cases.length) return;
+  // Pure converter: combination cases -> { layout, accNames, disabledLocs } (no state writes).
+  _comboToParts = (cases) => {
     const LMAP = { WALL: 'Wall', CEILING: 'Ceiling', POLE: 'Pole', CORNER: 'Corner', PARAPET: 'Parapet' };
     const accNames = {}; const layout = {}; const disabledLocs = {};
     let uid = 1;
-    cd.cases.forEach(c => {
+    (cases || []).forEach(c => {
       const L = LMAP[String(c.location || '').toUpperCase().trim()] || c.location;
       if (this.LOCS.indexOf(L) === -1) return;
       const u = 'c' + (uid++);
@@ -2373,10 +2378,74 @@ class Component extends DCLogic {
       (layout[L] = layout[L] || []).push({ uid: u, n: accs.length, caseId: c.caseId || '', fromCombo: true });
     });
     this.LOCS.forEach(L => { if (!layout[L] || !layout[L].length) disabledLocs[L] = true; });
-    this._persistNames(accNames); this._persistLayout(layout);
-    try { localStorage.setItem('avycon_disabled_locs', JSON.stringify(disabledLocs)); } catch (e) {}
-    this.setState({ accNames, layout, disabledLocs, uidSeq: uid });
-    return { accNames, layout, disabledLocs };
+    return { accNames, layout, disabledLocs, uid };
+  };
+  _applyComboToLayout = (model) => {
+    const cd = (this.state.comboByModel || {})[model];
+    if (!cd || !cd.cases || !cd.cases.length) return;
+    const parts = this._comboToParts(cd.cases);
+    this._persistNames(parts.accNames); this._persistLayout(parts.layout);
+    try { localStorage.setItem('avycon_disabled_locs', JSON.stringify(parts.disabledLocs)); } catch (e) {}
+    this.setState({ accNames: parts.accNames, layout: parts.layout, disabledLocs: parts.disabledLocs, uidSeq: parts.uid });
+    return { accNames: parts.accNames, layout: parts.layout, disabledLocs: parts.disabledLocs };
+  };
+  // Products built from template `m` (excluding the template itself).
+  _templateUsers = (m) => {
+    const used = this.state.usedTemplateByModel || {};
+    return Object.keys(used).filter(p => used[p] === m && p !== m);
+  };
+  // When the OPEN product is itself a saved template (TEMPLATE badge), refresh the template snapshot from
+  // the just-edited combination data and, with confirmation, push it to EVERY product that uses this
+  // template. Regular (non-template) products never trigger this — their edits stay local to them.
+  _maybeSyncAndPropagateTemplate = (m) => {
+    if (!m || !(this.state.templates || {})[m]) return;
+    const users = this._templateUsers(m);
+    let doProp = false;
+    if (users.length) {
+      try { doProp = window.confirm(String(this._xt().tplPropagate).replace('{n}', users.length).replace('{name}', m)); }
+      catch (e) { doProp = true; }
+    }
+    this.setState(s => {
+      const _S = s.settings || {};
+      const curCombo = (s.comboByModel || {})[m];
+      const prevTpl = (s.templates || {})[m] || {};
+      const newTpl = { ...prevTpl,
+        combo: curCombo ? JSON.parse(JSON.stringify(curCombo)) : (prevTpl.combo || null),
+        layout: JSON.parse(JSON.stringify(s.layout || {})),
+        accNames: { ...(s.accNames || {}) },
+        disabledLocs: { ...(s.disabledLocs || {}) },
+        cover: { coverSubtitle: (_S.coverSubtitle || ''), coverFooter: (_S.coverFooter || '') } };
+      const templates = { ...(s.templates || {}), [m]: newTpl };
+      this._persistTemplates(templates);
+      let comboByModel = s.comboByModel || {}, profiles = s.profiles || {};
+      if (doProp && users.length) {
+        comboByModel = { ...comboByModel }; profiles = { ...profiles };
+        const parts = (newTpl.combo && newTpl.combo.cases && newTpl.combo.cases.length)
+          ? this._comboToParts(newTpl.combo.cases)
+          : { layout: JSON.parse(JSON.stringify(newTpl.layout || {})), accNames: { ...(newTpl.accNames || {}) }, disabledLocs: { ...(newTpl.disabledLocs || {}) } };
+        users.forEach(p => {
+          if (newTpl.combo && newTpl.combo.cases) {
+            const prevFile = (comboByModel[p] && comboByModel[p].fileName) || newTpl.combo.fileName || '';
+            comboByModel[p] = { ...JSON.parse(JSON.stringify(newTpl.combo)), camera: p, fileName: prevFile };
+          }
+          if (profiles[p]) {
+            profiles[p] = { ...profiles[p],
+              layout: JSON.parse(JSON.stringify(parts.layout)),
+              accNames: { ...parts.accNames },
+              disabledLocs: { ...parts.disabledLocs },
+              coverSubtitle: (newTpl.cover.coverSubtitle || ''),
+              coverFooter: (newTpl.cover.coverFooter || '') };
+          }
+        });
+        this._persistCombo(comboByModel); this._persistProfiles(profiles);
+      }
+      return { templates, comboByModel, profiles };
+    }, () => {
+      if (doProp && users.length) {
+        try { this._pushSharedProfiles(); } catch (e) {}
+        try { alert(String(this._xt().tplPropagated).replace('{n}', users.length)); } catch (e) {}
+      }
+    });
   };
   // Save the just-built combination structure as a reusable template named after the product.
   _registerComboTemplate = (model, built) => {
@@ -2407,7 +2476,7 @@ class Component extends DCLogic {
     if (!already) this._applyComboToLayout(m);
   };
   // 'Confirm · Next' from step 1 — (re)generate the page design from the Excel data, then open step 2.
-  confirmComboToGuide = () => { this._applyComboToLayout(this._curModel()); this.setState({ view: 'main', drawerOpen: true, sysMenuOpen: false }); };
+  confirmComboToGuide = () => { const m = this._curModel(); this._applyComboToLayout(m); this._maybeSyncAndPropagateTemplate(m); this.setState({ view: 'main', drawerOpen: true, sysMenuOpen: false }); };
   // Lazy-load SheetJS only when the user actually uploads an Excel (keeps initial load light).
   _ensureXLSX = () => new Promise((resolve, reject) => {
     if (window.XLSX) return resolve(window.XLSX);
@@ -3609,6 +3678,10 @@ class Component extends DCLogic {
       comboType: _cd ? (_cd.type || '') : '',
       comboFileName: _cd ? (_cd.fileName || '') : '',
       comboCaseCount: (_cd && _cd.cases) ? _cd.cases.length : 0,
+      comboIsTemplate: !!((this.state.templates || {})[_cm]) && this._templateUsers(_cm).length > 0,
+      comboTplUsers: this._templateUsers(_cm).length,
+      comboTplBadge: this._xt().tplBadge,
+      comboTplNoteText: (() => { const n = this._templateUsers(_cm).length; const map = { en: n + ' product(s) use this template — Confirm · Next applies your edits to all of them.', ko: n + '개 제품이 이 템플릿을 사용 중 — 다음(Confirm) 시 변경 사항이 모두에 적용됩니다.', ja: n + '件の製品がこのテンプレートを使用中 — 「次へ」で変更が全てに適用されます。', es: n + ' producto(s) usan esta plantilla — Confirmar aplica tus cambios a todos.' }; return map[lang] || map.en; })(),
       comboUploadLabel: (_cd && _cd.cases && _cd.cases.length) ? (this.COMBO[lang] || this.COMBO.en).reupload : (this.COMBO[lang] || this.COMBO.en).upload,
       comboCurrentModel: _cm,
       comboHasModel: !!_cm,
