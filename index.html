@@ -3218,17 +3218,19 @@ class Component extends DCLogic {
     const model = (((this.state.settings || {}).cameraModel) || '').trim();
     if (!model) return;
     this.setState({ camDriveBusy: true });
-    fetch('camera_images.json', { cache: 'no-store' })
+    const apply = (url) => { try { localStorage.setItem('avycon_cam_image', url); } catch (e) {} this.setState(s => { const imgByName = { ...(s.imgByName || {}), [model]: url }; this._persistImgs(imgByName); return { camImage: url, imgByName, camDriveBusy: false }; }); };
+    // 1) Live lookup against Google Drive (picks up photos added since the last snapshot).
+    fetch('/api/camera-image?model=' + encodeURIComponent(model), { cache: 'no-store' })
       .then((r) => (r && r.ok) ? r.json() : null)
-      .then((map) => {
-        const url = (map && map[model]) ? String(map[model]) : '';
-        if (/^https?:\/\//i.test(url)) {
-          try { localStorage.setItem('avycon_cam_image', url); } catch (e) {}
-          this.setState(s => { const imgByName = { ...(s.imgByName || {}), [model]: url }; this._persistImgs(imgByName); return { camImage: url, imgByName, camDriveBusy: false }; });
-        } else {
-          this.setState({ camDriveBusy: false });
-          try { alert(String(this._t().noDrivePhoto || 'No Drive photo found for this model.').replace('{model}', model)); } catch (e) {}
-        }
+      .then((d) => {
+        const url = (d && d.url) ? String(d.url) : '';
+        if (/^https?:\/\//i.test(url)) { apply(url); return null; }
+        // 2) Fall back to the bundled snapshot (camera_images.json).
+        return fetch('camera_images.json', { cache: 'no-store' }).then((r) => (r && r.ok) ? r.json() : null).then((map) => {
+          const u2 = (map && map[model]) ? String(map[model]) : '';
+          if (/^https?:\/\//i.test(u2)) { apply(u2); }
+          else { this.setState({ camDriveBusy: false }); try { alert(String(this._t().noDrivePhoto || 'No Google Drive photo found for {model}.').replace('{model}', model)); } catch (e) {} }
+        });
       }).catch(() => { this.setState({ camDriveBusy: false }); try { alert(this._t().driveFail || 'Could not load from Google Drive (check your connection).'); } catch (e) {} });
   };
 
