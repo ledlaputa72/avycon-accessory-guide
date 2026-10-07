@@ -970,22 +970,23 @@
       </div>
 
       <!-- title block -->
-      <div style="margin-top:96px; display:flex; align-items:center; gap:40px;">
+      <div style="margin-top:96px; display:flex; align-items:center; gap:44px;">
         <div style="flex:1; min-width:0;">
           <div style="font-family:'Pretendard','Inter',sans-serif; font-size:11px; letter-spacing:3px; color:rgba(255,255,255,.7);">{{ cover.eyebrow }}</div>
           <!-- document title: descriptive, lighter weight so it doesn't compete with the model -->
-          <div style="margin-top:16px; font-size:32px; font-weight:500; letter-spacing:-.2px; line-height:1.16; max-width:420px; color:rgba(255,255,255,.88); text-wrap:pretty;">{{ cover.title }}</div>
-          <!-- subject model: the hero — heaviest weight, kept to ONE line (never wraps) -->
+          <div style="margin-top:16px; font-size:32px; font-weight:500; letter-spacing:-.2px; line-height:1.16; max-width:440px; color:rgba(255,255,255,.88); text-wrap:pretty;">{{ cover.title }}</div>
+          <!-- subject model: the hero. Box is as wide as the column (up to the image); the font
+               auto-shrinks (coverModelRef) so a long model number always stays on ONE line. -->
           <div style="margin-top:24px; display:flex; flex-direction:column; gap:6px;">
             <span style="font-family:'Pretendard','Inter',sans-serif; font-size:10px; font-weight:700; letter-spacing:2.5px; color:rgba(255,255,255,.6);">{{ cover.subjectLabel }}</span>
-            <span style="font-family:'Pretendard','Inter',sans-serif; font-size:46px; font-weight:800; letter-spacing:-.5px; line-height:1.02; color:#ffffff; white-space:nowrap;">{{ cover.camModel }}</span>
+            <span style="display:block; font-family:'Pretendard','Inter',sans-serif; font-size:{{ cover.modelFontSize }}px; font-weight:800; letter-spacing:-.5px; line-height:1.04; color:#ffffff; white-space:nowrap;">{{ cover.camModel }}</span>
             <span style="font-size:13px; color:rgba(255,255,255,.7);">{{ cover.camType }}</span>
           </div>
           <div style="margin-top:24px; width:54px; height:3px; background:#ffffff; opacity:.55;"></div>
-          <div style="margin-top:16px; font-size:14px; color:rgba(255,255,255,.85); max-width:420px; line-height:1.5;">{{ cover.sub }}</div>
+          <div style="margin-top:16px; font-size:14px; color:rgba(255,255,255,.85); max-width:440px; line-height:1.5;">{{ cover.sub }}</div>
         </div>
         <sc-if value="{{ cover.hasCamImg }}" hint-placeholder-val="{{ false }}">
-          <div style="flex-shrink:0; width:210px; height:210px; border-radius:16px; background:#ffffff; border:1px solid rgba(255,255,255,.3); box-shadow:0 14px 38px rgba(0,0,0,.24); overflow:hidden; display:flex; align-items:center; justify-content:center; padding:18px;">
+          <div style="flex-shrink:0; width:250px; height:250px; border-radius:16px; background:#ffffff; border:1px solid rgba(255,255,255,.3); box-shadow:0 14px 38px rgba(0,0,0,.24); overflow:hidden; display:flex; align-items:center; justify-content:center; padding:20px;">
             {{ cover.camImgEl }}
           </div>
         </sc-if>
@@ -3504,6 +3505,15 @@ class Component extends DCLogic {
       footerLine: ((S.coverFooter || '').trim()) || coverDefaultFooter,
       rev: revVal,
       camModel: camName, camType: camType, camImgEl: mkImg(camImg), hasCamImg: !!camImg, noCamImg: !camImg,
+      // The model box spans the full column (up to the camera image). Keep the number on ONE line by
+      // shrinking the font for long model codes: ~52px normally, less when it would overflow the box.
+      modelFontSize: (() => {
+        const L = String(camName || '').length || 1;
+        const availW = camImg ? 392 : 652;        // text-box width: column up to the image, else full width
+        const maxS = 52, minS = 24, f = 0.66;      // f = measured avg glyph width (bold Pretendard) per px of font-size
+        const est = L * maxS * f;
+        return est <= availW ? maxS : Math.max(minS, Math.floor(availW / (L * f)));
+      })(),
       subjectLabel: t.subjectCamera, locationsLabel: t.combinations, casesLabel: t.cases,
       locList: pages.filter(p => !p.isDisabled && p.firstOfLoc).map(p => ({ name: p.locName, code: p.locLabel, count: p.comboCount, accent: p.accent, soft: p.soft, pageNo: p.pageNo })),
     };
