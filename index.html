@@ -1760,6 +1760,8 @@ class Component extends DCLogic {
     try { const tp = localStorage.getItem('avycon_templates'); if (tp) { const m = JSON.parse(tp); if (m && typeof m === 'object') this.setState({ templates: m }); } } catch (e) {}
     try { const ut = localStorage.getItem('avycon_used_tpl'); if (ut) { const m = JSON.parse(ut); if (m && typeof m === 'object') this.setState({ usedTemplateByModel: m }); } } catch (e) {}
     try { this.setState({ templateMode: localStorage.getItem('avycon_template_mode') === '1' }); } catch (e) {}
+    // Re-render once Pretendard has loaded so the cover model-size measurement uses the real font metrics.
+    try { if (document.fonts && document.fonts.ready) document.fonts.ready.then(() => this.setState({ _fontsReady: true })); } catch (e) {}
     // Deep link: "?open=<model>" (used by the work list's open-in-new-tab icon) opens that product at
     // Combination Data once state has hydrated, then strips the param so a refresh won't reopen it.
     try {
@@ -3505,14 +3507,21 @@ class Component extends DCLogic {
       footerLine: ((S.coverFooter || '').trim()) || coverDefaultFooter,
       rev: revVal,
       camModel: camName, camType: camType, camImgEl: mkImg(camImg), hasCamImg: !!camImg, noCamImg: !camImg,
-      // The model box spans the full column (up to the camera image). Keep the number on ONE line by
-      // shrinking the font for long model codes: ~52px normally, less when it would overflow the box.
+      // The model box spans the full column, right up to the camera image. Keep the number on ONE line at
+      // the full 52px whenever it fits; only shrink (accurately, via real font metrics) when it would
+      // actually overflow that width — so names with room keep the full size.
       modelFontSize: (() => {
-        const L = String(camName || '').length || 1;
-        const availW = camImg ? 392 : 652;        // text-box width: column up to the image, else full width
-        const maxS = 52, minS = 24, f = 0.66;      // f = measured avg glyph width (bold Pretendard) per px of font-size
-        const est = L * maxS * f;
-        return est <= availW ? maxS : Math.max(minS, Math.floor(availW / (L * f)));
+        const name = String(camName || ''); const L = name.length || 1;
+        const maxS = 52, minS = 24;
+        const availW = camImg ? 420 : 652;         // px available on one line (column, up to just before the image)
+        let width;
+        try {
+          const ctx = this._measCtx || (this._measCtx = document.createElement('canvas').getContext('2d'));
+          ctx.font = '800 ' + maxS + 'px Pretendard, Inter, sans-serif';
+          width = ctx.measureText(name).width - 0.5 * (L - 1);   // minus the -.5px letter-spacing between glyphs
+        } catch (e) { width = L * maxS * 0.62; }
+        if (!(width > 0)) return maxS;
+        return width <= availW ? maxS : Math.max(minS, Math.floor(maxS * availW / width));
       })(),
       subjectLabel: t.subjectCamera, locationsLabel: t.combinations, casesLabel: t.cases,
       locList: pages.filter(p => !p.isDisabled && p.firstOfLoc).map(p => ({ name: p.locName, code: p.locLabel, count: p.comboCount, accent: p.accent, soft: p.soft, pageNo: p.pageNo })),
